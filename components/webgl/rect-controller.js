@@ -1,0 +1,329 @@
+import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
+import { ComponentShaders } from "./component-shaders.js";
+
+
+const baseVertexShader = `
+uniform sampler2D dataTexture;
+uniform vec2 canvasResolution;
+uniform float dpr;
+out vec2 localCoord;
+
+flat out vec4 posAndSize;
+flat out vec4 mouse;
+flat out vec4 value;
+
+void main(void) {
+  int dataIx = (gl_VertexID / 6) * 4;
+
+  // We use vertex pulling to get the data that is the same for 4 points
+  vec4 box = texelFetch(dataTexture, ivec2(dataIx % 1024, dataIx / 1024), 0);
+  dataIx++;
+  posAndSize = texelFetch(dataTexture, ivec2(dataIx % 1024, dataIx / 1024), 0);
+  dataIx++;
+  mouse = texelFetch(dataTexture, ivec2(dataIx % 1024, dataIx / 1024), 0);
+  dataIx++;
+  value = texelFetch(dataTexture, ivec2(dataIx % 1024, dataIx / 1024), 0);
+
+  int pointIx = gl_VertexID % 6;
+
+  // This is the only value messing up the bits for 2 triangles making a square so we change that
+  if (pointIx==4) {
+    pointIx = 2;
+  }
+
+  // Calculate X and Y from the index number we get
+  vec4 boxPoint = vec4(((pointIx & 1) == 1) ? vec2(1.0,box.x + box.z) : vec2(0.0, box.x),
+                       ((pointIx & 2) == 0) ? vec2(1.0,box.y + box.w) : vec2(0.0, box.y));
+  localCoord = boxPoint.xz * box.zw;
+  gl_Position = vec4((boxPoint.yw * dpr / canvasResolution) * vec2(2.0,-2.0) + vec2(-1.0,1.0), 1.0, 1.0);
+}`;
+
+export const baseComponentShaderHeader = `
+precision highp float;
+
+uniform int drawCount;
+
+in vec2 localCoord;
+flat in vec4 posAndSize;
+flat in vec4 mouse;
+flat in vec4 value;
+
+#define mouseInsideOrDown (mouse.z>0.0)
+#define mouseInside ((int(mouse.z) & 0x01) != 0)
+#define mouseDown ((int(mouse.z) & 0x02) != 0)
+`;
+
+export const baseComponentShaderFooter = `
+
+out vec4 fragColor;
+void main(void) {
+  fragColor = renderComponent(posAndSize.xy, posAndSize.zw);
+}`;
+
+
+/** @typedef {(info:RectInfo) => {}} UpdateFunc */
+/** @typedef {(info:ComponentInfo)=>void} ComponentUpdateFunc */
+/** @typedef {(gl: RenderingContextWithUtils, shaderProgram: import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt)=>void} ShaderInitFunc */
+
+export class RectInfo {
+  /** @type {UpdateFunc} */ onUpdate;
+  index = 0;
+  rect  = {x:0, y:0, width:0, height:0};
+  size  = {centerX:0, centerY:0, width:0, height:0};
+  mouse = {x:0, y:0, state:0, enterTime:0};
+  value = [0,0,0,0];
+}
+
+function getComponentKey(clipHash, shaderName) {
+  return clipHash + '_' + shaderName
+}
+
+export class ComponentInfo {
+  /** @type {ComponentUpdateFunc} */ 
+  onUpdate;
+  /** @type {ShaderInitFunc} */ 
+  onShaderInit;
+  /** @type {RectInfo[]} */ 
+  _rectInfos = []
+  /** @type {import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt} */ 
+  _shaderProgram = undefined;
+  shaderName = '';
+  shaderHeader = baseComponentShaderHeader;
+  shaderFooter = baseComponentShaderFooter;
+  clipHash = 0;
+  clipRect = {x:0, y:0, width:0, height:0};
+
+  get isVisible() {
+    return this.clipRect.width!==0 && this.clipRect.height!==0;
+  }
+  getKey() {
+    return getComponentKey(this.clipHash, this.shaderName);
+  }
+  /**
+   * @param {UpdateFunc} onUpdate 
+   * @returns {RectInfo} 
+   */
+  getFreeIndex(onUpdate) {
+    const rectInfo = new RectInfo();
+    rectInfo.index = this._rectInfos.push(rectInfo) - 1;
+    rectInfo.onUpdate = onUpdate;
+    return rectInfo;
+  }
+
+  /** @param {RectInfo} info */
+  freeRectInfo(info) {
+    this._rectInfos.splice(info.index,1);
+  }
+
+  /**
+   * @param {RenderingContextWithUtils} gl 
+   */
+  getShaderProgram(gl) {
+    if (this._shaderProgram === undefined) {
+      this._shaderProgram = gl.getShaderProgram(
+        baseVertexShader,
+        this.shaderHeader +
+          ComponentShaders[this.shaderName] +
+        this.shaderFooter,
+        2
+      );
+    }
+    return this._shaderProgram;
+  }
+}
+
+/** @type {RectController} */ 
+let rectController 
+const floatSizePerComponent = 16;
+export class RectController {
+  // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
+  /** @type {Record<string,ComponentInfo>} */ _componentInfos = {};
+  _arrayLength = 256;
+  _webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
+  textureInfo = {texture:undefined, size:0}
+
+  constructor() {
+  }
+
+  /**
+   * @param {number} clipHash 
+   * @param {string} shaderName 
+   * @param {ComponentUpdateFunc} onUpdate 
+   */
+  getComponentInfo(clipHash, shaderName, onUpdate) {
+    const key = getComponentKey(clipHash, shaderName)
+    let componentInfo = this._componentInfos[key];
+    if (!componentInfo) {
+      componentInfo = new ComponentInfo();
+      componentInfo.clipHash = clipHash;
+      componentInfo.shaderName = shaderName;
+      componentInfo.onUpdate = onUpdate;
+      this._componentInfos[key] = componentInfo;
+    }
+    return componentInfo;
+  }
+
+  /**
+   * Give a full screen overlayCanvas in which all the controls are rendered
+   * @param {HTMLCanvasElement} canvas 
+   */
+  setCanvas(canvas) {
+    this.canvas = canvas;
+    this.gl = getWebGLContext(this.canvas, { alpha: true });
+    const ext = this.gl.getExtension('EXT_color_buffer_float');
+
+    this.drawCount = 0;
+    window.requestAnimationFrame(this.handleFrame)
+  }
+
+
+  handleFrame = () => {
+    let gl = this.gl;
+    let {w, h, dpr} = gl.updateCanvasSize(this.canvas);
+
+    let componentLength = 0;
+    for (const component of Object.values(this._componentInfos)) {
+      component.onUpdate(component);
+      if (component.isVisible) {
+        componentLength += component._rectInfos.length;
+      }
+    }
+
+    if (componentLength >= this._arrayLength) {
+      this._arrayLength = this._arrayLength * 2;
+      const newArray = new Float32Array(this._arrayLength * floatSizePerComponent);
+      newArray.set(this._webglArray);
+      this._webglArray = newArray;
+    }
+
+    const renderData = [];
+    {
+      let pos = 0;
+      const wa = this._webglArray
+      for (const component of Object.values(this._componentInfos)) {
+        if (component.isVisible) {
+          const startIx = pos / floatSizePerComponent;
+          for (let ix = 0; ix < component._rectInfos.length; ix++) {
+            const si = component._rectInfos[ix];
+            if (si) { // && si.size.width && si.size.height) {
+              si.onUpdate(si);
+              // Draw area rectangle
+              wa[pos++] = si.rect.x;
+              wa[pos++] = si.rect.y;
+              wa[pos++] = si.rect.width;
+              wa[pos++] = si.rect.height;
+  
+              // Control size center, width,height
+              wa[pos++] = si.size.centerX;
+              wa[pos++] = si.size.centerY;
+              wa[pos++] = si.size.width;
+              wa[pos++] = si.size.height;
+              
+              wa[pos++] = si.mouse.x;
+              wa[pos++] = si.mouse.y;
+              wa[pos++] = si.mouse.state;
+              wa[pos++] = si.mouse.enterTime;
+  
+              wa[pos++] = si.value[0];
+              wa[pos++] = si.value[1];
+              wa[pos++] = si.value[2];
+              wa[pos++] = si.value[3];
+            }
+          }
+          renderData.push({
+            startIx,
+            component,
+          });
+        }
+      }
+    }
+    gl.viewport(0, 0, w, h);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(this.gl.BLEND);
+    gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+
+    gl.enable(gl.SCISSOR_TEST);
+
+    this.drawCount++;
+    for (const rd of renderData) {
+      const length = rd.component._rectInfos.length;
+      const clipRect = rd.component.clipRect;
+      const shaderProgram = rd.component.getShaderProgram(gl);
+      gl.useProgram(shaderProgram);
+
+      shaderProgram.u.canvasResolution?.set(w, h);
+      shaderProgram.u.drawCount?.set(this.drawCount)
+      if (shaderProgram.u.dataTexture) {
+        gl.activeTexture(gl.TEXTURE3);
+        this.textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this.textureInfo);
+        gl.bindTexture(gl.TEXTURE_2D, this.textureInfo.texture);
+        gl.uniform1i(shaderProgram.u.dataTexture, 3);
+        // gl.activeTexture(gl.TEXTURE0);
+      }
+      shaderProgram.u.dpr?.set(dpr);
+      if (rd.component.onShaderInit) {
+        rd.component.onShaderInit(gl, shaderProgram);
+      }
+      
+      gl.scissor(clipRect.x * dpr, 
+                 h - (clipRect.y + clipRect.height) * dpr, 
+                 clipRect.width * dpr, 
+                 clipRect.height * dpr);
+
+      gl.drawArrays(gl.TRIANGLES, rd.startIx * 6, length * 6);
+    }    
+    gl.disable(gl.SCISSOR_TEST);
+
+    window.requestAnimationFrame(this.handleFrame);
+  }
+
+  static geInstance() {
+    if (!rectController) {
+      rectController = new RectController();
+    }
+    return rectController;
+  }
+
+  getShaders() {
+    return ComponentShaders;
+  }
+
+  showExample = (name, options) => {
+  }
+
+  compileShader = (name, source, options) => {
+    console.log('RectControler compile: ', name, options);
+    // TODO get componentInfo for different headers/footer
+    let compileInfo = this.gl.getCompileInfo(
+      baseComponentShaderHeader + 
+          source +
+      baseComponentShaderFooter,
+      this.gl.FRAGMENT_SHADER,
+      2
+    );
+    if (compileInfo.compileStatus) {
+      ComponentShaders[name] = source;
+      for (let comp of Object.values(this._componentInfos)) {
+        if (comp.shaderName === name) {
+          comp._shaderProgram = undefined;
+        }
+      }
+    } else {
+      console.log('Shader error: ',compileInfo);
+    }
+    return compileInfo;
+  }
+
+}
+
+let webGLElementHashCount = 1;
+/**
+ * @param {Element} element
+ */
+export function getElementHash(element)  {
+  if (!element.dataWebGLComponentHash) {
+    element.dataWebGLComponentHash = webGLElementHashCount++;
+  } 
+  return element.dataWebGLComponentHash;
+}
