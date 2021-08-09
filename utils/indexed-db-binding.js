@@ -42,7 +42,7 @@ class IndexedDBRecordBindingBase {
 
   handleChanged() {
     // TODO: Feedback to record if saved or not?
-    this.idb.setStoreValue(this.storageName,this.keyName,this.varToStore.toJSON());
+    this.idb.setStoreValue(this.storageName,this.keyName,this.varToStore.toObject());
   }
 }
 
