@@ -3,8 +3,10 @@
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import { IDB, idb } from "../../KMN-utils-browser/indexed-db.js";
+import defer from "../../KMN-utils.js/defer.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
+import { BlobBaseVar } from "../../KMN-varstack.js/vars/blob-base.js";
 import { Types } from "../../KMN-varstack.js/varstack.js";
 
 const tableMetaStore = 'table-meta-data';
@@ -13,20 +15,57 @@ Types.addRecord('TableMetaData', {
   name: 'String:key',
   count: 'Int:value'
 })
+
+const tableExtention = '-table';
+
+class IndexedDBBlobBinding {
+  /**
+   * 
+   * @param {BlobBaseVar} blobVar 
+   * @param {IDB} idb 
+   * @param {string} baseStorageName 
+   * @param {string} fieldName 
+   * @param {string} keyValue 
+   */
+  constructor (blobVar, idb, baseStorageName, fieldName, keyValue) {
+    this.storageName = baseStorageName + '-' + fieldName;
+    this.blobVar = blobVar;
+    this.idb = idb;
+    this.keyName = keyValue;
+
+    this.blobVar._loadCallback = this.handleBlobLoad.bind(this);
+    this.blobVar.$addEvent(this.handleChanged.bind(this))
+  }
+
+  handleChanged () {
+    console.log('Blob changed, lets store');
+    if (this.blobVar.$v) {
+      this.idb.setStoreValue(this.storageName, this.keyName, this.blobVar.$v);
+    }
+  }
+
+  async handleBlobLoad () {
+    console.log('Blob load requested');
+    let result = await this.idb.getStoreValue(this.storageName, this.keyName);
+    return result;
+  }
+
+}
 class IndexedDBRecordBindingBase {
   /**
    * 
    * @param {RecordVar} varToStore 
    * @param {IDB} idb 
-   * @param {string} storageName 
+   * @param {string} baseStorageName 
    * @param {string} keyValue 
    */
-  constructor(varToStore, idb, storageName, keyValue) {
+  constructor(varToStore, idb, baseStorageName, keyValue) {
     this.varToStore = varToStore;
-    this.storageName = storageName;
+    this.storageName = baseStorageName + tableExtention;
     this.idb = idb;
     this.justCreated = true;
     this.keyName = keyValue;
+    this.blobStores = [];
     this.idb.getStoreValue(this.storageName, this.keyName).then(
       (result) => {
         if (result != null) {
@@ -34,15 +73,35 @@ class IndexedDBRecordBindingBase {
           this.justCreated = false;
         }
       }).finally(()  => {
-        window.setTimeout(() => {
+        defer(() => {
           this.varToStore.$addEvent(this.handleChanged.bind(this))
-        }, 0);
+          this.varToStore.$linkBlobFields((name, v) => {
+            this.blobStores.push(new IndexedDBBlobBinding(v, idb, baseStorageName, name, keyValue));
+
+          });
+          if (this.justCreated) {
+            this.handleChanged();
+          }
+        });
       });
+    this.updateTimer = undefined;  
   }
 
   handleChanged() {
-    // TODO: Feedback to record if saved or not?
-    this.idb.setStoreValue(this.storageName,this.keyName,this.varToStore.toObject());
+    // Debounce using a timer of 0 so  it fires once after a blovk of changes
+    if (!this.updateTimer) {
+      this.updateTimer = setTimeout(async () => {
+        try {
+          this.varToStore.$storeIsPending();
+          this.updateTimer = undefined;
+          const obj = this.varToStore.toObject();
+          const result = await this.idb.setStoreValue(this.storageName, this.keyName, obj);
+          console.log('Store result: ',result,obj);
+        } finally {
+          this.varToStore.$storeIsFinished();
+        }
+      },0);
+    }
   }
 }
 
@@ -51,12 +110,12 @@ export class IndexedDBRecordBinding extends IndexedDBRecordBindingBase {
    * 
    * @param {RecordVar} varToStore 
    * @param {IDB} idb 
-   * @param {string} storageName 
+   * @param {string} baseStorageName 
    */
-  constructor(varToStore, idb, storageName) {
+  constructor(varToStore, idb, baseStorageName) {
     const keyFieldName = varToStore.$keyFieldName;
     const keyFieldVar = varToStore.$v[keyFieldName];
-    super (varToStore, idb, storageName, keyFieldVar.$v);
+    super (varToStore, idb, baseStorageName, keyFieldVar.$v);
   }
 }
 
@@ -65,22 +124,21 @@ export class IndexedDBTableBinding {
    * Creates a link between a varstack table and a indexed-db store
    * @param {ArrayTableVar} tableToStore 
    * @param {IDB} idb 
-   * @param {string} storageName 
+   * @param {string} baseStorageName 
    * @param {any} defaultData 
    */
-  constructor(tableToStore, idb, storageName, defaultData) {
+  constructor(tableToStore, idb, baseStorageName, defaultData) {
     this.tableToStore = tableToStore;
-    this.storageName = storageName;
+    this.storageName = baseStorageName;
     this.justCreated = true;
     this.idb = idb;
     this.tableMeta = new Types.TableMetaData();
-    this.tableMeta.name.$v = storageName;
+    this.tableMeta.name.$v = baseStorageName;
     this.tableMeta.count.$v = defaultData?.length || 0;
     this.tableMetaBinding = new IndexedDBRecordBinding(this.tableMeta, this.idb, tableMetaStore);
     this.boundRecords = {};
     this.keyFieldName = this.tableToStore.keyFieldName;
-
-    this.idb.getAll(this.storageName).then( (result) => {
+    this.idb.getAll(this.storageName+tableExtention).then( (result) => {
       if (result) {
         this.justCreated = false;
         // TODO: Sparse loading?
