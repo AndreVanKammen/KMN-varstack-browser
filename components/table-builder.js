@@ -250,7 +250,7 @@ class TableBuilder {
     // TODO: beter partial update, this one leaks memory through the textbindings
 
     this.tbody.$removeChildren();
-    for (let ix = 0; ix < Math.min(512,this.table.array.length); ix++) {
+    for (let ix = 0; ix < this.table.array.length; ix++) {
       let rec = this.table.array[ix];
 
       let row = this.rowCache[rec.$hash];

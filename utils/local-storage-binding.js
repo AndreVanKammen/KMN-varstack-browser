@@ -2,6 +2,7 @@
 // Licensed under CC BY-NC-SA 
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+import defer from "../../KMN-utils.js/defer.js";
 import { Types } from "../../KMN-varstack.js/varstack.js";
 
 const updateTimeOut = 1000;
@@ -27,9 +28,9 @@ class LocalStorageBinding {
     if (this.justCreated && defaultData) {
       varToStore.$v = defaultData;
     }
-    window.setTimeout(() => {
+    defer(() => {
       this.varToStore.$addEvent(this.handleChanged.bind(this))
-    },0);
+    });
   }
 
   getJS() {

@@ -6,6 +6,7 @@ import TableBuilder from '../components/table-builder.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
 import { ArrayTableVar, TableVar } from '../../KMN-varstack.js/structures/table.js';
 import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
+import defer from '../../KMN-utils.js/defer.js';
 
 const tableViewCache = {};
 
@@ -108,11 +109,11 @@ function createLookupHandler(baseVar, element) {
 
     element.onblur = () => {
       // Rescedule because the browser set's it to body before setting it to the newly focussed element
-      setTimeout(() => {
+      defer(() => {
         if (!element.parentElement.contains(document.activeElement)) {
           dropDown.$setVisible(false);
         }
-      }, 0);
+      });
     }
 
     // TODO: clean-up code for this event (need to do a lot of clean-up but don't have trouble with it yet.

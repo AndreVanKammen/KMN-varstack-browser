@@ -38,14 +38,12 @@ class IndexedDBBlobBinding {
   }
 
   handleChanged () {
-    console.log('Blob changed, lets store');
     if (this.blobVar.$v) {
       this.idb.setStoreValue(this.storageName, this.keyName, this.blobVar.$v);
     }
   }
 
   async handleBlobLoad () {
-    console.log('Blob load requested');
     let result = await this.idb.getStoreValue(this.storageName, this.keyName);
     return result;
   }
@@ -84,23 +82,23 @@ class IndexedDBRecordBindingBase {
           }
         });
       });
-    this.updateTimer = undefined;  
+    this.updateSceduled = false;  
   }
 
   handleChanged() {
     // Debounce using a timer of 0 so  it fires once after a blovk of changes
-    if (!this.updateTimer) {
-      this.updateTimer = setTimeout(async () => {
+    if (!this.updateSceduled) {
+      this.updateSceduled = true;
+      defer(async () => {
         try {
+          this.updateSceduled = false;
           this.varToStore.$storeIsPending();
-          this.updateTimer = undefined;
           const obj = this.varToStore.toObject();
           const result = await this.idb.setStoreValue(this.storageName, this.keyName, obj);
-          console.log('Store result: ',result,obj);
         } finally {
           this.varToStore.$storeIsFinished();
         }
-      },0);
+      });
     }
   }
 }
@@ -130,15 +128,24 @@ export class IndexedDBTableBinding {
   constructor(tableToStore, idb, baseStorageName, defaultData) {
     this.tableToStore = tableToStore;
     this.storageName = baseStorageName;
+    this.tableStorageName = baseStorageName + tableExtention;
     this.justCreated = true;
     this.idb = idb;
+    this.idb.registerStoreName(tableMetaStore);
+    this.idb.registerStoreName(this.tableStorageName);
+    for (const fieldDef of this.tableToStore.elementType.prototype._fieldDefs) {
+      if (Types[fieldDef.type].isBlob) {
+        this.idb.registerStoreName(baseStorageName + '-' + fieldDef.name);
+        console.log(fieldDef.name );
+      }
+    }
     this.tableMeta = new Types.TableMetaData();
     this.tableMeta.name.$v = baseStorageName;
     this.tableMeta.count.$v = defaultData?.length || 0;
     this.tableMetaBinding = new IndexedDBRecordBinding(this.tableMeta, this.idb, tableMetaStore);
     this.boundRecords = {};
     this.keyFieldName = this.tableToStore.keyFieldName;
-    this.idb.getAll(this.storageName+tableExtention).then( (result) => {
+    this.idb.getAll(this.tableStorageName).then( (result) => {
       if (result) {
         this.justCreated = false;
         // TODO: Sparse loading?
