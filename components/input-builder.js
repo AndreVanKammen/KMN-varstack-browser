@@ -5,9 +5,19 @@
 import { BaseBinding, BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import InputBinding from '../utils/input-binding.js';
+import { addCSS } from '../utils/html-utils.js';
 
 let labelUid = 0;
-const nop = function() {};
+const nop = function () { };
+const cssStr = /*css*/`/*css*/
+table.input-table {
+  overflow: auto;
+}
+td.isLabel {
+  width: 33%;
+}
+`;
+
 class InputBuilder {
   /**
    * @param {HTMLElement} element
@@ -15,7 +25,9 @@ class InputBuilder {
    */
   constructor (element, options) {
     this.options = { ...{ onLabelClick:nop, onInputClick:nop },...(options || {})};
-    this.table = element.$el({tag:'table'});
+    this.table = element.$el({ tag: 'table', cls: 'input-table' });
+    this.body = this.table.$el({ tag: 'tbody', cls: 'input-table' });
+    addCSS('input-builder', cssStr);
   }
 
   /**
@@ -26,7 +38,7 @@ class InputBuilder {
   addVar(v, labelName, overrideType) {
     labelName = labelName || v.$varDefinition.name;
     let labelId = 'i_' + (labelUid++);
-    let row = this.table.$el({tag:'tr'});
+    let row = this.body.$el({tag:'tr'});
     let label = row.$el({tag:'td', cls:'isLabel'}).$el({tag:'label'});
     let input = row.$el({tag:'td', cls:'isInput'}).$el({tag:'input'});
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
