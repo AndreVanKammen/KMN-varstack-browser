@@ -1,3 +1,4 @@
+import { animationFrame } from "../../../KMN-utils-browser/animation-frame.js";
 import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
 import { ComponentShaders } from "./component-shaders.js";
 
@@ -173,7 +174,7 @@ export class RectController {
     const ext = this.gl.getExtension('EXT_color_buffer_float');
 
     this.drawCount = 0;
-    window.requestAnimationFrame(this.handleFrame)
+    animationFrame(this.handleFrame)
   }
 
 
@@ -275,7 +276,7 @@ export class RectController {
     }    
     gl.disable(gl.SCISSOR_TEST);
 
-    window.requestAnimationFrame(this.handleFrame);
+    animationFrame(this.handleFrame);
   }
 
   static geInstance() {
