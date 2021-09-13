@@ -153,11 +153,13 @@ export class IndexedDBTableBinding {
           this.tableToStore.add(entry);
         }
       }
-    }).finally( () => {
+    }).finally(() => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));
       this.handleArrayChanged();
+      if ((this.tableToStore.length === 0) && defaultData) {
+        this.tableToStore.$v = defaultData;
+      }
     });
-    this.tableToStore
   }
 
   handleArrayChanged() {

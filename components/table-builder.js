@@ -110,9 +110,14 @@ class TableBuilder {
       log.error("No fields");
     }
     this.headRow.$removeChildren();
-    this.fieldNames.forEach(
-      (x) => (this.headRow.$el({ tag: "th", cls: x }).innerText = x)
-    );
+    for (let ix = 0; ix < this.fieldNames.length; ix++) {
+      let fieldName = this.fieldNames[ix];
+      let headerName = fieldName;
+      if (this.options.headerNames && this.options.headerNames[ix]) {
+        headerName = this.options.headerNames[ix];
+      }
+      this.headRow.$el({ tag: "th", cls: headerName }).innerText = headerName;
+    }
 
     this.addButton = null;
     if (this.options.editList) {
@@ -200,7 +205,11 @@ class TableBuilder {
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       // this.fieldNames.forEach((x) => {
       let fieldName = this.fieldNames[ix];
-      let tdEl = row.$el({ tag: "td", cls: fieldName });
+      let headerName = this.fieldNames[ix];
+      if (this.options.headerNames && this.options.headerNames[ix]) {
+        headerName = this.options.headerNames[ix];
+      }
+      let tdEl = row.$el({ tag: "td", cls: headerName });
       let field = rec.$findVar(fieldName);
       if (field) {
         let bindingIx = bindings.push(new this.bindings[ix](field, tdEl))-1;

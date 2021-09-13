@@ -10,8 +10,8 @@ import { addCSS } from '../utils/html-utils.js';
 let labelUid = 0;
 const nop = function () { };
 const cssStr = /*css*/`/*css*/
-table.input-table {
-  overflow: auto;
+tbody.input-table {
+  height: 100%;
 }
 td.isLabel {
   width: 33%;
