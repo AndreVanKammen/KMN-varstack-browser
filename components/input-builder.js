@@ -6,6 +6,7 @@ import { BaseBinding, BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import InputBinding from '../utils/input-binding.js';
 import { addCSS } from '../utils/html-utils.js';
+import InnerTextBinding from '../utils/inner-text-binding.js';
 
 let labelUid = 0;
 const nop = function () { };
@@ -15,6 +16,10 @@ tbody.input-table {
 }
 td.isLabel {
   width: 33%;
+}
+td.isValue {
+  width: 20%;
+  position: static;s
 }
 `;
 
@@ -33,20 +38,24 @@ class InputBuilder {
   /**
    * @param {BaseVar} v
    * @param {string} [labelName]
-   * @param {string} [overrideType]
    */
-  addVar(v, labelName, overrideType) {
+  addVar(v, labelName) {
     labelName = labelName || v.$varDefinition.name;
     let labelId = 'i_' + (labelUid++);
     let row = this.body.$el({tag:'tr'});
     let label = row.$el({tag:'td', cls:'isLabel'}).$el({tag:'label'});
-    let input = row.$el({tag:'td', cls:'isInput'}).$el({tag:'input'});
+    let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
+    input.classList.add(v.$varType);
+    if (this.options.showValues) {
+      let valueText = row.$el({ tag: 'td', cls: 'isValue' }).$el({ tag: 'div' });
+      new InnerTextBinding(v, valueText);
+    }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
     input.onclick = (event) => this.options.onInputClick(event, labelName, v);
     label.innerText = labelName;
     label.setAttribute('for',labelId);
     input.setAttribute('id',labelId);
-    let dataBinding = new InputBinding(v, input, overrideType);
+    let dataBinding = new InputBinding(v, input);
     return {
       labelId,
       row,
@@ -57,13 +66,12 @@ class InputBuilder {
 
   /**
    * @param {RecordVar} rec
-   * @param {string[]} [overrideTypes]
    */
   addRecord(rec, overrideTypes) { 
     for (var name of rec.$fieldNames) {
       let v = rec[name];
       if (v && v instanceof BaseVar) {
-        this.addVar(v, name, overrideTypes ? overrideTypes[name] : undefined)
+        this.addVar(v, name)
       }
     }  
   }

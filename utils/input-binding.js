@@ -19,12 +19,11 @@ class InputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
    * @param {HTMLInputElement} element
-   * @param {string} [type]
   */
-  constructor (baseVar, element, type) {
+  constructor (baseVar, element) {
     super(baseVar);
     //console.log('InputBinding: ',baseVar, element, type);
-    this.type = type;
+    this.type = '';
     if (element) {
       this.setInput(element);
     }
@@ -61,14 +60,21 @@ class InputBinding extends BaseBinding {
     } else if (element.type==='range') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
       element.addEventListener('input', this.handleInputChanged.bind(this));
-      if (this.baseVar.$varDefinition && this.baseVar.$varDefinition.range) {
-        element.min = this.baseVar.$varDefinition.range[0].toString();
-        element.max = this.baseVar.$varDefinition.range[1].toString();
+      if (this.baseVar.$varDefinition) {
+        if (this.baseVar.$varDefinition.range) {
+          element.min = this.baseVar.$varDefinition.range[0].toString();
+          element.max = this.baseVar.$varDefinition.range[1].toString();
+        }
+        if (this.baseVar.$varDefinition.step) {
+          element.step = this.baseVar.$varDefinition.step.toString();
+        } else {
+          element.step = '0.001';
+        }
       } else {
         element.min = '0';
         element.max = '1';
+        element.step = '0.001';
       }
-      element.step = '0.001';
       this.handleVarChanged()
     } else {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
@@ -90,24 +96,23 @@ class CreateInputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
    * @param {HTMLInputElement} element
-   * @param {string} [type]
   */
 
-  constructor (baseVar, element, type) {
+  constructor (baseVar, element) {
     super(baseVar)
     let parentElement = element;
     if (this.baseVar.$varDefinition.isReadOnly) {
       this.binding = new InnerTextBinding(baseVar, element);
     } else {
       if (baseVar instanceof FloatVar) {
-        this.binding = new HorizontalSliderElement(baseVar, parentElement, type);
+        this.binding = new HorizontalSliderElement(baseVar, parentElement);
       } else {
         let inputElement = parentElement.$el( { tag: 'input', cls: 'inline-input' });
-        // TODO HACKY: If this is a record variable the show the value field
+        // TODO HACKY: If this is a record variable then show the value field
         if (baseVar instanceof RecordVar) {
-          this.binding = new InputBinding(baseVar[baseVar.$valueFieldName], inputElement, type);
+          this.binding = new InputBinding(baseVar[baseVar.$valueFieldName], inputElement);
         } else {
-          this.binding = new InputBinding(baseVar, inputElement, type);
+          this.binding = new InputBinding(baseVar, inputElement);
         }
       }
     }

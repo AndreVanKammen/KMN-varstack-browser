@@ -77,9 +77,8 @@ export class HorizontalSliderElement extends Slider {
   /**
    * @param {HTMLElement} element
    * @param {FloatVar} sliderVar
-   * @param {string} [type]
    */
-  constructor(sliderVar, element, type) {
+  constructor(sliderVar, element) {
     super(sliderVar);
     this._element = element;
     this.clipElement = element.$getClippingParent()
