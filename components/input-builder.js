@@ -18,8 +18,8 @@ td.isLabel {
   width: 33%;
 }
 td.isValue {
-  width: 20%;
-  position: static;s
+  text-align: right;
+  width: 15%;
 }
 `;
 
@@ -47,7 +47,7 @@ class InputBuilder {
     let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
     input.classList.add(v.$varType);
     if (this.options.showValues) {
-      let valueText = row.$el({ tag: 'td', cls: 'isValue' }).$el({ tag: 'div' });
+      let valueText = row.$el({ tag: 'td', cls: 'isValue' });
       new InnerTextBinding(v, valueText);
     }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
