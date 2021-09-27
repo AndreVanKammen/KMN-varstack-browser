@@ -9,12 +9,6 @@ import InnerTextBinding from './inner-text-binding.js';
 import { FloatVar } from '../../KMN-varstack.js/vars/float.js';
 import { HorizontalSliderElement } from '../components/webgl/sliders.js';
 
-const typeToInput = {
-  'String': 'text',
-  'Int': 'number',
-  'Float': 'range',
-  'Bool': 'checkbox'
-}
 class InputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
@@ -49,30 +43,28 @@ class InputBinding extends BaseBinding {
   setInput (element) {
     this.element = element;
     element.value = this.baseVar.$v;
-    element.type = this.type || typeToInput[this.baseVar.$varType];
+    element.type = this.type || this.baseVar.$varDefinition.inputType;
+    console.log(this.baseVar.$varDefinition);
     if (this.baseVar.$varDefinition.isReadOnly) {
       element.setAttribute('readOnly', ''); 
     }
 
-    if (element.type==='checkbox') {
+    if (element.type === 'checkbox') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedChecked.bind(this));
       element.addEventListener('change', this.handleInputChangedChecked.bind(this));
-    } else if (element.type==='range') {
+    } else if (element.type === 'range') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
       element.addEventListener('input', this.handleInputChanged.bind(this));
-      if (this.baseVar.$varDefinition) {
-        if (this.baseVar.$varDefinition.range) {
-          element.min = this.baseVar.$varDefinition.range[0].toString();
-          element.max = this.baseVar.$varDefinition.range[1].toString();
-        }
-        if (this.baseVar.$varDefinition.step) {
-          element.step = this.baseVar.$varDefinition.step.toString();
-        } else {
-          element.step = '0.001';
-        }
+      if (this.baseVar.$varDefinition.range) {
+        element.min = this.baseVar.$varDefinition.range[0].toString();
+        element.max = this.baseVar.$varDefinition.range[1].toString();
       } else {
         element.min = '0';
         element.max = '1';
+      }
+      if (this.baseVar.$varDefinition.step) {
+        element.step = this.baseVar.$varDefinition.step.toString();
+      } else {
         element.step = '0.001';
       }
       this.handleVarChanged()
@@ -95,7 +87,7 @@ class InputBinding extends BaseBinding {
 class CreateInputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
-   * @param {HTMLInputElement} element
+   * @param {HTMLElement} element
   */
 
   constructor (baseVar, element) {
