@@ -77,9 +77,9 @@ function updateCSS(id, cssStr) {
   }
 }
 
-function createInputs(element,rec,overrideTypes) {
+function createInputs(element,rec) {
   let inputBuilder = new InputBuilder(element);
-  inputBuilder.addRecord(rec, overrideTypes);
+  inputBuilder.addRecord(rec);
   return inputBuilder;
 }
 

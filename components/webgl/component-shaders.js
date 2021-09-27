@@ -1,5 +1,5 @@
 export const ComponentShaders = {
-"slider": `
+"slider": /*glsl*/`
 vec4 renderComponent(vec2 center, vec2 size) {
   vec2 posCenter = localCoord - center - vec2((value.x*2.0-1.0) * size.x * 0.5,0.0);
   float r = size.y * 0.5;
@@ -18,7 +18,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   g = max(l,g)*0.8;
   return  vec4(g, g, max(b-g,l)*0.8, a); // vec4(vec3(value.x),1.0);
 }`,
-"scope": `vec4 renderComponent(vec2 center, vec2 size) {
+"scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
   float lineX = (localCoord.x / size.x);
   mat2x4 remLR = getEnergy();
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
@@ -26,7 +26,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec4 remR = remLR[1].wxzy * weight;
   vec4 rem = (remL + remR) * 0.5;
   rem.r = max(remL.r, remR.r);
-  vec2 sampleValue = getSample(lineX) / (0.0001 + 0.9999 * rem.r);
+  vec2 sampleValue = getSample(lineX) / (0.0001 + 0.9999 * rem.r) * 0.25;
   vec2 dist = abs((sampleValue + 1.0)*0.5 * size.y-vec2(localCoord.y));// + sign(sampleValue));
   vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist)) * 0.25;
   vec3 barClr = smoothstep(-0.8,1.5, rem.rgb * size.x - length(
@@ -39,7 +39,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float alpha = smoothstep(0.0, 0.2, max(returnClr.r,max(returnClr.g,returnClr.b)));
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
 }`,
-"music-keyboard": `vec2 getKeyDist(vec2 uv, out vec2 keyX, out int keyNr) {
+"music-keyboard": /*glsl*/`vec2 getKeyDist(vec2 uv, out vec2 keyX, out int keyNr) {
   vec2 loc = mod(uv,1.0); // Coordinate for one octave
 
   // slightly scale black up and shift left and right half
