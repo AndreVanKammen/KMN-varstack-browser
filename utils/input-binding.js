@@ -96,7 +96,7 @@ class CreateInputBinding extends BaseBinding {
     if (this.baseVar.$varDefinition.isReadOnly) {
       this.binding = new InnerTextBinding(baseVar, element);
     } else {
-      if (baseVar instanceof FloatVar) {
+      if (baseVar.$varDefinition.inputType === 'range') {
         this.binding = new HorizontalSliderElement(baseVar, parentElement);
       } else {
         let inputElement = parentElement.$el( { tag: 'input', cls: 'inline-input' });
