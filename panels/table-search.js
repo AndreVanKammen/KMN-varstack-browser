@@ -69,8 +69,9 @@ class TableSearch extends PanelBase {
   }
 
   show() {
-    super.show();
+    let result = super.show();
     this.searchInput.input.parentElement.focus();
+    return result;
   }
 }
 TableSearch.getTabName = () => 'TABLE-SEARCH';

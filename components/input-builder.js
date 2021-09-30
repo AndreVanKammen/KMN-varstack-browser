@@ -13,6 +13,7 @@ const nop = function () { };
 const cssStr = /*css*/`/*css*/
 tbody.input-table {
   height: 100%;
+  overflow-y: auto;
 }
 td.isLabel {
   width: 33%;
@@ -69,7 +70,7 @@ class InputBuilder {
   /**
    * @param {RecordVar} rec
    */
-  addRecord(rec, overrideTypes) { 
+  addRecord(rec) { 
     for (var name of rec.$fieldNames) {
       let v = rec[name];
       if (v && v instanceof BaseVar) {

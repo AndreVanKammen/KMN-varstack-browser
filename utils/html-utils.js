@@ -15,6 +15,13 @@ HTMLElement.prototype.$el = function element(opt) {
   return el;
 };
 
+HTMLElement.prototype.$button = function addButton(str, onClick, cls) {
+  let button = this.$el({ tag: 'button', cls });
+  button.$setTextNode(str);
+  button.onclick = onClick;
+  return button;
+}
+
 HTMLElement.prototype.$toggleClass = function (name) {
   this.classList.toggle(name);
 };
