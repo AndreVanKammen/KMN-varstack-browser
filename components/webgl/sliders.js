@@ -8,7 +8,7 @@ class Slider extends BaseBinding {
   _sliderVar = undefined;
   min = 0;
   max = 1;
-
+  step = 0.001;
   /** 
    * @param {FloatVar} sliderVar 
    */
@@ -56,9 +56,14 @@ class Slider extends BaseBinding {
   }
   set sliderVar(sliderVar) {
     this._sliderVar = sliderVar
-    if (this._sliderVar.$varDefinition && this._sliderVar.$varDefinition.range) {
-      this.min = this._sliderVar.$varDefinition.range[0];
-      this.max = this._sliderVar.$varDefinition.range[1];
+    if (this._sliderVar.$varDefinition) {
+      if (this._sliderVar.$varDefinition.range) {
+        this.min = this._sliderVar.$varDefinition.range[0];
+        this.max = this._sliderVar.$varDefinition.range[1];
+      }
+      if (this._sliderVar.$varDefinition.step) {
+        this.step = this._sliderVar.$varDefinition.step;
+      }
     }
   }
 
