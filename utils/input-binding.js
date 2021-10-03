@@ -84,6 +84,46 @@ class InputBinding extends BaseBinding {
   }
 }
 
+class EnumDropDownBinding extends BaseBinding {
+  /** 
+   * @param {BaseVar} baseVar
+   * @param {HTMLElement} element
+  */
+   constructor (baseVar, element) {
+    super(baseVar);
+    this.type = '';
+    this.parentElement = element;
+    this.createDropDown();
+  }
+
+  createDropDown() {
+    this.element = this.parentElement.$el({ tag: 'select', cls: 'enum-' + this.baseVar.$varDefinition.name });
+    // @ts-ignore
+    let enumValues = this.baseVar.constructor.enumValues;
+    for (let key of Object.keys(enumValues)) {
+      let opt = this.element.$el({ tag: 'option' });
+      opt.$setTextNode(key);
+    }
+
+    this.element.onchange = this.handleValueChanged.bind(this);
+    this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
+    this.handleVarChanged()
+  }
+
+  handleValueChanged (ev) {
+    this.baseVar.$v = this.element.value;
+  }
+
+  handleVarChanged (baseVar) {
+    this.element.value = this.baseVar.$niceStr;
+  }
+
+  remove() {
+    super.remove();
+    this.element.remove();
+  }
+}
+
 class CreateInputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
@@ -96,7 +136,9 @@ class CreateInputBinding extends BaseBinding {
     if (this.baseVar.$varDefinition.isReadOnly) {
       this.binding = new InnerTextBinding(baseVar, element);
     } else {
-      if (baseVar.$varDefinition.inputType === 'range') {
+      if (baseVar.$varDefinition.inputType === 'dropdown') {
+        this.binding = new EnumDropDownBinding(baseVar, parentElement);
+      } else if (baseVar.$varDefinition.inputType === 'range') {
         this.binding = new HorizontalSliderElement(baseVar, parentElement);
       } else {
         let inputElement = parentElement.$el( { tag: 'input', cls: 'inline-input' });
