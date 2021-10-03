@@ -35,19 +35,23 @@ class Slider extends BaseBinding {
     info.clipRect = { x: 0, y: 0, width: 16384, height: 16384 };
   }
 
-  /* THIS DOES NOT WORK!!!!! @type {import("./rect-controller.js").UpdateFunc} */
-  /**@param {import("./rect-controller.js").RectInfo} info */
-  updateSliderInfo(info) {
+  getSliderOffset() {
     if (this.min !== 0 || this.max !== 1) {
-      info.value[0] = (this.sliderVar.$v - this.min) / (this.max - this.min);
+      return (this.sliderVar.$v - this.min) / (this.max - this.min);
     } else {
-      info.value[0] = this.sliderVar.$v;
+      return this.sliderVar.$v;
     }
   }
 
+  /* THIS DOES NOT WORK!!!!! @type {import("./rect-controller.js").UpdateFunc} */
+  /**@param {import("./rect-controller.js").RectInfo} info */
+  updateSliderInfo(info) {
+    info.value[0] = this.getSliderOffset();
+  }
+
   setValue(x) {
-    x = Math.max(0.0,Math.min(1.0,x));
-    this.sliderVar.$v = this.min + x * (this.max - this.min);
+    x = Math.max(0.0, Math.min(1.0, x));
+    this.sliderVar.$v = this.min + Math.round(x * (this.max - this.min) / this.step) * this.step;
   }
 
   /** @type {FloatVar} */
@@ -65,6 +69,7 @@ class Slider extends BaseBinding {
         this.step = this._sliderVar.$varDefinition.step;
       }
     }
+    this.lastWithinValue = this.getSliderOffset();
   }
 
   remove() {
@@ -107,6 +112,12 @@ export class HorizontalSliderElement extends Slider {
   updateSliderInfo(info) {
     super.updateSliderInfo(info);
     let box = this._element.getBoundingClientRect();
+    let pt = this._pointerTracker.getLastPrimary();
+    info.mouse.x = ~~pt.currentX;
+    info.mouse.y = ~~pt.currentY;
+    info.mouse.state = 
+        (pt.isInside > 0 ? 1 : 0)
+      + (pt.isDown   > 0 ? 2 : 0);
 
     info.rect.width  = box.width;
     info.rect.height = box.height;
@@ -115,18 +126,33 @@ export class HorizontalSliderElement extends Slider {
 
     info.size.centerX = box.width / 2;
     info.size.centerY = box.height / 2;
+
+    if (pt.isDown) {
+      info.rect.width += 1000;
+      info.rect.height += 1000;
+      info.rect.x -= 500;
+      info.rect.y -= 500;
+      info.size.centerX += 500;
+      info.size.centerY += 500;
+      info.mouse.x += 500;
+      info.mouse.y += 500;
+    }
+
     info.size.width   = box.width - box.height * this.size;
     info.size.height  = box.height * this.size;
 
-    let pt = this._pointerTracker.getLastPrimary();
-    info.mouse.x = ~~pt.currentX;
-    info.mouse.y = ~~pt.currentY;
-    info.mouse.state = 
-        (pt.isInside > 0 ? 1 : 0)
-      + (pt.isDown   > 0 ? 2 : 0);
-
-    if (pt.isDown>0) {
-      this.setValue(pt.currentX / info.rect.width);
+    if (pt.isDown > 0) {
+      let y = Math.abs(pt.currentY / box.height);
+      if (y > 1.25) {
+        info.mouse.state += 4;
+        y -= 1.25;
+        y *= y;
+        let newValue = pt.currentX / box.width;
+        this.setValue((this.lastWithinValue * y + newValue) / (y + 1));
+      } else {
+        this.lastWithinValue = pt.currentX / box.width;
+        this.setValue(this.lastWithinValue);
+      }
     }
   }
 

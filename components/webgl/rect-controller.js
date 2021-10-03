@@ -52,6 +52,7 @@ flat in vec4 value;
 #define mouseInsideOrDown (mouse.z>0.0)
 #define mouseInside ((int(mouse.z) & 0x01) != 0)
 #define mouseDown ((int(mouse.z) & 0x02) != 0)
+#define mouseFineTune ((int(mouse.z) & 0x04) != 0)
 `;
 
 export const baseComponentShaderFooter = `
@@ -201,40 +202,48 @@ export class RectController {
     {
       let pos = 0;
       const wa = this._webglArray
-      for (const component of Object.values(this._componentInfos)) {
-        if (component.isVisible) {
-          const startIx = pos / floatSizePerComponent;
-          for (let ix = 0; ix < component._rectInfos.length; ix++) {
-            const si = component._rectInfos[ix];
-            if (si) { // && si.size.width && si.size.height) {
-              si.onUpdate(si);
-              // Draw area rectangle
-              wa[pos++] = si.rect.x;
-              wa[pos++] = si.rect.y;
-              wa[pos++] = si.rect.width;
-              wa[pos++] = si.rect.height;
+      for (let foreground = 0; foreground <= 1; foreground++) {
+        for (const component of Object.values(this._componentInfos)) {
+          if (component.isVisible) {
+            const startIx = pos / floatSizePerComponent;
+            for (let ix = 0; ix < component._rectInfos.length; ix++) {
+              const si = component._rectInfos[ix];
+              if (si) { // && si.size.width && si.size.height) {
+                si.onUpdate(si);
+                if ((si.mouse.state > 0) === (foreground === 1)) {
+                  // Draw area rectangle
+                  wa[pos++] = si.rect.x;
+                  wa[pos++] = si.rect.y;
+                  wa[pos++] = si.rect.width;
+                  wa[pos++] = si.rect.height;
   
-              // Control size center, width,height
-              wa[pos++] = si.size.centerX;
-              wa[pos++] = si.size.centerY;
-              wa[pos++] = si.size.width;
-              wa[pos++] = si.size.height;
+                  // Control size center, width,height
+                  wa[pos++] = si.size.centerX;
+                  wa[pos++] = si.size.centerY;
+                  wa[pos++] = si.size.width;
+                  wa[pos++] = si.size.height;
               
-              wa[pos++] = si.mouse.x;
-              wa[pos++] = si.mouse.y;
-              wa[pos++] = si.mouse.state;
-              wa[pos++] = si.mouse.enterTime;
+                  wa[pos++] = si.mouse.x;
+                  wa[pos++] = si.mouse.y;
+                  wa[pos++] = si.mouse.state;
+                  wa[pos++] = si.mouse.enterTime;
   
-              wa[pos++] = si.value[0];
-              wa[pos++] = si.value[1];
-              wa[pos++] = si.value[2];
-              wa[pos++] = si.value[3];
+                  wa[pos++] = si.value[0];
+                  wa[pos++] = si.value[1];
+                  wa[pos++] = si.value[2];
+                  wa[pos++] = si.value[3];
+                }
+              }
+            }
+            let componentLength = (pos / floatSizePerComponent) - startIx;
+            if (componentLength > 0) {
+              renderData.push({
+                startIx,
+                component,
+                componentLength
+              });
             }
           }
-          renderData.push({
-            startIx,
-            component,
-          });
         }
       }
     }
@@ -248,7 +257,7 @@ export class RectController {
 
     this.drawCount++;
     for (const rd of renderData) {
-      const length = rd.component._rectInfos.length;
+      const length = rd.componentLength;
       const clipRect = rd.component.clipRect;
       const shaderProgram = rd.component.getShaderProgram(gl);
       gl.useProgram(shaderProgram);
