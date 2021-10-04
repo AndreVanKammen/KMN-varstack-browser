@@ -44,14 +44,16 @@ class InputBuilder {
   addVar(v, labelName) {
     labelName = labelName || v.$varDefinition.name;
     let labelId = 'i_' + (labelUid++);
-    let row = this.body.$el({tag:'tr'});
-    let label = row.$el({tag:'td', cls:'isLabel'}).$el({tag:'label'});
+    let row = this.body.$el({ tag: 'tr' });
+    let label = row.$el({ tag: 'td', cls: 'isLabel' }).$el({ tag: 'label' });
     // let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
     let input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
     // input.classList.add(v.$varType);
-    let value = row.$el({ tag: 'td', cls: 'isValue' });
-    if (v.$varDefinition.showValue) {
-      new InnerTextBinding(v, value);
+    if (this.options.showValues) {
+      let value = row.$el({ tag: 'td', cls: 'isValue' });
+      if (v.$varDefinition.showValue) {
+        new InnerTextBinding(v, value);
+      }
     }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
     input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);

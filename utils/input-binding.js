@@ -44,7 +44,6 @@ class InputBinding extends BaseBinding {
     this.element = element;
     element.value = this.baseVar.$v;
     element.type = this.type || this.baseVar.$varDefinition.inputType;
-    console.log(this.baseVar.$varDefinition);
     if (this.baseVar.$varDefinition.isReadOnly) {
       element.setAttribute('readOnly', ''); 
     }
