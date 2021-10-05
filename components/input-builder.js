@@ -14,6 +14,20 @@ const cssStr = /*css*/`/*css*/
 tbody.input-table {
   height: 100%;
   overflow-y: auto;
+  padding-top: 8px;
+}
+table.input-table.vertical td.isLabel {
+  padding-top: 8px;
+}
+table.input-table.vertical td {
+  text-align: center;
+}
+table.input-table.vertical label {
+  text-align: center;
+}
+table.input-table.vertical td.isInput {
+  padding-bottom: 8px;
+  border-bottom: var(--borderWidth) solid var(--borderColor);
 }
 td.isLabel {
   width: 33%;
@@ -34,6 +48,9 @@ class InputBuilder {
     this.options = { ...{ onLabelClick:nop, onInputClick:nop },...(options || {})};
     this.table = element.$el({ tag: 'table', cls: 'input-table' });
     this.body = this.table.$el({ tag: 'tbody', cls: 'input-table' });
+    if (this.options.vertical) {
+      this.table.classList.add('vertical');
+    }
     addCSS('input-builder', cssStr);
   }
 
@@ -47,9 +64,12 @@ class InputBuilder {
     let row = this.body.$el({ tag: 'tr' });
     let label = row.$el({ tag: 'td', cls: 'isLabel' }).$el({ tag: 'label' });
     // let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
+    if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
     let input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
+    
     // input.classList.add(v.$varType);
     if (this.options.showValues) {
+      if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
       let value = row.$el({ tag: 'td', cls: 'isValue' });
       if (v.$varDefinition.showValue) {
         new InnerTextBinding(v, value);
