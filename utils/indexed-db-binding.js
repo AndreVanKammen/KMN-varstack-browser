@@ -136,7 +136,6 @@ export class IndexedDBTableBinding {
     for (const fieldDef of this.tableToStore.elementType.prototype._fieldDefs) {
       if (Types[fieldDef.type].isBlob) {
         this.idb.registerStoreName(baseStorageName + '-' + fieldDef.name);
-        console.log(fieldDef.name );
       }
     }
     this.tableMeta = new Types.TableMetaData();
