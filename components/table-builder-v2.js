@@ -33,6 +33,7 @@ class RectElement {
   update() {
     if (!this._element) {
       this._element = this._owner.parentElement.$el({ tag: 'div' });
+      this._element.onclick = this._owner.handleRowClick.bind(this._owner, this._row._rec, -1);
     }
     if (!this._binding) {
       // @ts-ignore Youre annoying sometimes!
@@ -54,7 +55,8 @@ class RectElement {
 }
 
 class RowInfo {
-  constructor(y, height) {
+  constructor(rec, y, height) {
+    this._rec = rec;
     this._y = y;
     this._height = height;
     this._visible = true;
@@ -77,7 +79,7 @@ class RowInfo {
   }
 
   set selected(x) {
-    this.selected = x;
+    this._selected = x;
   }
 }
 
@@ -116,10 +118,11 @@ class TableBuilder {
     this.options = options || {};
     this.options.alternativeBindings = this.options.alternativeBindings || {};
     this.fieldNames = this.options.fieldNames;
-
+    
     this._rowHeight = 25;
 
     this.parentElement = element;
+    this.parentElement.style.overflow = 'auto';
 
     // TODO: global key and pointer handler
     // this.tableEl.onkeydown = this.handleKeyPress.bind(this);
@@ -335,7 +338,7 @@ class TableBuilder {
       if (row) {
         row._y = currentY;
       } else {
-        row = new RowInfo(currentY, this._rowHeight);
+        row = new RowInfo(rec, currentY, this._rowHeight);
         this._fillRow(row, rec);
         this.rowCache[rec.$hash] = row;
       }

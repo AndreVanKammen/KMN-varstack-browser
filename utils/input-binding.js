@@ -51,6 +51,7 @@ class InputBinding extends BaseBinding {
     if (element.type === 'checkbox') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedChecked.bind(this));
       element.addEventListener('change', this.handleInputChangedChecked.bind(this));
+      this.handleVarChangedChecked();
     } else if (element.type === 'range') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
       element.addEventListener('input', this.handleInputChanged.bind(this));
