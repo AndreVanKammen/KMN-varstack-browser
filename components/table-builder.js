@@ -222,7 +222,7 @@ class TableBuilder {
           });
         }
       } else {
-        tdEl.innerText = "undefined(" + field.$v + ")";
+        tdEl.innerText = "-";
       }
     }
     if (this.options.editList) {

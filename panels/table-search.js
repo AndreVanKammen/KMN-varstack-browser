@@ -62,6 +62,7 @@ class TableSearch extends PanelBase {
       {
         fieldNames: this.options.fieldNames,
         alternativeBindings: this.options.alternativeBindings,
+        headerNames: this.options.headerNames,
         inlineEdit: this.options.inlineEdit,
         onRowSelect: this.options.onRowSelect,
         onRowClick: this.options.onRowClick
