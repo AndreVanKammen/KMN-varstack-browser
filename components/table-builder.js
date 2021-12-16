@@ -75,6 +75,7 @@ class TableBuilder {
 
     this.onRowSelect = this.options.onRowSelect;
     this.onRowClick = this.options.onRowClick;
+    this.onRowDblClick = this.options.onRowDblClick;
   }
 
   handleKeyPress(evt) {
@@ -184,6 +185,13 @@ class TableBuilder {
     }
   }
 
+  handleRowDblClick(rec, ix) {
+    this.selectRow(rec, ix);
+    if (this.onRowDblClick) {
+      this.onRowDblClick(rec, ix);
+    }
+  }
+
   moveRowUp(rec) {
     this.table.moveUp(rec);
   }
@@ -271,6 +279,7 @@ class TableBuilder {
         this.rowCache[rec.$hash] = row;
       }
       row.onclick = this.handleRowClick.bind(this, rec, ix);
+      row.ondblclick = this.handleRowDblClick.bind(this, rec, ix);
       this.htmlRows.push(row);
     }
     if (this.options.inlineEdit) {
