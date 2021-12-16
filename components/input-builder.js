@@ -65,7 +65,12 @@ class InputBuilder {
     let label = row.$el({ tag: 'td', cls: 'isLabel' }).$el({ tag: 'label' });
     // let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
     if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
-    let input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
+    let input = null;
+    if (!this.options.hideInput) {
+      input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
+      input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
+      input.parentElement.setAttribute('id',labelId);
+    }
     
     // input.classList.add(v.$varType);
     if (this.options.showValues) {
@@ -76,10 +81,8 @@ class InputBuilder {
       }
     }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
-    input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
     label.innerText = labelName;
     label.setAttribute('for',labelId);
-    input.parentElement.setAttribute('id',labelId);
     // let dataBinding = new InputBinding(v, input);
     return {
       labelId,
