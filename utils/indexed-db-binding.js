@@ -64,6 +64,10 @@ class IndexedDBRecordBindingBase {
     this.justCreated = true;
     this.keyName = keyValue;
     this.blobStores = [];
+    this.varToStore.$linkBlobFields((name, v) => {
+      this.blobStores.push(new IndexedDBBlobBinding(v, idb, baseStorageName, name, keyValue));
+
+    });
     this.idb.getStoreValue(this.storageName, this.keyName).then(
       (result) => {
         if (result != null) {
@@ -73,10 +77,6 @@ class IndexedDBRecordBindingBase {
       }).finally(()  => {
         defer(() => {
           this.varToStore.$addEvent(this.handleChanged.bind(this))
-          this.varToStore.$linkBlobFields((name, v) => {
-            this.blobStores.push(new IndexedDBBlobBinding(v, idb, baseStorageName, name, keyValue));
-
-          });
           if (this.justCreated) {
             this.handleChanged();
           }
@@ -143,6 +143,8 @@ export class IndexedDBTableBinding {
     this.tableMeta.count.$v = defaultData?.length || 0;
     this.tableMetaBinding = new IndexedDBRecordBinding(this.tableMeta, this.idb, tableMetaStore);
     this.boundRecords = {};
+    this.isLoaded = true;
+    this.justCreated = false;
     this.keyFieldName = this.tableToStore.keyFieldName;
     this.idb.getAll(this.tableStorageName).then( (result) => {
       if (result) {
@@ -154,10 +156,11 @@ export class IndexedDBTableBinding {
       }
     }).finally(() => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));
-      this.handleArrayChanged();
       if ((this.tableToStore.length === 0) && defaultData) {
         this.tableToStore.$v = defaultData;
       }
+      this.isLoaded = true;
+      this.handleArrayChanged();
     });
   }
 
