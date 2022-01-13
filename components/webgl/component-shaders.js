@@ -31,6 +31,13 @@ vec4 renderComponent(vec2 center, vec2 size) {
   g = max(l,g)*0.8;
   return  vec4(g, g, max(b-g,l)*0.8, a); // vec4(vec3(value.x),1.0);
 }`,
+"verticalLevel":/*glsl*/`
+vec4 renderComponent(vec2 center, vec2 size) {
+  float level = smoothstep(localCoord.y - 1.0, localCoord.y + 1.0,(1.0-value.x) * size.y);
+  level = max(level,smoothstep(size.x* 0.3, size.x* 0.4,abs(localCoord.x-center.x)));
+  level = 1.0 - level;
+  return vec4(vec3(level), 0.3 * level);
+}`,
 "scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
   float lineX = (localCoord.x / size.x);
   mat2x4 remLR = getEnergy();
