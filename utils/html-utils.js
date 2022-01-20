@@ -55,11 +55,15 @@ HTMLElement.prototype.$setTextNode = function(str) {
 
 HTMLElement.prototype.$getClippingParent = function () {
   let el = this;
-  while (el = el.parentElement) {
-    const overflow = getComputedStyle(el).overflow;
-    if (overflow.indexOf('auto')!==-1 || overflow.indexOf('scroll')!==-1 || overflow.indexOf('hidden')!==-1) {
+  while (el) {
+    if (el.classList.contains('clip-gl')) {
       return el;
     }
+    const overflow = getComputedStyle(el).overflow;
+    if (overflow.indexOf('auto') !== -1 || overflow.indexOf('scroll') !== -1 || overflow.indexOf('hidden') !== -1) {
+      return el;
+    }
+    el = el.parentElement;
   }
   return document.body;
 };

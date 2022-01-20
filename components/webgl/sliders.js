@@ -91,7 +91,7 @@ export class HorizontalSliderElement extends Slider {
   constructor(sliderVar, element) {
     super(sliderVar);
     this._element = element;
-    this.clipElement = element.$getClippingParent()
+    this.clipElement = element.$getClippingParent();
     this.initialize(getElementHash(this.clipElement), 'slider');
     this._pointerTracker = new PointerTracker(this._element);
     this.size = 0.9
@@ -174,7 +174,7 @@ export class VerticalLevelElement extends BaseBinding {
     super(sliderVar);
     this._element = element;
     this._controller = RectController.geInstance();
-    this.clipElement = element.$getClippingParent()
+    this.clipElement = element.$getClippingParent();
     this._componentInfo = this._controller.getComponentInfo(getElementHash(this.clipElement), 'verticalLevel', this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateComponentInstance.bind(this))
     this.size = 0.9
