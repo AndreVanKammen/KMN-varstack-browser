@@ -46,6 +46,7 @@ class TableBuilder {
       this.tbody = this.tableEl.$el({ tag: "tbody" });
       this.tbody.classList.add('noHead');
     }
+    this.tbody.classList.add('clip-gl');
 
     if (this.fieldNames) {
       const allNames = this.table.elementType.prototype._fieldNames;

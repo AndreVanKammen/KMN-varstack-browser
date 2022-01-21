@@ -9,8 +9,8 @@ import { addCSS } from '../utils/html-utils.js';
 
 const cssStr = `/*css*/
 .taskViewTableDiv {
-  top: var(--tableSearchHeaderHeight);
-  height: calc(100% - var(--tableSearchHeaderHeight));
+  top: 0;
+  height: 100%;
 }
 /*!css*/`
 
@@ -26,7 +26,7 @@ class ParralelTaskView extends PanelBase {
    */
   initializeDOM(parentElement) {
     super.initializeDOM(parentElement);
-    addCSS('table-search',cssStr);
+    addCSS('task-view',cssStr);
  
     this.synthSearchTableDiv = this.parentElement.$el({ cls: "taskViewTableDiv" });
 
