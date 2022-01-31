@@ -38,6 +38,13 @@ vec4 renderComponent(vec2 center, vec2 size) {
   level = 1.0 - level;
   return vec4(vec3(level), 0.3 * level);
 }`,
+"verticalLevel2":/*glsl*/`
+vec4 renderComponent(vec2 center, vec2 size) {
+  float level = smoothstep(localCoord.y - 1.0, localCoord.y + 1.0,(1.0-value.x) * size.y);
+  level = max(level,smoothstep(size.x* 0.3, size.x* 0.4,abs(localCoord.x-center.x)));
+  level = 1.0 - level;
+  return vec4(vec3(0.4,0.4,level), 0.3 * level);
+}`,
 "scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
   float lineX = (localCoord.x / size.x);
   mat2x4 remLR = getEnergy();
@@ -72,7 +79,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec2 dist = vec2(size.y - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
   vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist));
   vec3 returnClr = vec3(lineClr, lineClr.x);
-  float alpha = smoothstep(0.0, 0.2, max(returnClr.r,max(returnClr.g,returnClr.b))) * 0.08;
+  float alpha = smoothstep(0.0, 0.2, max(returnClr.r,max(returnClr.g,returnClr.b))) * 0.28;
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
 }`,
 "music-keyboard": /*glsl*/`vec2 getKeyDist(vec2 uv, out vec2 keyX, out int keyNr) {

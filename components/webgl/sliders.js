@@ -170,12 +170,12 @@ export class VerticalLevelElement extends BaseBinding {
    * @param {HTMLElement} element
    * @param {FloatVar} sliderVar
    */
-  constructor(sliderVar, element) {
+  constructor(sliderVar, element, shaderName) {
     super(sliderVar);
     this._element = element;
     this._controller = RectController.geInstance();
     this.clipElement = element.$getClippingParent();
-    this._componentInfo = this._controller.getComponentInfo(getElementHash(this.clipElement), 'verticalLevel', this.updateComponentInfo.bind(this));
+    this._componentInfo = this._controller.getComponentInfo(getElementHash(this.clipElement), shaderName || 'verticalLevel', this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateComponentInstance.bind(this))
     this.size = 0.9
   }
