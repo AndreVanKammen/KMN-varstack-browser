@@ -75,7 +75,8 @@ vec4 renderComponent(vec2 center, vec2 size) {
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec4 fftValue = getSample4(lineX);
   vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
-  sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange;
+  sampleValue *= 7.2;
+  // sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange;
   vec2 dist = vec2(size.y - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
   vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist));
   vec3 returnClr = vec3(lineClr, lineClr.x);
@@ -107,19 +108,20 @@ vec4 renderComponent(vec2 center, vec2 size) {
   // Substract black key from white key /
   keyDist.x = min(keyDist.x, 1.0-smoothstep(0.0,0.05,keyDist.y));
 
+  keyNr = int(uv.x) * 12;
   if (keyDist.y > 0.5) {
     if (blackKeyNr <3.0) {
-      keyNr = int(uv.x) * 24 + 1 +int(floor(blackKeyNr-1.0)) * 2;
+      keyNr += 1 + int(floor(blackKeyNr-1.0)) * 2;
     } else {
-      keyNr = int(uv.x) * 24 + int(floor(blackKeyNr)) * 2 - 2;
+      keyNr += int(floor(blackKeyNr)) * 2 - 2;
     }
   } else {
     if (keyDist.x > 0.5) {
       int whiteKeyNr = int(loc.x * 7.0);
       if (whiteKeyNr < 3) {
-        keyNr = int(uv.x) * 12 + whiteKeyNr * 2;
+        keyNr += whiteKeyNr * 2;
       } else {
-        keyNr = int(uv.x) * 12 + whiteKeyNr * 2 - 1;
+        keyNr += whiteKeyNr * 2 - 1;
       }
     } else {
       keyNr = -1;
@@ -133,30 +135,38 @@ const vec2 aspect = vec2(3.0/5.0,1.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
   // Normalized pixel coordinates (Y from 0 to 1, X to aspect ratio)
-  vec2 uv = localCoord/size.y*aspect;
+  vec2 uv = localCoord / size.y * aspect;
   vec2 loc = mod(uv,1.0); // Coordinate for one octave
 
   int keyNr;
   int mouseKeyNr;
   vec2 keyX;
 
-  getKeyDist(mouse.xy/size.y*aspect, keyX, mouseKeyNr);
+  getKeyDist(mouse.xy / size.y * aspect, keyX, mouseKeyNr);
 
   // calculate key coordinates
   vec2 keyDist = getKeyDist(uv, keyX, keyNr);
   // calculate grayscale
   vec3 col = vec3( keyDist.x * 0.95 + // white key
-                   0.4 * keyDist.y * smoothstep(0.2,1.0,loc.y+keyX.y)); // black key,
-
-  if ((keyNr!=-1) && (keyNr==mouseKeyNr) && (mouse.x>0.0) && (mouse.z>0.0)) {
-    col += vec3(0.0,0.0,0.6);
-    col *= 0.8+sin(float(drawCount)*0.1)*0.1;
-    // keyDist *= 0.8;
+                   0.5 * keyDist.y * smoothstep(0.5,1.0,loc.y+keyX.y)); // black key,
+  if (keyNr!=-1) {
+    if ((keyNr==mouseKeyNr) && (mouse.x>0.0) && (mouse.z>0.0)) {
+      col += vec3(0.0,0.0,0.6);
+      col *= 0.8+sin(float(drawCount)*0.1)*0.1;
+      // keyDist *= 0.8;
+    }
+    vec4 noteData = getNoteData(keyNr);
+    if (noteData.x > 0.0 && noteData.x * size.y > localCoord.y) {
+      if (noteData.y >0.0) {
+        col = vec3(1.0,0.0,0.0);
+      } else {
+        col = vec3(0.0,0.8,0.0);
+      }
+    }
   }
 
   return vec4(clamp(col, 0.0, 1.0), 1.0);
 }
-
 `
 }
    
