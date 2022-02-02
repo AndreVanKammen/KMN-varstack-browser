@@ -76,6 +76,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec4 fftValue = getSample4(lineX);
   vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
   sampleValue *= 7.2;
+  // sampleValue = getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).xx / 200.0;
   // sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange;
   vec2 dist = vec2(size.y - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
   vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist));
