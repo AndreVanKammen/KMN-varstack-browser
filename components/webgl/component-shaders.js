@@ -68,16 +68,16 @@ vec4 renderComponent(vec2 center, vec2 size) {
 }`,
 "frequencyAnalyzer":/*glsl*/`
 const float log10 = 1.0 / log(10.0);
-const float dBRange = 90.0;
 
 vec4 renderComponent(vec2 center, vec2 size) {
   float lineX = (localCoord.x / size.x);
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec4 fftValue = getSample4(lineX);
   vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
-  sampleValue *= 7.2;
-  // sampleValue = getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).xx / 200.0;
+  float dBRange = 100.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
+  // dBRange /= 2.0;
   // sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange;
+  sampleValue *= pow(10.0,dBRange / 20.0)*0.03;
   vec2 dist = vec2(size.y - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
   vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist));
   vec3 returnClr = vec3(lineClr, lineClr.x);
