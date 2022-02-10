@@ -55,7 +55,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   rem.r = max(remL.r, remR.r);
   vec2 sampleValue = getSample(lineX) / (0.0001 + 0.9999 * rem.r) * 0.25;
   vec2 dist = abs((sampleValue + 1.0)*0.5 * size.y-vec2(localCoord.y));// + sign(sampleValue));
-  vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist)) * 0.25;
+  vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist)) * 0.95;
   vec3 barClr = smoothstep(-0.8,1.5, rem.rgb * size.x - length(
     (localCoord-center + vec2((remL.r-remR.r) * size.x,-rem.a * size.x * 0.5)
     ) / volumeScale));
