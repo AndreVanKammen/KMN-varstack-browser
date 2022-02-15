@@ -72,18 +72,19 @@ const float log10 = 1.0 / log(10.0);
 vec4 renderComponent(vec2 center, vec2 size) {
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec2 lineClr = vec2(0.0);
-  for (int ix = -33; ix <= 0; ix++) {
-    float scale = pow(float(100+ix*3)/100.0,1.4);
+  for (int ix = -143; ix <= 0; ix++) {
+    float scale1 = float(145+ix)/145.0;
+    float scale = pow(scale1,2.0);
 //     float lineX = (localCoord.x / size.x) / 2.0 + 0.25;// * scale + 0.5 * (1.0-scale);
     float lineX = (localCoord.x / size.x);
     vec4 fftValue = getSample4Hist(lineX, ix);
     vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
-    sampleValue.xy = vec2(sampleValue.x + sampleValue.y) * 0.5; // Mono
+    // sampleValue.xy = vec2(sampleValue.x + sampleValue.y) * 0.5; // Mono
     float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
     // dBRange *= 0.8;
     // sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange * 0.3;
     sampleValue *= pow(10.0,dBRange / 30.0) * 0.03;
-    sampleValue = clamp(sampleValue, 0.0, 1.0);
+    sampleValue = clamp(sampleValue, 0.0, 1.0) * scale1;
     vec2 dist = vec2(size.y * scale - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
     vec2 lineThickness = pow(sampleValue.xy,vec2(0.3))*size.y * 0.02;
     if (ix!=0) {
@@ -91,7 +92,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
     } else {
       lineThickness = vec2(1.0);
     }
-    lineClr += (1.0-smoothstep(vec2(0.0)+ 0.5*lineThickness,lineThickness,dist)) * vec2(44.0 / float(-ix + 10)) / 25.0;
+    lineClr += (1.0-smoothstep(0.7*lineThickness,lineThickness,dist)) * vec2(1.75 / float(-ix + 1)) * (0.2+7.0*sampleValue);
   }
   vec3 returnClr = clamp(vec3(lineClr, lineClr.x), 0.0, 1.0);
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
