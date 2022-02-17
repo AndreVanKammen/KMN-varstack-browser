@@ -72,8 +72,8 @@ const float log10 = 1.0 / log(10.0);
 vec4 renderComponent(vec2 center, vec2 size) {
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec2 lineClr = vec2(0.0);
-  for (int ix = -143; ix <= 0; ix++) {
-    float scale1 = float(145+ix)/145.0;
+  for (int ix = -33; ix <= 0; ix++) {
+    float scale1 = float(35+ix)/35.0;
     float scale = pow(scale1,2.0);
 //     float lineX = (localCoord.x / size.x) / 2.0 + 0.25;// * scale + 0.5 * (1.0-scale);
     float lineX = (localCoord.x / size.x);
