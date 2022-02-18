@@ -46,7 +46,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   return vec4(vec3(0.4,0.4,level), 0.3 * level);
 }`,
 "scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
-  float lineX = (localCoord.x / size.x);
+  float lineX = Math.round((localCoord.x / size.x) * bufferWidth) / bufferWidth;
   mat2x4 remLR = getEnergy();
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec4 remL = remLR[0].wxzy * weight;
@@ -72,18 +72,33 @@ const float log10 = 1.0 / log(10.0);
 vec4 renderComponent(vec2 center, vec2 size) {
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec2 lineClr = vec2(0.0);
-  for (int ix = -33; ix <= 0; ix++) {
-    float scale1 = float(35+ix)/35.0;
-    float scale = pow(scale1,2.0);
-//     float lineX = (localCoord.x / size.x) / 2.0 + 0.25;// * scale + 0.5 * (1.0-scale);
+  for (int ix = -133; ix <= 0; ix++) {
     float lineX = (localCoord.x / size.x);
+    float n = fract(lineX * 128.0);
+    // if (mod(value.y+ float(ix),2.0) >0.99) {
+    //   n = 1.0-n;
+    // }
+    float scale1 = (float(136+ix) - n)/136.0;
+    float scale = pow(scale1,2.0);
+
+    // float lineX = (localCoord.x / size.x) / 2.0 + 0.25;// zoom
+    lineX = lineX / scale - 0.5* (1.0-scale);// * scale + 0.5 * (1.0-scale);
+    //float lineX = (localCoord.x / size.x);
     vec4 fftValue = getSample4Hist(lineX, ix);
     vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
+    if (ix == 0) {
+      vec4 fftValue1 = getSample4Hist(lineX, ix - 1);
+      vec2 sampleValue1 = vec2(length(fftValue1.rg), length(fftValue1.ba));
+      sampleValue = mix(sampleValue1, sampleValue, n);
+      scale1 = (float(136+ix))/136.0;
+      scale = pow(scale1,2.0);
+    }
+
     // sampleValue.xy = vec2(sampleValue.x + sampleValue.y) * 0.5; // Mono
     float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
     // dBRange *= 0.8;
     // sampleValue = (dBRange + (20.0 * log10 * log(0.000001 + sampleValue) )) / dBRange * 0.3;
-    sampleValue *= pow(10.0,dBRange / 30.0) * 0.03;
+    sampleValue *= pow(10.0,dBRange / 30.0) * 0.07;
     sampleValue = clamp(sampleValue, 0.0, 1.0) * scale1;
     vec2 dist = vec2(size.y * scale - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
     vec2 lineThickness = pow(sampleValue.xy,vec2(0.3))*size.y * 0.02;
