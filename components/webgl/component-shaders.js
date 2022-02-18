@@ -66,7 +66,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float alpha = smoothstep(0.0, 0.2, max(returnClr.r,max(returnClr.g,returnClr.b)));
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
 }`,
-"spectrumAnalyzer":/*glsl*/`
+"spectrumAnalyzer_analyzer":/*glsl*/`
 const float log10 = 1.0 / log(10.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
@@ -82,7 +82,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
     float scale = pow(scale1,2.0);
 
     // float lineX = (localCoord.x / size.x) / 2.0 + 0.25;// zoom
-    lineX = lineX / scale - 0.5* (1.0-scale);// * scale + 0.5 * (1.0-scale);
+    lineX = lineX / scale - 0.5 * (1.0-scale);// * scale + 0.5 * (1.0-scale);
     //float lineX = (localCoord.x / size.x);
     vec4 fftValue = getSample4Hist(lineX, ix);
     vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
@@ -110,6 +110,41 @@ vec4 renderComponent(vec2 center, vec2 size) {
     lineClr += (1.0-smoothstep(0.7*lineThickness,lineThickness,dist)) * vec2(1.75 / float(-ix + 1)) * (0.2+7.0*sampleValue);
   }
   vec3 returnClr = clamp(vec3(lineClr, lineClr.x), 0.0, 1.0);
+  float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
+  return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
+}`,
+"spectrumAnalyzer":/*glsl*/`
+const float log10 = 1.0 / log(10.0);
+
+vec4 renderComponent(vec2 center, vec2 size) {
+  const vec4 weight = vec4(0.25,1.0,3.0,0.4);
+  vec3 lineClr = vec3(0.0);
+  for (int ix = -53; ix <= 0; ix++) {
+    float lineX = (localCoord.x / size.x);
+    float scale1 = float(56+ix)/56.2;
+    float scale = pow(scale1,2.0);
+    float scaleLine = pow(scale1,0.5);
+
+    lineX = lineX * scaleLine + 0.5 * (1.0 - scaleLine);// * scale + 0.5 * (1.0-scale);
+    vec4 fftValue = getSample4Hist(lineX, ix);
+    vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
+
+    float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
+    float multiplier = pow(10.0,dBRange / 30.0) * 0.07;
+    sampleValue *= multiplier;
+    sampleValue = clamp(sampleValue, 0.0, 1.0) * scale1;
+    vec2 dist = vec2(size.y * scale - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
+    vec2 lineThickness = pow(sampleValue.xy,vec2(0.3))*size.y * 0.02 - float(ix)*0.4;
+    if (ix!=0) {
+      dist = abs(dist);
+    } else {
+      lineThickness = vec2(1.0);
+    }
+    vec2 line = (1.0-smoothstep(0.7*lineThickness,lineThickness,dist)) * vec2(1.75 / float(-ix + 1)) * (0.2+7.0*sampleValue);
+    lineClr.xy += line;
+    lineClr.z += (fftValue.x + fftValue.z) * multiplier * max(line.x,line.y) * 8.0;
+  }
+  vec3 returnClr = clamp(lineClr, 0.0, 1.0);
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
 }`,
