@@ -130,7 +130,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
     vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
 
     float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
-    float multiplier = pow(10.0,dBRange / 30.0) * 0.07;
+    float multiplier = pow(10.0,dBRange / 30.0) * 0.04;
     sampleValue *= multiplier;
     sampleValue = clamp(sampleValue, 0.0, 1.0) * scale1;
     vec2 dist = vec2(size.y * scale - localCoord.y) - sampleValue * size.y;// + sign(sampleValue));
@@ -142,7 +142,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
     }
     vec2 line = (1.0-smoothstep(0.7*lineThickness,lineThickness,dist)) * vec2(1.75 / float(-ix + 1)) * (0.2+7.0*sampleValue);
     lineClr.xy += line;
-    lineClr.z += (fftValue.x + fftValue.z) * multiplier * max(line.x,line.y) * 8.0;
+    lineClr.z += (fftValue.x + fftValue.z) * multiplier * max(line.x,line.y) * 18.0;
   }
   vec3 returnClr = clamp(lineClr, 0.0, 1.0);
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
