@@ -70,7 +70,6 @@ vec4 renderComponent(vec2 center, vec2 size) {
 const float log10 = 1.0 / log(10.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
-  const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec2 lineClr = vec2(0.0);
   for (int ix = -133; ix <= 0; ix++) {
     float lineX = (localCoord.x / size.x);
@@ -113,11 +112,10 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
 }`,
-"spectrumAnalyzer":/*glsl*/`
+"spectrumAnalyzer_3D":/*glsl*/`
 const float log10 = 1.0 / log(10.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
-  const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec3 lineClr = vec3(0.0);
   for (int ix = -53; ix <= 0; ix++) {
     float lineX = (localCoord.x / size.x);
@@ -144,6 +142,48 @@ vec4 renderComponent(vec2 center, vec2 size) {
     lineClr.xy += line;
     lineClr.z += (fftValue.x + fftValue.z) * multiplier * max(line.x,line.y) * 18.0;
   }
+  vec3 returnClr = clamp(lineClr, 0.0, 1.0);
+  float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
+  return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
+}`,
+"spectrumAnalyzer2Danalyze":/*glsl*/`
+const float log10 = 1.0 / log(10.0);
+
+vec4 renderComponent(vec2 center, vec2 size) {
+  float lineX = (localCoord.x / size.x);
+  float lineY = localCoord.y / 8.0;
+  float historyY = fract(lineY);
+  float historyX = fract(lineX * 256.0+0.5);
+  lineX = lineX - historyX/256.0 + (historyY/256.0);
+
+  vec4 fftValue1 = getSample4Hist(lineX, int(-floor(lineY)));
+  vec4 fftValue2 = getSample4Hist(lineX+ 1.0/256.0, int(-floor(lineY)));
+  vec2 sampleValue1 = vec2(length(fftValue1.rg), length(fftValue1.ba));
+  vec2 sampleValue2 = vec2(length(fftValue2.rg), length(fftValue2.ba));
+
+  vec2 sampleValue = mix(sampleValue1,sampleValue2,historyX);
+  sampleValue.xy = vec2(sampleValue.x + sampleValue.y) * 0.5; // Mono
+  float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
+  float multiplier = pow(10.0,dBRange / 30.0) * 0.1;
+  sampleValue *= multiplier;
+  vec3 lineClr = vec3(sampleValue.xy, max(sampleValue.x,sampleValue.y));
+  vec3 returnClr = clamp(lineClr, 0.0, 1.0);
+  float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
+  return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
+}`,
+"spectrumAnalyzer":/*glsl*/`
+const float log10 = 1.0 / log(10.0);
+
+vec4 renderComponent(vec2 center, vec2 size) {
+  float lineX = (localCoord.x / size.x);
+  float lineY = (localCoord.y / size.y) * value.w;
+  vec4 fftValue = getSample4Hist(lineX, int(-floor(lineY)));
+  vec2 sampleValue = vec2(length(fftValue.rg), length(fftValue.ba));
+  // sampleValue.xy = vec2(sampleValue.x + sampleValue.y) * 0.5; // Mono
+  float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
+  float multiplier = pow(10.0,dBRange / 30.0) * 0.1;
+  sampleValue *= multiplier;
+  vec3 lineClr = vec3(sampleValue.xy, max(sampleValue.x,sampleValue.y));
   vec3 returnClr = clamp(lineClr, 0.0, 1.0);
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
