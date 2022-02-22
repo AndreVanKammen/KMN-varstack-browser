@@ -143,7 +143,7 @@ export class IndexedDBTableBinding {
     this.tableMeta.count.$v = defaultData?.length || 0;
     this.tableMetaBinding = new IndexedDBRecordBinding(this.tableMeta, this.idb, tableMetaStore);
     this.boundRecords = {};
-    this.isLoaded = true;
+    this.isLoaded = false;
     this.justCreated = false;
     this.keyFieldName = this.tableToStore.keyFieldName;
     this.idb.getAll(this.tableStorageName).then( (result) => {
