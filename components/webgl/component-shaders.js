@@ -183,7 +183,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float dBRange = 115.0 - getLoudnesDataData(int(floor(lineX * float(bufferWidth)))).x;
   float multiplier = pow(10.0,dBRange / 30.0) * 0.1;
   sampleValue *= multiplier;
-  vec3 lineClr = vec3(sampleValue.xy, max(sampleValue.x,sampleValue.y));
+  vec3 lineClr = vec3(sampleValue.xy, 0.5*(min(sampleValue.x,sampleValue.y)+max(sampleValue.x,sampleValue.y)));
   vec3 returnClr = clamp(lineClr, 0.0, 1.0);
   float alpha = smoothstep(0.01, 0.03, max(returnClr.r,max(returnClr.g,returnClr.b))) * opacity;
   return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
