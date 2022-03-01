@@ -37,7 +37,14 @@ HTMLElement.prototype.$isVisible = function () {
 HTMLElement.prototype.$setSelected = function () {
   let parent = this.parentElement;
   for (let el of parent.children) {
-    el.classList.toggle("selected",el === this)
+    el.classList.toggle("selected", el === this);
+  }
+};
+
+HTMLElement.prototype.$clearSelected = function () {
+  let parent = this.parentElement;
+  for (let el of parent.children) {
+    el.classList.toggle("selected", false);
   }
 };
 
