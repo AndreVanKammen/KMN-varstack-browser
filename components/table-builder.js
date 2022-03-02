@@ -162,6 +162,14 @@ class TableBuilder {
 
   selectRow(rec, ix = -1) {
     if (ix === -1) {
+      if (!rec) {
+        this.selectedRec = undefined;
+        this.selectedIx = -1;
+        if (this.htmlRows.length) {
+          this.htmlRows[0].$clearSelected();
+        }
+        return;
+      }
       ix = this.table.findIxForElement(rec);
     } 
     if (0 > ix || ix >= this.htmlRows.length) {

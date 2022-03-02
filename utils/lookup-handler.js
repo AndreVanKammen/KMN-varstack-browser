@@ -15,7 +15,7 @@ const tableViewCache = {};
  * @return {TableBuilder} 
  */
 function getTableView(dropDown, baseVar, lookupTableName, showFieldName) {
-  /** @type {ArrayTableVar} */
+  /** @type {import('../../../TS/data-model.js').ArrayTableVarG} */
   let tableVar;
   // 
   if (lookupTableName.indexOf('.') !== -1) {

@@ -97,8 +97,7 @@ class CodeEditor extends PanelBase {
     };
     this.parentElement.appendChild(this.headerElement);
 
-    this.options.shaderVar.$addEvent(this.handleShaderChanged.bind(this));
-    this.handleShaderChanged();
+    this.options.shaderVar.$addEvent(this.handleShaderChanged.bind(this), true);
   }
 
   handleCompile() {
