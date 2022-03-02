@@ -46,7 +46,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   return vec4(vec3(0.4,0.4,level), 0.3 * level);
 }`,
 "scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
-  float lineX = Math.round((localCoord.x / size.x) * bufferWidth) / bufferWidth;
+  float lineX = localCoord.x / size.x;
   mat2x4 remLR = getEnergy();
   const vec4 weight = vec4(0.25,1.0,3.0,0.4);
   vec4 remL = remLR[0].wxzy * weight;

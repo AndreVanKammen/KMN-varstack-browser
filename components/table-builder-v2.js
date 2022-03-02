@@ -97,7 +97,7 @@ class ColumnInfo {
     this._headerName = headerName;
     this._defaultBinding = defaultBinding;
     this._x = x;
-    this._width = 100;
+    this._width = 300;
   }
 }
 
@@ -166,13 +166,14 @@ class TableBuilder {
       if (this.options.headerNames && this.options.headerNames[ix]) {
         headerName = this.options.headerNames[ix];
       }
-      this.columns.push(new ColumnInfo(
+      const column = new ColumnInfo(
         this,
         currentX,
         fieldName,
         headerName,
-        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding)));
-      currentX += 120;
+        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding))
+      this.columns.push(column);
+      currentX += column._width + 20;
     }
 
     this.table.addArrayChangeEvent(this.handleTableArrayChange.bind(this));
@@ -325,7 +326,7 @@ class TableBuilder {
     //       func.call(this, rec);
     //     };
     //   };
-    // }
+    // } 
   }
 
 

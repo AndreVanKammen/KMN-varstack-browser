@@ -5,6 +5,7 @@
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
 import InputBuilder from '../components/input-builder.js';
+// import TableBuilder from '../components/table-builder-v2.js';
 import TableBuilder from '../components/table-builder.js';
 import { addCSS } from '../utils/html-utils.js';
 
