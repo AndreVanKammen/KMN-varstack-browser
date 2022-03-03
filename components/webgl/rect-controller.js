@@ -3,10 +3,11 @@ import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.j
 import { ComponentShaders } from "./component-shaders.js";
 
 
-const baseVertexShader = `
+const baseVertexShader = /*glsl*/`
 uniform sampler2D dataTexture;
 uniform vec2 canvasResolution;
 uniform float dpr;
+uniform int startIX;
 out vec2 localCoord;
 
 flat out vec4 posAndSize;
@@ -14,7 +15,7 @@ flat out vec4 mouse;
 flat out vec4 value;
 
 void main(void) {
-  int dataIx = (gl_VertexID / 6) * 4;
+  int dataIx = (startIX + (gl_VertexID / 6)) * 4;
 
   // We use vertex pulling to get the data that is the same for 4 points
   vec4 box = texelFetch(dataTexture, ivec2(dataIx % 1024, dataIx / 1024), 0);
@@ -39,7 +40,7 @@ void main(void) {
   gl_Position = vec4((boxPoint.yw * dpr / canvasResolution) * vec2(2.0,-2.0) + vec2(-1.0,1.0), 1.0, 1.0);
 }`;
 
-export const baseComponentShaderHeader = `
+export const baseComponentShaderHeader = /*glsl*/`
 precision highp float;
 
 uniform int drawCount;
@@ -129,6 +130,7 @@ export class ComponentInfo {
         this.shaderFooter,
         2
       );
+      console.log('Shader compiled: ', this.shaderName);
     }
     return this._shaderProgram;
   }
@@ -211,7 +213,12 @@ export class RectController {
               if (si) { // && si.size.width && si.size.height) {
                 si.onUpdate(si);
                 if ((si.mouse.state > 0) === (foreground === 1)) {
-                  // Draw area rectangle
+                  // if (component.shaderName === 'music-keyboard') {
+                  //   if (this.drawCount % 30 === 29) {
+                  //     console.log('>', startIx, length);
+                  //   }
+                  // }
+                    // Draw area rectangle
                   wa[pos++] = si.rect.x;
                   wa[pos++] = si.rect.y;
                   wa[pos++] = si.rect.width;
@@ -253,7 +260,7 @@ export class RectController {
     gl.enable(this.gl.BLEND);
     gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
-    gl.enable(gl.SCISSOR_TEST);
+    // gl.enable(gl.SCISSOR_TEST);
 
     this.drawCount++;
     for (const rd of renderData) {
@@ -261,6 +268,11 @@ export class RectController {
       const clipRect = rd.component.clipRect;
       const shaderProgram = rd.component.getShaderProgram(gl);
       gl.useProgram(shaderProgram);
+      // if (rd.component.shaderName === 'music-keyboard') {
+      //   if (this.drawCount % 30 === 0) {
+      //     console.log('.', rd.startIx * 6, length * 6);
+      //   }
+      // }
 
       shaderProgram.u.canvasResolution?.set(w, h);
       shaderProgram.u.drawCount?.set(this.drawCount)
@@ -276,14 +288,15 @@ export class RectController {
         rd.component.onShaderInit(gl, shaderProgram);
       }
       
-      gl.scissor(clipRect.x * dpr, 
-                 h - (clipRect.y + clipRect.height) * dpr, 
-                 clipRect.width * dpr, 
-                 clipRect.height * dpr);
+      // gl.scissor(clipRect.x * dpr, 
+      //            h - (clipRect.y + clipRect.height) * dpr,
+      //            clipRect.width * dpr,
+      //            clipRect.height * dpr);
 
-      gl.drawArrays(gl.TRIANGLES, rd.startIx * 6, length * 6);
+      shaderProgram.u.startIX.set(rd.startIx);
+      gl.drawArrays(gl.TRIANGLES, 0, length * 6);
     }    
-    gl.disable(gl.SCISSOR_TEST);
+    // gl.disable(gl.SCISSOR_TEST);
 
     animationFrame(this.handleFrame);
   }
