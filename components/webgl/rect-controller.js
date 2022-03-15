@@ -137,16 +137,17 @@ export class ComponentInfo {
 }
 
 /** @type {RectController} */ 
-let rectController 
+let rectController = null;
 const floatSizePerComponent = 16;
 export class RectController {
-  // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
-  /** @type {Record<string,ComponentInfo>} */ _componentInfos = {};
-  _arrayLength = 256;
-  _webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
-  textureInfo = {texture:undefined, size:0}
 
   constructor() {
+    // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
+    /** @type {Record<string,ComponentInfo>} */
+    this._componentInfos = {};
+    this._arrayLength = 256;
+    this._webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
+    this.textureInfo = { texture: undefined, size: 0 }
   }
 
   /**

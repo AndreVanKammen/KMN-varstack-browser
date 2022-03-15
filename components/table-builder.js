@@ -79,6 +79,24 @@ class TableBuilder {
     this.onRowDblClick = this.options.onRowDblClick;
   }
 
+  /**
+   * 
+   * @param {HTMLTableRowElement} row 
+   * @param {keyof HTMLElementTagNameMap} tagName
+   * @param {RecordVar} rec 
+   * @param {String} name 
+   * @param {String} pathData 
+   * @param {(rec: RecordVar) => void} func 
+   */
+   addFunc(row, tagName, rec, name, pathData, func) {
+    let el = row.$el({ tag: tagName, cls: name });
+    el.appendChild(svgIcon(pathData));
+    el.onclick = (evt) => {
+      evt.stopPropagation();
+      func.call(this, rec);
+    };
+   }
+  
   handleKeyPress(evt) {
     // TODO scroll into view
     if (evt.key === 'ArrowDown') {
@@ -118,13 +136,13 @@ class TableBuilder {
       if (this.options.headerNames && this.options.headerNames[ix]) {
         headerName = this.options.headerNames[ix];
       }
-      this.headRow.$el({ tag: "th", cls: headerName }).innerText = headerName;
+      this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ','-') }).innerText = headerName;
     }
 
     this.addButton = null;
     if (this.options.editList) {
-      this.headRow.$el({ tag: "th", cls: "up" }).width = "20px";
-      this.headRow.$el({ tag: "th", cls: "down" }).width = "20px";
+      this.addFunc(this.headRow, 'th', null, "up", "M4,16L12,8L20,16", this.moveRowUp);
+      this.addFunc(this.headRow, 'th', null, "down", "M4,8L12,16L20,8", this.moveRowDown);
       this.addButton = this.headRow.$el({ tag: "th", cls: "add" });
       // this.addButton.width = "20px";
       this.addButton.appendChild(svgIcon("M12,4v16M4,12h16"));
@@ -176,7 +194,7 @@ class TableBuilder {
       log.error("Index out of bound in selectRow");
     }
     if (!rec) {
-      rec = this.table[ix];
+      rec = this.table.element(ix);
     }
     this.htmlRows[ix].$setSelected();
     this.htmlRows[ix].scrollIntoView({ behavior: "auto", block: "nearest",inline: "nearest"});
@@ -202,11 +220,21 @@ class TableBuilder {
   }
 
   moveRowUp(rec) {
-    this.table.moveUp(rec);
+    if (!rec) {
+      rec = this.selectedRec;
+    }
+    if (rec) {
+      this.table.moveUp(rec);
+    }
   }
 
   moveRowDown(rec) {
-    this.table.moveDown(rec);
+    if (!rec) {
+      rec = this.selectedRec;
+    }
+    if (rec) {
+      this.table.moveDown(rec);
+    }
   }
 
   deleteRow(rec) {
@@ -226,7 +254,7 @@ class TableBuilder {
       if (this.options.headerNames && this.options.headerNames[ix]) {
         headerName = this.options.headerNames[ix];
       }
-      let tdEl = row.$el({ tag: "td", cls: headerName });
+      let tdEl = row.$el({ tag: "td", cls: headerName.replaceAll(' ','-') });
       let field = rec.$findVar(fieldName);
       if (field) {
         let bindingIx = bindings.push(new this.bindings[ix](field, tdEl))-1;
@@ -243,27 +271,19 @@ class TableBuilder {
       }
     }
     if (this.options.editList) {
-      const addFunc = (name, pathData, func) => {
-        let el = row.$el({ tag: "td", cls: name });
-        el.appendChild(svgIcon(pathData));
-        el.onclick = (evt) => {
-          evt.stopPropagation();
-          func.call(this, rec);
-        };
-      };
       // TODO better detection for top row, this won't work with filter or sort
       // if (ix <= 0) {
       //   addFunc("none", "", () => { });
       // } else {
-      addFunc("up", "M4,16L12,8L20,16", this.moveRowUp);
+      this.addFunc(row,'td',rec,"up", "M4,16L12,8L20,16", this.moveRowUp);
       //}
       // TODO better detection for bottom row, this won't work with filter or sort
       // if (ix >= this.table.array.length - 1) {
       //   addFunc("none", "", () => { });
       // } else {
-      addFunc("down", "M4,8L12,16L20,8", this.moveRowDown);
+      this.addFunc(row,'td',rec,"down", "M4,8L12,16L20,8", this.moveRowDown);
       // }
-      addFunc("delete", "M4,4L20,20M20,4L4,20", this.deleteRow);
+      this.addFunc(row,'td',rec,"delete", "M4,4L20,20M20,4L4,20", this.deleteRow);
     }
     // @ts-ignore: TODO other way to handle cleanup
     row.dataForCleanup = {
