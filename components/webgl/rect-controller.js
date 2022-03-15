@@ -78,23 +78,30 @@ export class RectInfo {
 }
 
 function getComponentKey(clipHash, shaderName) {
-  return clipHash + '_' + shaderName
+  return clipHash + '_' + shaderName;
 }
 
 export class ComponentInfo {
-  /** @type {ComponentUpdateFunc} */ 
-  onUpdate;
-  /** @type {ShaderInitFunc} */ 
-  onShaderInit;
-  /** @type {RectInfo[]} */ 
-  _rectInfos = []
-  /** @type {import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt} */ 
-  _shaderProgram = undefined;
-  shaderName = '';
-  shaderHeader = baseComponentShaderHeader;
-  shaderFooter = baseComponentShaderFooter;
-  clipHash = 0;
-  clipRect = {x:0, y:0, width:0, height:0};
+  constructor() {
+    /** @type {ComponentUpdateFunc} */
+    this.onUpdate;
+    /** @type {ShaderInitFunc} */
+    this.onShaderInit;
+    /** @type {RectInfo[]} */
+    this._rectInfos = []
+    /** @type {import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt} */
+    this._shaderProgram = undefined;
+    this.getShader = this.handleGetShader.bind(this);
+    this.shaderName = '';
+    // shaderHeader = baseComponentShaderHeader;
+    // shaderFooter = baseComponentShaderFooter;
+    this.clipHash = 0;
+    this.clipRect = { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  handleGetShader() {
+    return baseComponentShaderHeader + ComponentShaders[this.shaderName] + baseComponentShaderFooter;
+  }
 
   get isVisible() {
     return this.clipRect.width!==0 && this.clipRect.height!==0;
@@ -125,9 +132,10 @@ export class ComponentInfo {
     if (this._shaderProgram === undefined) {
       this._shaderProgram = gl.getShaderProgram(
         baseVertexShader,
-        this.shaderHeader +
-          ComponentShaders[this.shaderName] +
-        this.shaderFooter,
+        this.getShader(),
+        // this.shaderHeader +
+        //   ComponentShaders[this.shaderName] +
+        // this.shaderFooter,
         2
       );
       console.log('Shader compiled: ', this.shaderName);
