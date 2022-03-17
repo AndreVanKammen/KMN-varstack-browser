@@ -34,6 +34,9 @@ HTMLElement.prototype.$isVisible = function () {
   return !this.classList.contains('hidden');
 };
 
+HTMLElement.prototype.$hasFocus = function () {
+  return document.activeElement === this && document.hasFocus();
+};
 HTMLElement.prototype.$setSelected = function () {
   let parent = this.parentElement;
   for (let el of parent.children) {
