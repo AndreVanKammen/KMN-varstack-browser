@@ -269,7 +269,7 @@ export class RectController {
     gl.enable(this.gl.BLEND);
     gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
-    // gl.enable(gl.SCISSOR_TEST);
+    gl.enable(gl.SCISSOR_TEST);
 
     this.drawCount++;
     for (const rd of renderData) {
@@ -297,15 +297,15 @@ export class RectController {
         rd.component.onShaderInit(gl, shaderProgram);
       }
       
-      // gl.scissor(clipRect.x * dpr, 
-      //            h - (clipRect.y + clipRect.height) * dpr,
-      //            clipRect.width * dpr,
-      //            clipRect.height * dpr);
+      gl.scissor(clipRect.x * dpr, 
+                 h - (clipRect.y + clipRect.height) * dpr,
+                 clipRect.width * dpr,
+                 clipRect.height * dpr);
 
       shaderProgram.u.startIX.set(rd.startIx);
       gl.drawArrays(gl.TRIANGLES, 0, length * 6);
     }    
-    // gl.disable(gl.SCISSOR_TEST);
+    gl.disable(gl.SCISSOR_TEST);
 
     animationFrame(this.handleFrame);
   }
