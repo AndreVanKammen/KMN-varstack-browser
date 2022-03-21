@@ -23,7 +23,7 @@ div.${kmnClassName} {
   -webkit-user-select: none; /* Chrome, Safari, and Opera */
   -webkit-touch-callout: none; /* Disable Android and iOS callouts*/      
 }
-.${kmnClassName} {
+:root {
   --headerHeight: 42px;
   --tracksHeight: min(720px, 70%);
 
