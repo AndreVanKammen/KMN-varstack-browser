@@ -182,7 +182,7 @@ export class RectController {
    */
   setCanvas(canvas) {
     this.canvas = canvas;
-    this.gl = getWebGLContext(this.canvas, { alpha: true });
+    this.gl = getWebGLContext(this.canvas, { alpha: true, desynchronized: true });
     const ext = this.gl.getExtension('EXT_color_buffer_float');
 
     this.drawCount = 0;
