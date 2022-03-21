@@ -14,14 +14,11 @@ div.${kmnClassName} {
   outline: none;
   width: 100%;
   height: 100%;
+  left: 0;
+  top: 0;
   font-family: Arial, Helvetica, sans-serif;
   scrollbar-width: thin;
-  user-select: none; /* Firefox */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer */
-  -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
-  -webkit-user-select: none; /* Chrome, Safari, and Opera */
-  -webkit-touch-callout: none; /* Disable Android and iOS callouts*/      
+  user-select: none;
 }
 :root {
   --headerHeight: 42px;
