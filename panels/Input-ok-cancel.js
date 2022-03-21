@@ -8,33 +8,31 @@ import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
 import InputBuilder from '../components/input-builder.js';
 import TableBuilder from '../components/table-builder.js';
-import { addCSS } from '../utils/html-utils.js';
+import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
-const cssStr = `/*css*/
-:root {
+const cssStr = /*css*/`
+.${kmnClassName} {
   --buttonAreaHeight: 26px;
 }
-.buttonFooter {
+.${kmnClassName}.buttonFooter {
   height: var(--buttonAreaHeight);
   bottom: 0;
 }
-.buttonFooter .ok-button {
+.${kmnClassName}.buttonFooter .ok-button {
   position: absolute;
   width: 90px;
   right: 0;
 }
-
-.buttonFooter .cancel-button {
+.${kmnClassName}.buttonFooter .cancel-button {
   position: absolute;
   width: 90px;
   right: 100px;
 }
-
-.inputRecordDiv {
+.${kmnClassName}.inputRecordDiv {
   bottom: var(--buttonAreaHeight);
   height: calc(100% - var(--buttonAreaHeight));
 }
-/*!css*/`
+`;
 
 const defaultOptions = {
 };

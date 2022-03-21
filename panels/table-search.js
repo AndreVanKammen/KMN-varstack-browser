@@ -7,20 +7,20 @@ import { Types } from '../../KMN-varstack.js/varstack.js';
 import InputBuilder from '../components/input-builder.js';
 // import TableBuilder from '../components/table-builder-v2.js';
 import TableBuilder from '../components/table-builder.js';
-import { addCSS } from '../utils/html-utils.js';
+import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
-const cssStr = `/*css*/
-:root {
+const cssStr = /*css*/`
+.${kmnClassName} {
   --tableSearchHeaderHeight: 26px;
 }
-.tableSearchHeader {
+.${kmnClassName}.tableSearchHeader {
   height: var(--tableSearchHeaderHeight);
 }
-.tableSearchTableDiv {
+.${kmnClassName}.tableSearchTableDiv {
   top: var(--tableSearchHeaderHeight);
   height: calc(100% - var(--tableSearchHeaderHeight));
 }
-/*!css*/`
+`
 
 const defaultOptions = {
 };

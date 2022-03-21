@@ -5,14 +5,14 @@
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { getOpenTasksTable } from '../../KMN-varstack.js/utils/parallel-tasks.js';
 import TableBuilder from '../components/table-builder.js';
-import { addCSS } from '../utils/html-utils.js';
+import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
-const cssStr = `/*css*/
-.taskViewTableDiv {
+const cssStr = /*css*/`
+.${kmnClassName}.taskViewTableDiv {
   top: 0;
   height: 100%;
 }
-/*!css*/`
+`
 
 const defaultOptions = {
 };

@@ -5,14 +5,14 @@
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
 import InnerTextBinding from '../../KMN-varstack-browser/utils/inner-text-binding.js';
-import { addCSS } from '../../KMN-varstack-browser/utils/html-utils.js';
+import { addCSS, kmnClassName } from '../../KMN-varstack-browser/utils/html-utils.js';
 import GlslEditor from '../../KMN-utils-browser/glsl-editor.js';
 
-const cssStr = `/*css*/
-:root {
+const cssStr = /*css*/`
+.${kmnClassName} {
   --codeHeaderHeight: 22px;
 }
-.glslElement {
+.${kmnClassName}.glslElement {
   position: absolute;
   border: 0;
   outline: 0;
@@ -22,7 +22,7 @@ const cssStr = `/*css*/
   width: 100%;
   height: calc(100% - var(--codeHeaderHeight));
 }
-.codeHeader {
+.${kmnClassName}.codeHeader {
   position: absolute;
   overflow: hidden;
   border-bottom: var(--subBorderWidth) solid var(--borderColor);
@@ -33,14 +33,14 @@ const cssStr = `/*css*/
   width: calc(100% - 24px);
   padding: 1px 12px;
 }
-.codeTitle {
+.${kmnClassName}.codeTitle {
   position: absolute;
   overflow: hidden;
   top: 3px;
   left: 12px;
   height: calc(var(--codeHeaderHeight) - var(--subBorderWidth));
 }
-.codeCompile {
+.${kmnClassName}.codeCompile {
   position: absolute;
   right: -1px;
   color: var(--subHeaderColor);
@@ -53,11 +53,11 @@ const cssStr = `/*css*/
   justify-content: center;
   font: inherit;
 }
-.codeCompile:hover {
+.${kmnClassName}.codeCompile:hover {
   background: var(--activeHoverColor);
   color: white;
 }
-/*!css*/`
+`;
 
 class CodeEditor extends PanelBase {
 

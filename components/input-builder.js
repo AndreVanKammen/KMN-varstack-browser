@@ -5,34 +5,34 @@
 import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import { CreateInputBinding } from '../utils/input-binding.js';
-import { addCSS } from '../utils/html-utils.js';
+import { addCSS, kmnClassName } from '../utils/html-utils.js';
 import InnerTextBinding from '../utils/inner-text-binding.js';
 
 let labelUid = 0;
 const nop = function () { };
-const cssStr = /*css*/`/*css*/
-tbody.input-table {
+const cssStr = /*css*/`
+.${kmnClassName} tbody.input-table {
   height: 100%;
   overflow-y: auto;
   padding-top: 8px;
 }
-table.input-table.vertical td.isLabel {
+.${kmnClassName} table.input-table.vertical td.isLabel {
   padding-top: 8px;
 }
-table.input-table.vertical td {
+.${kmnClassName} table.input-table.vertical td {
   text-align: center;
 }
-table.input-table.vertical label {
+.${kmnClassName} table.input-table.vertical label {
   text-align: center;
 }
-table.input-table.vertical td.isInput {
+.${kmnClassName} table.input-table.vertical td.isInput {
   padding-bottom: 8px;
   border-bottom: var(--borderWidth) solid var(--borderColor);
 }
-td.isLabel {
+.${kmnClassName} td.isLabel {
   width: 33%;
 }
-td.isValue { 
+.${kmnClassName} td.isValue { 
   text-align: right;
   font-size: smaller;
   width: 20%;
