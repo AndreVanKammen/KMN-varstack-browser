@@ -261,7 +261,7 @@ class TableBuilder {
         // TODO make better
         let changeDef = rec['_' + fieldName + '_def'];
         if (changeDef) {
-          changeDef.$addEvent(() => {
+          changeDef.$addDeferedEvent(() => {
             bindings[bindingIx].remove();
             bindings[bindingIx] = new this.bindings[ix](rec.$findVar(fieldName), tdEl);
           });
@@ -317,7 +317,7 @@ class TableBuilder {
         this.newRec.$parent = this.table;
         this.newRec.$setDefinition(this.table.elementDef);
         let addEvent = null
-        addEvent = this.newRec.$addEvent(() => {
+        addEvent = this.newRec.$addDeferedEvent(() => {
           this.newRec.$removeEvent(addEvent);
           this.table.add(this.newRec);
           this.newRec = null;
