@@ -7,9 +7,16 @@ import log from "../../KMN-varstack.js/core/log.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
 import { BaseBinding, BaseVar } from "../../KMN-varstack.js/vars/base.js";
+import { addCSS } from "../utils/html-utils.js";
 import InnerTextBinding from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
 
+const cssStr = /*css*/`
+.t-div {
+  white-space: nowrap;
+  overflow: hidden;
+}
+`;
 /**
  * Abstaction for HTML elements, want to be able to replace it with other (shader) stuff
  */
@@ -32,7 +39,7 @@ class RectElement {
 
   update() {
     if (!this._element) {
-      this._element = this._owner.parentElement.$el({ tag: 'div' });
+      this._element = this._owner.parentElement.$el({ tag: 'div', cls: 't-div' });
       this._element.onclick = this._owner.handleRowClick.bind(this._owner, this._row._rec, -1);
     }
     if (!this._binding) {
@@ -48,7 +55,7 @@ class RectElement {
       // }
     }
     this._element.style.left = this._column._x + 'px';
-    this._element.style.width = this._column._width + 'px';
+    this._element.style.width = this._column._width  + 'px';
     this._element.style.top = this._row._y + 'px';
     this._element.style.height = this._row._height + 'px';
   }
@@ -114,6 +121,7 @@ class TableBuilder {
    * @param {import('../../../TS/table-builder').TableBuilderOptions<import('../../../TS/table-builder').ArrayTableType<T>>} options 
    */
   constructor(element, table, options) {
+    addCSS('table-builder-vs', cssStr);
     this.table = table;
     this.options = options || {};
     this.options.alternativeBindings = this.options.alternativeBindings || {};
@@ -274,7 +282,6 @@ class TableBuilder {
     if (this.selectedIx !== -1) {
       this.rows[this.selectedIx].selected = true;
     }
-    this.rows[ix].selected = true;
     // this.htmlRows[ix].scrollIntoView({ behavior: "auto", block: "nearest",inline: "nearest"});
     this.selectedRec = rec;
     this.selectedIx = ix;

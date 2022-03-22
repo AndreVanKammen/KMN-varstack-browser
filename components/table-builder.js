@@ -136,7 +136,14 @@ class TableBuilder {
       if (this.options.headerNames && this.options.headerNames[ix]) {
         headerName = this.options.headerNames[ix];
       }
-      this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ','-') }).innerText = headerName;
+      let headerElement = this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ', '-') });
+      headerElement.innerText = headerName;
+      headerElement.onclick = () => {
+        this.table.setSort(fieldName,
+          !this.table.sortAscending);
+        this.updateTable();
+      }
+        
     }
 
     this.addButton = null;
@@ -293,10 +300,12 @@ class TableBuilder {
 
   updateTable() {
     this.htmlRows = [];
-    // TODO: beter partial update, this one leaks memory through the textbindings
+    // TODO: check if this leaks memory through the textbindings
 
     this.tbody.$removeChildren();
-    for (let ix = 0; ix < this.table.array.length; ix++) {
+    let sortTable = this.table.getSortArray();
+    for (let sortIx = 0; sortIx < sortTable.length; sortIx++) {
+      let ix = sortTable[sortIx];
       let rec = this.table.array[ix];
 
       let row = this.rowCache[rec.$hash];
@@ -309,7 +318,7 @@ class TableBuilder {
       }
       row.onclick = this.handleRowClick.bind(this, rec, ix);
       row.ondblclick = this.handleRowDblClick.bind(this, rec, ix);
-      this.htmlRows.push(row);
+      this.htmlRows[ix] = row;
     }
     if (this.options.inlineEdit) {
       if (!this.newRec) {
