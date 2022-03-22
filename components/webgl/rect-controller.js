@@ -144,18 +144,68 @@ export class ComponentInfo {
   }
 }
 
+class CanvasUpdateGroup {
+  constructor(name) {
+    this.name = name;
+    /** @type {CanvasUpdateRoutine[]} */
+    this.routines = [];
+  }
+}
+
+class CanvasUpdateRoutine {
+  /**
+   * @param {CanvasUpdateGroup} owner 
+   * @param {()=>void} routine 
+   * @param {HTMLElement} clipElement
+   */
+  constructor(owner, routine, clipElement) {
+    this.owner = owner;
+    this.routine = routine;
+    this.index = -1;
+    this.clipElement = clipElement;
+  }
+
+  registerShader(name, vertexFunc, fragmentFunc) {
+    // TODO: add to global shadercache, strip body and make it setable in component editor
+    this.vertexFunc = vertexFunc;
+    this.fragmentFunc = fragmentFunc;
+  }
+}
+
+
 /** @type {RectController} */ 
 let rectController = null;
 const floatSizePerComponent = 16;
 export class RectController {
-
   constructor() {
     // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
     /** @type {Record<string,ComponentInfo>} */
     this._componentInfos = {};
     this._arrayLength = 256;
     this._webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
-    this.textureInfo = { texture: undefined, size: 0 }
+    this._textureInfo = { texture: undefined, size: 0 }
+    /** @type {Record<string,CanvasUpdateGroup>} */
+    this._otherCanvasRoutines = {};
+    this.drawingDisabled = false;
+    this.frameDivider = 1;
+  }
+
+  // TODO: convert HTMLElement to getcliprectInterface
+  /**
+   * Register another routine that draws on the canvas, they are grouped by name
+   * @param {string} name
+   * @param {() => {}} updateCanvasRoutine
+   * @param {HTMLElement} clipElement 
+   * @returns {CanvasUpdateRoutine} Id for the registered routine, unique for its name
+   */
+  registerCanvasUpdate(name, updateCanvasRoutine, clipElement) {
+    let canvasUpdateGroup = this._otherCanvasRoutines[name];
+    if (!canvasUpdateGroup) {
+      canvasUpdateGroup = this._otherCanvasRoutines[name] = new CanvasUpdateGroup(name);
+    }
+    let canvasRoutine = new CanvasUpdateRoutine(canvasUpdateGroup, updateCanvasRoutine, clipElement)
+    canvasRoutine.index = canvasUpdateGroup.routines.push(canvasRoutine);
+    return canvasRoutine;
   }
 
   /**
@@ -190,9 +240,9 @@ export class RectController {
   }
 
 
-  handleFrame = () => {
+  drawComponents() {
     let gl = this.gl;
-    let {w, h, dpr} = gl.updateCanvasSize(this.canvas);
+    let { w, h, dpr } = gl.updateCanvasSize(this.canvas);
 
     let componentLength = 0;
     for (const component of Object.values(this._componentInfos)) {
@@ -227,7 +277,7 @@ export class RectController {
                   //     console.log('>', startIx, length);
                   //   }
                   // }
-                    // Draw area rectangle
+                  // Draw area rectangle
                   wa[pos++] = si.rect.x;
                   wa[pos++] = si.rect.y;
                   wa[pos++] = si.rect.width;
@@ -271,7 +321,6 @@ export class RectController {
 
     gl.enable(gl.SCISSOR_TEST);
 
-    this.drawCount++;
     for (const rd of renderData) {
       const length = rd.componentLength;
       const clipRect = rd.component.clipRect;
@@ -287,8 +336,8 @@ export class RectController {
       shaderProgram.u.drawCount?.set(this.drawCount)
       if (shaderProgram.u.dataTexture) {
         gl.activeTexture(gl.TEXTURE3);
-        this.textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this.textureInfo);
-        gl.bindTexture(gl.TEXTURE_2D, this.textureInfo.texture);
+        this._textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this._textureInfo);
+        gl.bindTexture(gl.TEXTURE_2D, this._textureInfo.texture);
         gl.uniform1i(shaderProgram.u.dataTexture, 3);
         // gl.activeTexture(gl.TEXTURE0);
       }
@@ -297,16 +346,37 @@ export class RectController {
         rd.component.onShaderInit(gl, shaderProgram);
       }
       
-      gl.scissor(clipRect.x * dpr, 
-                 h - (clipRect.y + clipRect.height) * dpr,
-                 clipRect.width * dpr,
-                 clipRect.height * dpr);
+      gl.scissor(clipRect.x * dpr,
+        h - (clipRect.y + clipRect.height) * dpr,
+        clipRect.width * dpr,
+        clipRect.height * dpr);
 
       shaderProgram.u.startIX.set(rd.startIx);
       gl.drawArrays(gl.TRIANGLES, 0, length * 6);
-    }    
+    }
     gl.disable(gl.SCISSOR_TEST);
 
+  }
+
+  disableDrawing(state) {
+    this.drawingDisabled = state;
+  }
+
+  handleFrame = () => {
+    if (!this.drawingDisabled) {
+      this.drawCount++;
+      if (this.drawCount % this.frameDivider === 0) {
+        this.drawComponents();
+
+        // Draw other canvas functions
+        for (let key of Object.keys(this._otherCanvasRoutines)) {
+          let routines = this._otherCanvasRoutines[key];
+          for (let routine of routines.routines) {
+            routine.routine();
+          }
+        }
+      }
+    }
     animationFrame(this.handleFrame);
   }
 
@@ -346,7 +416,6 @@ export class RectController {
     }
     return compileInfo;
   }
-
 }
 
 let webGLElementHashCount = 1;
