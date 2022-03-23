@@ -161,21 +161,35 @@ class TableBuilder {
       if (this.options.showFilterEdits) {
         let inpDiv = headerElement.$el({ cls: 'filter-input' });
         let baseVar = this.filterRec[fieldName];
+        let baseVar2 = this.filterRec2[fieldName];
         // Give the var it's own definition
         baseVar.$setDefinition(baseVar.$varDefinition);
         baseVar.$varDefinition.isReadOnly = false;
+        if (baseVar.$varDefinition.inputType === 'range') {
+          baseVar.$varDefinition.inputType = 'number';
+        }
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
         baseVar.$addDeferedEvent(() => {
-          this.table.setFilter(fieldName, baseVar.$v);
+          this.table.setFilter(fieldName, baseVar.$v, baseVar2.$v);
           this.updateTable();
         });
 
         let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
         if (fieldIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
-          let baseVar2 = this.filterRec2[fieldName];
           // Give the var it's own definition
           baseVar2.$setDefinition(baseVar2.$varDefinition);
           baseVar2.$varDefinition.isReadOnly = false;
+          baseVar2.$addDeferedEvent(() => {
+            this.table.setFilter(fieldName, baseVar.$v, baseVar2.$v);
+            this.updateTable();
+          });
+          if (baseVar2.$varDefinition.range) {
+            baseVar.$v = baseVar2.$varDefinition.range[0];
+            baseVar2.$v = baseVar2.$varDefinition.range[1];
+          }
+          if (baseVar2.$varDefinition.inputType === 'range') {
+            baseVar2.$varDefinition.inputType = 'number';
+          }
           let inputElement2 = new CreateInputBinding(baseVar2, inpDiv);
         }
       }

@@ -75,6 +75,16 @@ tbody::-webkit-scrollbar-track
   background-color: var(--scrollBarThumb);
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+}
 /*
   Default components
 */
@@ -193,6 +203,7 @@ table.${kmnClassName} th {
   background: var(--tableHeaderBackground);
   font-weight: normal;
   color: var(--tableHeaderColor);
+  overflow: hidden;
 }
 tbody.${kmnClassName} tr:hover {
   /* background: var(--tableHoverColor); */
