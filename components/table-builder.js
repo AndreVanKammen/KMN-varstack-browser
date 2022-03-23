@@ -100,23 +100,37 @@ class TableBuilder {
   handleKeyPress(evt) {
     // TODO scroll into view
     if (evt.key === 'ArrowDown') {
-      for (let ix = this.selectedIx + 1; ix < this.htmlRows.length; ix++) {
-        if (this.htmlRows[ix].$isVisible()) {
-          evt.preventDefault();
-          evt.stopPropagation();
-          this.selectRow(this.table.array[ix], ix);
-          break;
-        }
+      let sortIx = this.sortArray.indexOf(this.selectedIx);
+      if (sortIx >= 0 && sortIx < this.sortArray.length - 1) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        let ix = this.sortArray[sortIx + 1];
+        this.selectRow(this.table.array[ix], ix);
       }
+      // for (let ix = this.selectedIx + 1; ix < this.htmlRows.length; ix++) {
+      //   if (this.htmlRows[ix].$isVisible()) {
+      //     evt.preventDefault();
+      //     evt.stopPropagation();
+      //     this.selectRow(this.table.array[ix], ix);
+      //     break;
+      //   }
+      // }
     } else if (evt.key === 'ArrowUp') {
-      for (let ix = this.selectedIx - 1; ix >= 0; ix--) {
-        if (this.htmlRows[ix].$isVisible()) {
-          evt.preventDefault();
-          evt.stopPropagation();
-          this.selectRow(this.table.array[ix], ix);
-          break;
-        }
+      let sortIx = this.sortArray.indexOf(this.selectedIx);
+      if (sortIx > 0 ) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        let ix = this.sortArray[sortIx - 1];
+        this.selectRow(this.table.array[ix], ix);
       }
+      // for (let ix = this.selectedIx - 1; ix >= 0; ix--) {
+      //   if (this.htmlRows[ix].$isVisible()) {
+      //     evt.preventDefault();
+      //     evt.stopPropagation();
+      //     this.selectRow(this.table.array[ix], ix);
+      //     break;
+      //   }
+      // }
     } else if (evt.key === 'Enter') {
       this.handleRowClick(this.selectedRec, this.selectedIx);
     } else if (evt.key === 'Escape') {
@@ -130,6 +144,12 @@ class TableBuilder {
       log.error("No fields");
     }
     this.headRow.$removeChildren();
+    if (this.options.showFilterEdits) {
+      this.filterRec = new this.table.elementType
+      this.filterRec2 = new this.table.elementType
+      this.thead.classList.add('filter');
+      this.headRow.classList.add('filter');
+    }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       let fieldName = this.fieldNames[ix];
       let headerName = fieldName;
@@ -138,12 +158,37 @@ class TableBuilder {
       }
       let headerElement = this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ', '-') });
       headerElement.innerText = headerName;
-      headerElement.onclick = () => {
-        this.table.setSort(fieldName,
-          !this.table.sortAscending);
-        this.updateTable();
+      if (this.options.showFilterEdits) {
+        let inpDiv = headerElement.$el({ cls: 'filter-input' });
+        let baseVar = this.filterRec[fieldName];
+        // Give the var it's own definition
+        baseVar.$setDefinition(baseVar.$varDefinition);
+        baseVar.$varDefinition.isReadOnly = false;
+        let inputElement = new CreateInputBinding(baseVar, inpDiv);
+        baseVar.$addDeferedEvent(() => {
+          this.table.setFilter(fieldName, baseVar.$v);
+          this.updateTable();
+        });
+
+        let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
+        if (fieldIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
+          let baseVar2 = this.filterRec2[fieldName];
+          // Give the var it's own definition
+          baseVar2.$setDefinition(baseVar2.$varDefinition);
+          baseVar2.$varDefinition.isReadOnly = false;
+          let inputElement2 = new CreateInputBinding(baseVar2, inpDiv);
+        }
       }
-        
+
+      if (this.options.sortOnHeaderClick) {
+        headerElement.onclick = (evt) => {
+          console.log(evt);
+          if (evt.target === headerElement) {
+            this.table.setSort(fieldName);
+            this.updateTable();
+          }
+        }
+      }
     }
 
     this.addButton = null;
@@ -303,9 +348,9 @@ class TableBuilder {
     // TODO: check if this leaks memory through the textbindings
 
     this.tbody.$removeChildren();
-    let sortTable = this.table.getSortArray();
-    for (let sortIx = 0; sortIx < sortTable.length; sortIx++) {
-      let ix = sortTable[sortIx];
+    this.sortArray = this.table.getSortArray();
+    for (let sortIx = 0; sortIx < this.sortArray.length; sortIx++) {
+      let ix = this.sortArray[sortIx];
       let rec = this.table.array[ix];
 
       let row = this.rowCache[rec.$hash];

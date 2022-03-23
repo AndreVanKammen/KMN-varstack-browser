@@ -165,6 +165,16 @@ thead.${kmnClassName} {
   height: 26px;
   width: calc(100%);
 }
+
+div.${kmnClassName}.filter-input {
+  position: relative;
+  display: inline-block;
+  height: 26px;
+}
+
+thead.${kmnClassName}.filter {
+  height: 78px;
+}
 thead.${kmnClassName} .filler {
   width: 3px;
 }
