@@ -147,8 +147,7 @@ class TableBuilder {
     if (this.options.showFilterEdits) {
       this.filterRec = new this.table.elementType
       this.filterRec2 = new this.table.elementType
-      this.thead.classList.add('filter');
-      this.headRow.classList.add('filter');
+      this.tableEl.classList.add('filter');
     }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       let fieldName = this.fieldNames[ix];
@@ -170,7 +169,7 @@ class TableBuilder {
         }
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
         baseVar.$addDeferedEvent(() => {
-          this.table.setFilter(fieldName, baseVar.$v, baseVar2.$v);
+          this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
           this.updateTable();
         });
 
@@ -180,7 +179,7 @@ class TableBuilder {
           baseVar2.$setDefinition(baseVar2.$varDefinition);
           baseVar2.$varDefinition.isReadOnly = false;
           baseVar2.$addDeferedEvent(() => {
-            this.table.setFilter(fieldName, baseVar.$v, baseVar2.$v);
+            this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
             this.updateTable();
           });
           if (baseVar2.$varDefinition.range) {

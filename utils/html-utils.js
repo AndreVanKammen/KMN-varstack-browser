@@ -24,6 +24,7 @@ div.${kmnClassName} {
 
   --backgroundColor: rgb(32,32,32);
 
+  --splitter-size: 4px;
   --borderColor: rgb(0,0,0);
   --borderWidth: 2px;
   --borderWidth2: var(--borderWidth) * 2;
@@ -33,6 +34,8 @@ div.${kmnClassName} {
   --tableHeaderBackground: rgb(48, 48, 48);
   --tableHeaderColor: rgb(164, 164, 164);
   
+  --tableHeaderHeight: 26px;
+
   --headerBackground: rgb(0,0,0);
   --headerColor: rgb(192, 192, 192);
 
@@ -164,7 +167,7 @@ tbody.${kmnClassName} {
   overflow-y: scroll;
   display: block;
   width: 100%;
-  height: calc(100% - 25px);
+  height: calc(100% - var(--tableHeaderHeight));
 }
 tbody.${kmnClassName}.noHead {
   height: 100%;
@@ -172,7 +175,7 @@ tbody.${kmnClassName}.noHead {
 thead.${kmnClassName} {
   background: var(--tableBackground);
   display: block;
-  height: 26px;
+  height: var(--tableHeaderHeight);
   width: calc(100%);
 }
 
@@ -182,9 +185,10 @@ div.${kmnClassName}.filter-input {
   height: 26px;
 }
 
-thead.${kmnClassName}.filter {
-  height: 78px;
+table.${kmnClassName}.filter {
+  --tableHeaderHeight: 78px;
 }
+
 thead.${kmnClassName} .filler {
   width: 3px;
 }
