@@ -167,6 +167,7 @@ class TableBuilder {
         if (baseVar.$varDefinition.inputType === 'range') {
           baseVar.$varDefinition.inputType = 'number';
         }
+        baseVar.$varDefinition.directInput = true;
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
         baseVar.$addDeferedEvent(() => {
           this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);

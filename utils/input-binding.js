@@ -43,7 +43,8 @@ class InputBinding extends BaseBinding {
   setInput (element) {
     this.element = element;
     element.value = this.baseVar.$v;
-    element.type = this.type || this.baseVar.$varDefinition.inputType;
+    let typeArr = this.baseVar.$varDefinition.inputType.split(':');
+    element.type = this.type || typeArr[0];
     if (this.baseVar.$varDefinition.isReadOnly) {
       element.setAttribute('readOnly', ''); 
     }
@@ -62,6 +63,9 @@ class InputBinding extends BaseBinding {
         element.min = '0';
         element.max = '1';
       }
+      if (this.baseVar.$varDefinition.directInput) {
+        element.addEventListener('keyup', this.handleInputChanged.bind(this));
+      }
       if (this.baseVar.$varDefinition.step) {
         element.step = this.baseVar.$varDefinition.step.toString();
       } else {
@@ -71,6 +75,9 @@ class InputBinding extends BaseBinding {
     } else {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
       element.addEventListener('change', this.handleInputChanged.bind(this));
+      if (this.baseVar.$varDefinition.directInput) {
+        element.addEventListener('keyup', this.handleInputChanged.bind(this));
+      }
     }
     createLookupHandler(this.baseVar,element);
 
