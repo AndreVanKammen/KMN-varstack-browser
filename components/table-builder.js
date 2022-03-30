@@ -290,7 +290,11 @@ class TableBuilder {
       rec = this.selectedRec;
     }
     if (rec) {
+      let isSelected = (rec === this.selectedRec);
       this.table.moveUp(rec);
+      if (isSelected) {
+        this.selectRow(rec);
+      }
     }
   }
 
@@ -299,7 +303,11 @@ class TableBuilder {
       rec = this.selectedRec;
     }
     if (rec) {
+      let isSelected = (rec === this.selectedRec);
       this.table.moveDown(rec);
+      if (isSelected) {
+        this.selectRow(rec);
+      }
     }
   }
 
