@@ -76,7 +76,7 @@ class InputBuilder {
     if (this.options.showValues) {
       if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
       let value = row.$el({ tag: 'td', cls: 'isValue' });
-      if (v.$varDefinition.showValue) {
+      if (v.$varDefinition.showValue || this.options.hideInput) {
         new InnerTextBinding(v, value);
       }
     }
