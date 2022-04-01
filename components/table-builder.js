@@ -145,6 +145,7 @@ class TableBuilder {
     }
     this.headRow.$removeChildren();
     if (this.options.showFilterEdits) {
+      // TODO: clean up previous versions
       this.filterRec = new this.table.elementType
       this.filterRec2 = new this.table.elementType
       this.tableEl.classList.add('filter');
@@ -170,8 +171,12 @@ class TableBuilder {
         baseVar.$varDefinition.directInput = true;
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
         baseVar.$addDeferedEvent(() => {
-          this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
-          this.updateTable();
+          // Only if we are sorted on it to prevent filtering on setting min max
+          if (this.table.sortField === fieldName) {
+            headerElement.$setSelected();
+            this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+            this.updateTable();
+          }
         });
 
         let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
@@ -180,8 +185,12 @@ class TableBuilder {
           baseVar2.$setDefinition(baseVar2.$varDefinition);
           baseVar2.$varDefinition.isReadOnly = false;
           baseVar2.$addDeferedEvent(() => {
-            this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
-            this.updateTable();
+            // Only if we are sorted on it to prevent filtering on setting min max
+            if (this.table.sortField === fieldName) {
+              headerElement.$setSelected();
+              this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+              this.updateTable();
+            }
           });
           if (baseVar2.$varDefinition.range) {
             baseVar.$v = baseVar2.$varDefinition.range[0];
@@ -192,14 +201,28 @@ class TableBuilder {
           }
           let inputElement2 = new CreateInputBinding(baseVar2, inpDiv);
         }
-      }
+        
+        if (this.options.sortOnHeaderClick) {
+          headerElement.onclick = (evt) => {
+            console.log(evt);
+            if (evt.target === headerElement) {
+              headerElement.$setSelected();
+              this.table.setSort(fieldName);
+              this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+              this.updateTable();
+            }
+          }
+        }
+      } else {
 
-      if (this.options.sortOnHeaderClick) {
-        headerElement.onclick = (evt) => {
-          console.log(evt);
-          if (evt.target === headerElement) {
-            this.table.setSort(fieldName);
-            this.updateTable();
+        if (this.options.sortOnHeaderClick) {
+          headerElement.onclick = (evt) => {
+            console.log(evt);
+            if (evt.target === headerElement) {
+              headerElement.$setSelected();
+              this.table.setSort(fieldName);
+              this.updateTable();
+            }
           }
         }
       }
@@ -249,9 +272,7 @@ class TableBuilder {
       if (!rec) {
         this.selectedRec = undefined;
         this.selectedIx = -1;
-        if (this.htmlRows.length) {
-          this.htmlRows[0].$clearSelected();
-        }
+        this.tbody.$clearSelected();
         return;
       }
       ix = this.table.findIxForElement(rec);
@@ -261,6 +282,13 @@ class TableBuilder {
     }
     if (!rec) {
       rec = this.table.element(ix);
+    }
+    // Selected is not in table (filtered)
+    if (!this.htmlRows[ix]) {
+      if (this.htmlRows.length) {
+        this.tbody.$clearSelected();
+      }
+      return;
     }
     this.htmlRows[ix].$setSelected();
     this.htmlRows[ix].scrollIntoView({ behavior: "auto", block: "nearest",inline: "nearest"});
@@ -371,6 +399,9 @@ class TableBuilder {
 
     this.tbody.$removeChildren();
     this.sortArray = this.table.getSortArray();
+
+    let minMax = {};
+
     for (let sortIx = 0; sortIx < this.sortArray.length; sortIx++) {
       let ix = this.sortArray[sortIx];
       let rec = this.table.array[ix];
@@ -383,10 +414,38 @@ class TableBuilder {
         this._fillRow(row, rec);
         this.rowCache[rec.$hash] = row;
       }
+
+      if (this.filterRec) {
+        for (let fieldName of this.fieldNames) {
+          let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
+          if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
+            if (sortIx === 0) {
+              minMax[fieldName] = {
+                min: rec[fieldName].$v,
+                max: rec[fieldName].$v
+              }
+            } else {
+              minMax[fieldName].min = Math.min(minMax[fieldName].min, rec[fieldName].$v);
+              minMax[fieldName].max = Math.max(minMax[fieldName].max, rec[fieldName].$v);
+            }
+          }
+        }
+      }
+
       row.onclick = this.handleRowClick.bind(this, rec, ix);
       row.ondblclick = this.handleRowDblClick.bind(this, rec, ix);
       this.htmlRows[ix] = row;
     }
+    if (this.filterRec) {
+      for (let fieldName of this.fieldNames) {
+        let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
+        if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber && minMax[fieldName]) {
+          this.filterRec[fieldName].$v = minMax[fieldName].min;
+          this.filterRec2[fieldName].$v = minMax[fieldName].max;
+        }
+      }
+    }
+
     if (this.options.inlineEdit) {
       if (!this.newRec) {
         this.newRec = new this.table.elementType;

@@ -85,6 +85,20 @@ input::-webkit-inner-spin-button {
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+  padding:6px 0 0 0;
+  margin:0;
+  position:relative;
+  display:block;
+  left: unset;
+  filter: brightness(0.8);
+    cursor: pointer;
+    height: 100%;
+    right: 0;
+    top: 0;
+    width: 16px;
+}
+
 input[type=number] {
     -moz-appearance:textfield; /* Firefox */
 }
@@ -138,6 +152,7 @@ input.${kmnClassName}:focus {
 
 input.${kmnClassName} {
   border: none;
+  color-scheme: dark;
   background: rgb(0,0,0,0.25);
   color: var(--headerColor);
   font: inherit;
@@ -208,6 +223,9 @@ table.${kmnClassName} th {
   font-weight: normal;
   color: var(--tableHeaderColor);
   overflow: hidden;
+}
+table.${kmnClassName} th.selected {
+  background: var(--activeColor);
 }
 tbody.${kmnClassName} tr:hover {
   /* background: var(--tableHoverColor); */
@@ -394,8 +412,7 @@ HTMLElement.prototype.$setSelected = function () {
 };
 
 HTMLElement.prototype.$clearSelected = function () {
-  let parent = this.parentElement;
-  for (let el of parent.children) {
+  for (let el of this.children) {
     el.classList.toggle("selected", false);
   }
 };

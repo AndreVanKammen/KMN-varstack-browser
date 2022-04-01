@@ -27,6 +27,10 @@ class InputBinding extends BaseBinding {
      this.element.checked = this.baseVar.$v;
   }
 
+  handleInputChangedChecked (ev) {
+    this.baseVar.$v = this.element.checked;
+  }
+
   handleVarChanged (baseVar) {
     this.element.value = this.baseVar.$v;
   }
@@ -35,8 +39,12 @@ class InputBinding extends BaseBinding {
     this.baseVar.$v = this.element.value;
   }
 
-  handleInputChangedChecked (ev) {
-    this.baseVar.$v = this.element.checked;
+  handleVarChangedDate(baseVar) {
+    this.element.valueAsDate = this.baseVar.$v;
+  }
+
+  handleInputChangedDate (ev) {
+    this.baseVar.$v = this.element.valueAsDate;
   }
 
   /** @param {HTMLInputElement} element */
@@ -52,6 +60,10 @@ class InputBinding extends BaseBinding {
     if (element.type === 'checkbox') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedChecked.bind(this));
       element.addEventListener('change', this.handleInputChangedChecked.bind(this));
+      this.handleVarChangedChecked();
+    } else if (element.type === 'date') {
+      this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedDate.bind(this));
+      element.addEventListener('change', this.handleInputChangedDate.bind(this));
       this.handleVarChangedChecked();
     } else if (element.type === 'range') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
