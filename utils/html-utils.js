@@ -17,6 +17,11 @@ div.${kmnClassName} {
   font-family: Arial, Helvetica, sans-serif;
   scrollbar-width: thin;
   user-select: none;
+  box-sizing: content-box;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 1.0;
+  letter-spacing: normal;
 }
 :root {
   --headerHeight: 42px;
