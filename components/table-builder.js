@@ -418,7 +418,7 @@ class TableBuilder {
       if (this.filterRec) {
         for (let fieldName of this.fieldNames) {
           let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
-          if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
+          if (fieldIx !== -1 && this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
             if (sortIx === 0) {
               minMax[fieldName] = {
                 min: rec.$findVar(fieldName).$v,
@@ -438,7 +438,7 @@ class TableBuilder {
     if (this.filterRec) {
       for (let fieldName of this.fieldNames) {
         let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
-        if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber && minMax[fieldName]) {
+        if (fieldIx !== -1 && this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber && minMax[fieldName]) {
           this.filterRec.$findVar(fieldName).$v = minMax[fieldName].min;
           this.filterRec2.$findVar(fieldName).$v = minMax[fieldName].max;
         }
