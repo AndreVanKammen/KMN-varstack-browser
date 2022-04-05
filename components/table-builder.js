@@ -160,8 +160,8 @@ class TableBuilder {
       headerElement.innerText = headerName;
       if (this.options.showFilterEdits) {
         let inpDiv = headerElement.$el({ cls: 'filter-input' });
-        let baseVar = this.filterRec[fieldName];
-        let baseVar2 = this.filterRec2[fieldName];
+        let baseVar = this.filterRec.$findVar(fieldName);
+        let baseVar2 = this.filterRec2.$findVar(fieldName);
         // Give the var it's own definition
         baseVar.$setDefinition(baseVar.$varDefinition);
         baseVar.$varDefinition.isReadOnly = false;
@@ -421,14 +421,13 @@ class TableBuilder {
           if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
             if (sortIx === 0) {
               minMax[fieldName] = {
-                min: rec[fieldName].$v,
-                max: rec[fieldName].$v
+                min: rec.$findVar(fieldName).$v,
+                max: rec.$findVar(fieldName).$v
               }
             } else {
-              minMax[fieldName].min = Math.min(minMax[fieldName].min, rec[fieldName].$v);
-              minMax[fieldName].max = Math.max(minMax[fieldName].max, rec[fieldName].$v);
-            }
-          }
+              minMax[fieldName].min = Math.min(minMax[fieldName].min, rec.$findVar(fieldName).$v);
+              minMax[fieldName].max = Math.max(minMax[fieldName].max, rec.$findVar(fieldName).$v);
+            }          }
         }
       }
 
@@ -440,8 +439,8 @@ class TableBuilder {
       for (let fieldName of this.fieldNames) {
         let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
         if (this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber && minMax[fieldName]) {
-          this.filterRec[fieldName].$v = minMax[fieldName].min;
-          this.filterRec2[fieldName].$v = minMax[fieldName].max;
+          this.filterRec.$findVar(fieldName).$v = minMax[fieldName].min;
+          this.filterRec2.$findVar(fieldName).$v = minMax[fieldName].max;
         }
       }
     }

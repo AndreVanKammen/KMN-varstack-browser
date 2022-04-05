@@ -163,7 +163,11 @@ class CreateInputBinding extends BaseBinding {
         let inputElement = parentElement.$el( { tag: 'input', cls: 'inline-input' });
         // TODO HACKY: If this is a record variable then show the value field
         if (baseVar instanceof RecordVar) {
-          this.binding = new InputBinding(baseVar[baseVar.$valueFieldName], inputElement);
+          if (baseVar.$valueFieldName) {
+            this.binding = new InputBinding(baseVar[baseVar.$valueFieldName], inputElement);
+          } else {
+            this.binding = new InputBinding(baseVar, inputElement);
+          }
         } else {
           this.binding = new InputBinding(baseVar, inputElement);
         }

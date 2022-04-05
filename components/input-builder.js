@@ -59,6 +59,11 @@ class InputBuilder {
    * @param {string} [labelName]
    */
   addVar(v, labelName) {
+    if (v instanceof RecordVar) {
+      this.addRecord(v, labelName + '.');
+      return;
+    }
+
     labelName = labelName || v.$varDefinition.name;
     let labelId = 'i_' + (labelUid++);
     let row = this.body.$el({ tag: 'tr' });
@@ -95,11 +100,11 @@ class InputBuilder {
   /**
    * @param {RecordVar} rec
    */
-  addRecord(rec) { 
+  addRecord(rec, prefix = '') { 
     for (var name of rec.$fieldNames) {
       let v = rec[name];
       if (v && v instanceof BaseVar) {
-        this.addVar(v, name)
+        this.addVar(v, prefix + name)
       }
     }  
   }
