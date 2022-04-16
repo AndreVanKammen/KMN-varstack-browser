@@ -143,7 +143,7 @@ class EnumDropDownBinding extends BaseBinding {
   }
 }
 
-class CreateInputBinding extends BaseBinding {
+export class CreateInputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
    * @param {HTMLElement} element
@@ -181,4 +181,4 @@ class CreateInputBinding extends BaseBinding {
   }
 }
 
-export { InputBinding as default, CreateInputBinding}
+export { InputBinding as default}

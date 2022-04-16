@@ -79,13 +79,12 @@ class CodeEditor extends PanelBase {
     this.parentElement.classList.add('code');
     // TODO add classes codeArea code
 
-    this.headerElement = document.createElement('div');
-
     this.glslElement = this.parentElement.$el({ cls: 'glslElement' });
     this.glslEditor.initializeDOM(this.glslElement);
 
+    this.headerElement = this.parentElement.$el({ cls: 'codeHeader' })
+    
     // Header need to be added last for fixed to work in css
-    this.headerElement.classList.add('codeHeader');
     this.titleElement = this.headerElement.$el({ cls: 'codeTitle' });
     this.headerName = new Types.String();
     this.headerNameBinding = new InnerTextBinding(this.headerName, this.titleElement);
@@ -95,7 +94,6 @@ class CodeEditor extends PanelBase {
     this.compileElement.onclick = () => {
       this.handleCompile()
     };
-    this.parentElement.appendChild(this.headerElement);
 
     this.options.shaderVar.$addEvent(this.handleShaderChanged.bind(this), true);
   }

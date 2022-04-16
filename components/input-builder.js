@@ -110,4 +110,10 @@ class InputBuilder {
   }
 }
 
+export function createInputs(element,rec) {
+  let inputBuilder = new InputBuilder(element);
+  inputBuilder.addRecord(rec);
+  return inputBuilder;
+}
+
 export default InputBuilder;
