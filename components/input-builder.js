@@ -7,6 +7,7 @@ import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import { CreateInputBinding } from '../utils/input-binding.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
 import InnerTextBinding from '../utils/inner-text-binding.js';
+import { TableVar } from '../../KMN-varstack.js/structures/table.js';
 
 let labelUid = 0;
 const nop = function () { };
@@ -60,7 +61,15 @@ class InputBuilder {
    */
   addVar(v, labelName) {
     if (v instanceof RecordVar) {
-      this.addRecord(v, labelName + '.');
+      // this.addRecord(v, labelName + '.');
+      // Can't edit JSON in record, subFields are added anyway
+      return;
+    }
+
+    if (v instanceof TableVar) {
+      // TODO button with popup table view
+      // this.addRecord(v, labelName + '.');
+      // Can't edit JSON in record, subFields are added anyway
       return;
     }
 

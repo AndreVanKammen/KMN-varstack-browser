@@ -177,6 +177,38 @@ class CanvasUpdateRoutine {
 let rectController = null;
 const floatSizePerComponent = 16;
 export class RectController {
+  /**
+   * 
+   * @param {ComponentInfo} info 
+   * @param {HTMLElement} element 
+   */
+   static setClipBoxFromElement(info, element) {
+    let box = element.getBoundingClientRect();
+    info.clipRect.width  = element.clientWidth;
+    info.clipRect.height = element.clientHeight;
+    info.clipRect.x = box.x;
+    info.clipRect.y = box.y;
+  }
+  /**
+   * 
+   * @param {RectInfo} info 
+   * @param {HTMLElement} element 
+   */
+  static setBoxDataFromElement(info, element) {
+    let box = element.getBoundingClientRect();
+
+    info.rect.width  = box.width;
+    info.rect.height = box.height;
+    info.rect.x      = box.x;
+    info.rect.y      = box.y;
+
+    info.size.centerX = box.width / 2;
+    info.size.centerY = box.height / 2;
+
+    info.size.width   = box.width;
+    info.size.height = box.height;
+  }
+
   constructor() {
     // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
     /** @type {Record<string,ComponentInfo>} */
