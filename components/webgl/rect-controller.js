@@ -336,6 +336,7 @@ export class RectController {
             let componentLength = (pos / floatSizePerComponent) - startIx;
             if (componentLength > 0) {
               renderData.push({
+                foreground,
                 startIx,
                 component,
                 componentLength
@@ -377,11 +378,14 @@ export class RectController {
       if (rd.component.onShaderInit) {
         rd.component.onShaderInit(gl, shaderProgram);
       }
-      
-      gl.scissor(clipRect.x * dpr,
-        h - (clipRect.y + clipRect.height) * dpr,
-        clipRect.width * dpr,
-        clipRect.height * dpr);
+      if (rd.foreground) {
+        gl.disable(gl.SCISSOR_TEST);
+      } else {
+        gl.scissor(clipRect.x * dpr,
+          h - (clipRect.y + clipRect.height) * dpr,
+          clipRect.width * dpr,
+          clipRect.height * dpr);
+      }
 
       shaderProgram.u.startIX.set(rd.startIx);
       gl.drawArrays(gl.TRIANGLES, 0, length * 6);
