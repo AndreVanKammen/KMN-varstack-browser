@@ -77,7 +77,8 @@ function createLookupHandler(baseVar, element) {
   }
   if (lookupFieldName !== null && lookupTableName !== '' && showFieldName !== '') {
     element.parentElement.classList.add('showoverflow');
-    let dropDown = element.parentElement.$el({ cls: 'comboDropdown' });
+    element.parentElement.$el({ tag: 'br' });
+    let dropDown = element.parentElement.$el({ cls: 'drop-down-list' });
     // dropDown.innerText = 'TEST';
     // dropDown.contentEditable = 'true';
     dropDown.tabIndex = 1;

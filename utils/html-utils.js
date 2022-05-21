@@ -17,7 +17,7 @@ div.${kmnClassName} {
   font-family: Arial, Helvetica, sans-serif;
   scrollbar-width: thin;
   user-select: none;
-  box-sizing: content-box;
+  box-sizing: border-box;
   font-weight: normal;
   font-size: 16px;
   line-height: 1.0;
@@ -214,7 +214,7 @@ thead.${kmnClassName} .filler {
 }
 tbody.${kmnClassName} tr, thead.${kmnClassName} tr {
  display: table;
- width: 100%;
+ width: calc(100% - 1px);
  margin: 0;
  table-layout: fixed;
 }
@@ -359,14 +359,13 @@ button.${kmnClassName}:hover {
   color: var(--activeforeGroundColor);
 }
 
-.${kmnClassName}.comboDropdown {
-  position: absolute;
-  display: inline;
+.${kmnClassName}.drop-down-list {
+  position: fixed;
+  display: inline-block;
   background: navy;
   border: 2px solid var(--activeColor);
   border-top: none;
-  right: 0;
-  min-width: 240px;
+  max-width: 240px;
   height: 240px;
   z-index: 10;
 }

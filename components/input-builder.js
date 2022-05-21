@@ -13,7 +13,7 @@ let labelUid = 0;
 const nop = function () { };
 const cssStr = /*css*/`
 .${kmnClassName} tbody.input-table {
-  height: 100%;
+  height: calc(100% - 8px);
   overflow-y: auto;
   padding-top: 8px;
 }
