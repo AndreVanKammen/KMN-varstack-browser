@@ -5,6 +5,7 @@
 import svgIcon from "../../KMN-utils-browser/svg-icons.js";
 import log from "../../KMN-varstack.js/core/log.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
+import { TableView } from "../../KMN-varstack.js/structures/table-view.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
 import { BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import InnerTextBinding from "../utils/inner-text-binding.js";
@@ -64,9 +65,9 @@ class TableBuilder {
     this.bindings = {};
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       this.bindings[ix] =
-          this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding)
+        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding)
     }
-
+    this.tableView = new TableView(this.table);
     this.table.addArrayChangeEvent(this.handleTableArrayChange.bind(this));
 
     if (this.headRow) {
@@ -146,8 +147,10 @@ class TableBuilder {
     this.headRow.$removeChildren();
     if (this.options.showFilterEdits) {
       // TODO: clean up previous versions
-      this.filterRec = new this.table.elementType
-      this.filterRec2 = new this.table.elementType
+      this.filterRec = new this.table.elementType;
+      this.filterRec2 = new this.table.elementType;
+      this.filterRec._parent = this.table;
+      this.filterRec2._parent = this.table;
       this.tableEl.classList.add('filter');
     }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
@@ -159,6 +162,9 @@ class TableBuilder {
       let headerElement = this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ', '-') });
       headerElement.innerText = headerName;
       if (this.options.showFilterEdits) {
+        if (!this.tableView) {
+          this.tableView = new TableView(this.table);
+        }
         let inpDiv = headerElement.$el({ cls: 'filter-input' });
         let baseVar = this.filterRec.$findVar(fieldName);
         let baseVar2 = this.filterRec2.$findVar(fieldName);
@@ -172,9 +178,9 @@ class TableBuilder {
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
         baseVar.$addDeferedEvent(() => {
           // Only if we are sorted on it to prevent filtering on setting min max
-          if (this.table.sortField === fieldName) {
+          if (this.tableView.sortField === fieldName) {
             headerElement.$setSelected();
-            this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+            this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
             this.updateTable();
           }
         });
@@ -186,9 +192,9 @@ class TableBuilder {
           baseVar2.$varDefinition.isReadOnly = false;
           baseVar2.$addDeferedEvent(() => {
             // Only if we are sorted on it to prevent filtering on setting min max
-            if (this.table.sortField === fieldName) {
+            if (this.tableView.sortField === fieldName) {
               headerElement.$setSelected();
-              this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+              this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
               this.updateTable();
             }
           });
@@ -207,8 +213,8 @@ class TableBuilder {
             console.log(evt);
             if (evt.target === headerElement) {
               headerElement.$setSelected();
-              this.table.setSort(fieldName);
-              this.table.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+              this.tableView.setSort(fieldName);
+              this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
               this.updateTable();
             }
           }
@@ -220,7 +226,7 @@ class TableBuilder {
             console.log(evt);
             if (evt.target === headerElement) {
               headerElement.$setSelected();
-              this.table.setSort(fieldName);
+              this.tableView.setSort(fieldName);
               this.updateTable();
             }
           }
@@ -398,7 +404,7 @@ class TableBuilder {
     // TODO: check if this leaks memory through the textbindings
 
     this.tbody.$removeChildren();
-    this.sortArray = this.table.getSortArray();
+    this.sortArray = this.tableView.getSortArray();
 
     let minMax = {};
 

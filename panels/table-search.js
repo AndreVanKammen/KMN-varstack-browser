@@ -11,7 +11,7 @@ import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
 const cssStr = /*css*/`
 .${kmnClassName} {
-  --tableSearchHeaderHeight: 26px;
+  --tableSearchHeaderHeight: 0px;
 }
 .${kmnClassName}.tableSearchHeader {
   height: var(--tableSearchHeaderHeight);
@@ -59,14 +59,16 @@ class TableSearch extends PanelBase {
 
     this.searchTableEl = new TableBuilder(
       this.synthSearchTableDiv, 
-      this.searchTable, 
+      this.searchTable,
       {
         fieldNames: this.options.fieldNames,
         alternativeBindings: this.options.alternativeBindings,
         headerNames: this.options.headerNames,
         inlineEdit: this.options.inlineEdit,
         onRowSelect: this.options.onRowSelect,
-        onRowClick: this.options.onRowClick
+        onRowClick: this.options.onRowClick,
+        sortOnHeaderClick: true,
+        showFilterEdits: true
       });
   }
 
