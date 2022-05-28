@@ -176,6 +176,7 @@ class TableBuilder {
         }
         baseVar.$varDefinition.directInput = true;
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
+          
         baseVar.$addDeferedEvent(() => {
           // Only if we are sorted on it to prevent filtering on setting min max
           if (this.tableView.sortField === fieldName) {
@@ -211,14 +212,20 @@ class TableBuilder {
         if (this.options.sortOnHeaderClick) {
           headerElement.onclick = (evt) => {
             console.log(evt);
-            if (evt.target === headerElement) {
               headerElement.$setSelected();
+            if (evt.target === headerElement) {
               this.tableView.setSort(fieldName);
-              this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
-              this.updateTable();
+            } else {
+              this.tableView.setSort(fieldName,this.tableView.sortAscending);
             }
+            this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+              this.updateTable();
           }
         }
+        // @ts-ignore
+        // inputElement.binding.element?.onfocus = () => { 
+        //   headerElement.oncli
+        // };
       } else {
 
         if (this.options.sortOnHeaderClick) {

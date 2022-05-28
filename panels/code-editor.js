@@ -30,7 +30,7 @@ const cssStr = /*css*/`
   color: var(--subHeaderColor);
   background: var(--tableHeaderBackground);
   height: calc(var(--codeHeaderHeight) - var(--subBorderWidth));
-  width: calc(100% - 24px);
+  width: 100%;
   padding: 1px 12px;
 }
 .${kmnClassName}.codeTitle {
