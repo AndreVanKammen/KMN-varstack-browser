@@ -9,6 +9,36 @@ import InnerTextBinding from './inner-text-binding.js';
 import { FloatVar } from '../../KMN-varstack.js/vars/float.js';
 import { HorizontalSliderElement } from '../components/webgl/sliders.js';
 
+class ButtonInputElement extends BaseBinding{
+  /** 
+   * @param {BaseVar} baseVar
+   * @param {HTMLButtonElement} element
+  */
+  constructor(baseVar, element) {
+    super(baseVar);
+    if (element) {
+      this.setButton(element);
+    }
+  }
+
+  handleButonClicked() {
+    this.baseVar.$v = true;
+  }
+
+  handleButtonChanged() {
+    this.element.$setTextNode(this.baseVar.$niceStr);
+    this.element.disabled = this.baseVar.$v;
+  }
+
+  /** @param {HTMLButtonElement} element */
+  setButton (element) {
+    this.element = element;
+    this.changeEvent = this.baseVar.$addEvent(this.handleButtonChanged.bind(this),true);
+    element.addEventListener('click', this.handleButonClicked.bind(this));
+    // @ts-ignore: 
+    element.dataVar = this.baseVar;
+  }
+}
 class InputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
@@ -159,6 +189,9 @@ export class CreateInputBinding extends BaseBinding {
         this.binding = new EnumDropDownBinding(baseVar, parentElement);
       } else if (baseVar.$varDefinition.inputType === 'range') {
         this.binding = new HorizontalSliderElement(baseVar, parentElement);
+      } else if (baseVar.$varDefinition.inputType === 'button') {
+        let buttonElement = parentElement.$el( { tag: 'button', cls: 'inline-input' });
+        this.binding = new ButtonInputElement(baseVar, buttonElement);
       } else {
         let inputElement = parentElement.$el( { tag: 'input', cls: 'inline-input' });
         // TODO HACKY: If this is a record variable then show the value field

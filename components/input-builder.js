@@ -13,9 +13,9 @@ let labelUid = 0;
 const nop = function () { };
 const cssStr = /*css*/`
 .${kmnClassName} tbody.input-table {
-  height: calc(100% - 8px);
+  height: calc(100% - 2px);
   overflow-y: auto;
-  padding-top: 8px;
+  padding-top: 2px;
 }
 .${kmnClassName} table.input-table.vertical td.isLabel {
   padding-top: 8px;
@@ -27,26 +27,45 @@ const cssStr = /*css*/`
   text-align: center;
 }
 .${kmnClassName} table.input-table.vertical td.isInput {
-  padding-bottom: 8px;
+  padding-bottom: 2px;
   border-bottom: var(--borderWidth) solid var(--borderColor);
 }
 .${kmnClassName} td.isLabel {
-  width: 33%;
+  width: calc(auto + 10px);
 }
 .${kmnClassName} td.isValue { 
   text-align: right;
   font-size: smaller;
   width: 20%;
+  margin-right: 16px;
+}
+
+.${kmnClassName} td.isInput {
+  padding-right: 32px;
+}
+
+.${kmnClassName} td.isInput button {
+  background: var(--activeColor);
+  padding: 2px 8px;
 }
 `;
+
+const defaultOptions = {
+  vertical: false,
+  horizontal: false,
+  hideInput: false,
+  showValues: false,
+  onInputClick: (event, labelName, v) => { },
+  onLabelClick: (event, labelName, v) => { }
+}
 
 class InputBuilder {
   /**
    * @param {HTMLElement} element
-   * @param {object} options
+   * @param {Partial<typeof defaultOptions>} options
    */
-  constructor (element, options) {
-    this.options = { ...{ onLabelClick:nop, onInputClick:nop },...(options || {})};
+  constructor (element, options = defaultOptions) {
+    this.options = { ...defaultOptions,...(options || {})};
     this.table = element.$el({ tag: 'table', cls: 'input-table' });
     this.body = this.table.$el({ tag: 'tbody', cls: 'input-table' });
     if (this.options.vertical) {
@@ -75,7 +94,7 @@ class InputBuilder {
 
     labelName = labelName || v.$varDefinition.name;
     let labelId = 'i_' + (labelUid++);
-    let row = this.body.$el({ tag: 'tr' });
+    let row = (this.options.horizontal) ? this.body : this.body.$el({ tag: 'tr' });
     let label = row.$el({ tag: 'td', cls: 'isLabel' }).$el({ tag: 'label' });
     // let input = row.$el({ tag: 'td', cls: 'isInput' }).$el({ tag: 'input' });
     if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
