@@ -343,13 +343,18 @@ tr.${kmnClassName}.add-row {
 
 button.${kmnClassName} {
   cursor: pointer;
-  background: var(--codeBackground);
+  background: var(--activeColor);
   color: var(--subHeaderColor);
   border: none;
   margin: 0;
   padding: 0;
   height: 24px;
 }
+button.${kmnClassName}:hover {
+  background: var(--activeHoverColor);
+  color: var(--activeforeGroundColor);
+}
+
 button.${kmnClassName}.selected {
   background: var(--activeHoverColor);
   color: var(--activeforeGroundColor);

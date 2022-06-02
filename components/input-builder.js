@@ -45,7 +45,6 @@ const cssStr = /*css*/`
 }
 
 .${kmnClassName} td.isInput button {
-  background: var(--activeColor);
   padding: 2px 8px;
 }
 `;
