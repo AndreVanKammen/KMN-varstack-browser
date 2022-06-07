@@ -188,6 +188,7 @@ export class CreateInputBinding extends BaseBinding {
       if (baseVar.$varDefinition.inputType === 'dropdown') {
         this.binding = new EnumDropDownBinding(baseVar, parentElement);
       } else if (baseVar.$varDefinition.inputType === 'range') {
+        // @ts-ignore
         this.binding = new HorizontalSliderElement(baseVar, parentElement);
       } else if (baseVar.$varDefinition.inputType === 'button') {
         let buttonElement = parentElement.$el( { tag: 'button', cls: 'inline-input' });
