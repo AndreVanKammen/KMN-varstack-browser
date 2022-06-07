@@ -24,7 +24,7 @@ const cssStr = /*css*/`
 
 const defaultOptions = {
 };
-class TableSearch extends PanelBase {
+class TablePanel extends PanelBase {
   constructor(options) {
     super(defaultOptions, options);
 
@@ -61,14 +61,17 @@ class TableSearch extends PanelBase {
       this.synthSearchTableDiv, 
       this.searchTable,
       {
-        fieldNames: this.options.fieldNames,
-        alternativeBindings: this.options.alternativeBindings,
-        headerNames: this.options.headerNames,
-        inlineEdit: this.options.inlineEdit,
-        onRowSelect: this.options.onRowSelect,
-        onRowClick: this.options.onRowClick,
-        sortOnHeaderClick: true,
-        showFilterEdits: true
+        ...{
+          // fieldNames: this.options.fieldNames,
+          // alternativeBindings: this.options.alternativeBindings,
+          // headerNames: this.options.headerNames,
+          // inlineEdit: this.options.inlineEdit,
+          // onRowSelect: this.options.onRowSelect,
+          // onRowClick: this.options.onRowClick,
+          sortOnHeaderClick: true,
+          showFilterEdits: true
+        },
+        ...this.options
       });
   }
 
@@ -78,6 +81,6 @@ class TableSearch extends PanelBase {
     return result;
   }
 }
-TableSearch.getTabName = () => 'TABLE-SEARCH';
+TablePanel.getTabName = () => 'TABLE-SEARCH';
 
-export default TableSearch;
+export default TablePanel;
