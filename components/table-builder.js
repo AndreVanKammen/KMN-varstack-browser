@@ -458,7 +458,7 @@ class TableBuilder {
       }
     }
 
-    if (this.options.inlineEdit) {
+    if (this.options.emptyRowForAdd) {
       if (!this.newRec) {
         this.newRec = new this.table.elementType;
         this.newRec.$parent = this.table;
