@@ -149,6 +149,7 @@ class CanvasUpdateGroup {
     this.name = name;
     /** @type {CanvasUpdateRoutine[]} */
     this.routines = [];
+    this.errorCount = 0;
   }
 }
 
@@ -220,6 +221,7 @@ export class RectController {
     this._otherCanvasRoutines = {};
     this.drawingDisabled = false;
     this.frameDivider = 1;
+    this.errorCount = 0;
   }
 
   // TODO: convert HTMLElement to getcliprectInterface
@@ -402,13 +404,27 @@ export class RectController {
     if (!this.drawingDisabled) {
       this.drawCount++;
       if (this.drawCount % this.frameDivider === 0) {
-        this.drawComponents();
+        try {
+          this.drawComponents();
+          this.errorCount = 0;
+        } catch (e) {
+          if (this.errorCount++ < 2) {
+            console.error('Error rendering components: ', e);
+          }
+        }
 
         // Draw other canvas functions
         for (let key of Object.keys(this._otherCanvasRoutines)) {
           let routines = this._otherCanvasRoutines[key];
-          for (let routine of routines.routines) {
-            routine.routine();
+          try {
+            for (let routine of routines.routines) {
+              routine.routine();
+            }
+            routines.errorCount = 0;
+          } catch (e) {
+            if (routines.errorCount++ < 2) {
+              console.error('Error rendering: ', routines, e);
+            }
           }
         }
       }
