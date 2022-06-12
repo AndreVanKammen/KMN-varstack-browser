@@ -31,7 +31,7 @@ const cssStr = /*css*/`
   border-bottom: var(--borderWidth) solid var(--borderColor);
 }
 .${kmnClassName} td.isLabel {
-  width: calc(auto + 10px);
+  width: 160px;
 }
 .${kmnClassName} td.isValue { 
   text-align: right;
