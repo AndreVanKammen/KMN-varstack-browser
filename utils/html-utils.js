@@ -445,7 +445,8 @@ HTMLElement.prototype.$getClippingParent = function () {
       return el;
     }
     const overflow = getComputedStyle(el).overflow;
-    if (overflow.indexOf('auto') !== -1 || overflow.indexOf('scroll') !== -1 || overflow.indexOf('hidden') !== -1) {
+    if (overflow.indexOf('auto') !== -1 || overflow.indexOf('scroll') !== -1 ||
+      (overflow.indexOf('hidden') !== -1 && el !== this)) {
       return el;
     }
     el = el.parentElement;
