@@ -101,7 +101,11 @@ class InputBuilder {
     if (!this.options.hideInput) {
       input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
       input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
-      input.parentElement.setAttribute('id',labelId);
+      // @ts-ignore
+      if (input.binding.element) {
+        // @ts-ignore
+        input.binding.element.setAttribute('id', labelId);
+      }
     }
     
     // input.classList.add(v.$varType);
