@@ -149,8 +149,8 @@ class TableBuilder {
       // TODO: clean up previous versions
       this.filterRec = new this.table.elementType;
       this.filterRec2 = new this.table.elementType;
-      this.filterRec._parent = this.table;
-      this.filterRec2._parent = this.table;
+      this.filterRec.$parent = this.table;
+      this.filterRec2.$parent = this.table;
       this.tableEl.classList.add('filter');
     }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
