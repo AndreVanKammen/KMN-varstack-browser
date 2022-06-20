@@ -56,32 +56,37 @@ class IndexedDBRecordBindingBase {
    * @param {IDB} idb 
    * @param {string} baseStorageName 
    * @param {string} keyValue 
+   * @param {boolean} doGet
    */
-  constructor(varToStore, idb, baseStorageName, keyValue) {
+  constructor(varToStore, idb, baseStorageName, keyValue, doGet = true) {
     this.varToStore = varToStore;
     this.storageName = baseStorageName + tableExtention;
     this.idb = idb;
-    this.justCreated = true;
+    let justCreated = true;
     this.keyName = keyValue;
     this.blobStores = [];
     this.varToStore.$linkBlobFields((name, v) => {
       this.blobStores.push(new IndexedDBBlobBinding(v, idb, baseStorageName, name, keyValue));
 
     });
-    this.idb.getStoreValue(this.storageName, this.keyName).then(
-      (result) => {
-        if (result != null) {
-          this.varToStore.$v = result;
-          this.justCreated = false;
-        }
-      }).finally(()  => {
-        defer(() => {
-          this.varToStore.$addEvent(this.handleChanged.bind(this))
-          if (this.justCreated) {
-            this.handleChanged();
+    if (doGet) {
+      this.idb.getStoreValue(this.storageName, this.keyName).then(
+        (result) => {
+          if (result != null) {
+            this.varToStore.$v = result;
+            justCreated = false;
           }
+        }).finally(() => {
+          defer(() => {
+            this.varToStore.$addEvent(this.handleChanged.bind(this))
+            if (justCreated) {
+              this.handleChanged();
+            }
+          });
         });
-      });
+    } else {
+      this.varToStore.$addEvent(this.handleChanged.bind(this))
+    }
     this.updateSceduled = false;  
   }
 
@@ -151,7 +156,8 @@ export class IndexedDBTableBinding {
         this.justCreated = false;
         // TODO: Sparse loading?
         for (let entry of result) {
-          this.tableToStore.add(entry);
+          let el = this.tableToStore.add(entry);
+          this.checkBinding(el, false);
         }
       }
     }).finally(() => {
@@ -164,17 +170,21 @@ export class IndexedDBTableBinding {
     });
   }
 
+  checkBinding(el, doGet) {
+    let keyValue = el[this.keyFieldName].$v;
+    let binding = this.boundRecords[keyValue];
+    if (!binding) {
+      this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue, doGet);
+    }
+  }
+
   handleArrayChanged() {
     this.tableMeta.count.$v = this.tableToStore.length;
     for (let ix = 0; ix < this.tableToStore.length; ix++) {
       // TODO: See if we kan support sparse array so we only cache used records in memory, might be useful for large load on demand tables
       let el = this.tableToStore.element(ix);
       if (el) {
-        let keyValue = el[this.keyFieldName].$v;
-        let binding = this.boundRecords[keyValue];
-        if (!binding) {
-          this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue);
-        }
+        this.checkBinding(el, true);
       }
     }
   }
