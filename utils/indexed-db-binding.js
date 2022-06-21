@@ -165,8 +165,8 @@ export class IndexedDBTableBinding {
       if ((this.tableToStore.length === 0) && defaultData) {
         this.tableToStore.$v = defaultData;
       }
-      this.isLoaded = true;
       this.handleArrayChanged();
+      this.isLoaded = true;
     });
   }
 
