@@ -138,9 +138,8 @@ option.${kmnClassName} {
 }
 
 input[type="checkbox"].${kmnClassName} {
-  opacity: 0.3;
   vertical-align: middle;
-  width: 100%;
+  width: 24px;
 }
 
 input[type="checkbox"].${kmnClassName}:checked {
