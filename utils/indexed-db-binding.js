@@ -21,11 +21,11 @@ const tableExtention = '-table';
 class IndexedDBBlobBinding {
   /**
    * 
-   * @param {BlobBaseVar} blobVar 
-   * @param {IDB} idb 
-   * @param {string} baseStorageName 
-   * @param {string} fieldName 
-   * @param {string} keyValue 
+   * @param {BlobBaseVar} blobVar
+   * @param {IDB} idb
+   * @param {string} baseStorageName
+   * @param {string} fieldName
+   * @param {string} keyValue
    */
   constructor (blobVar, idb, baseStorageName, fieldName, keyValue) {
     this.storageName = baseStorageName + '-' + fieldName;
@@ -47,8 +47,8 @@ class IndexedDBBlobBinding {
     let result = await this.idb.getStoreValue(this.storageName, this.keyName);
     return result;
   }
-
 }
+
 class IndexedDBRecordBindingBase {
   /**
    * 
@@ -129,8 +129,9 @@ export class IndexedDBTableBinding {
    * @param {IDB} idb 
    * @param {string} baseStorageName 
    * @param {any} defaultData 
+   * @param {string} prependKey
    */
-  constructor(tableToStore, idb, baseStorageName, defaultData) {
+  constructor(tableToStore, idb, baseStorageName, defaultData, prependKey = '') {
     this.tableToStore = tableToStore;
     this.storageName = baseStorageName;
     this.tableStorageName = baseStorageName + tableExtention;
@@ -151,7 +152,11 @@ export class IndexedDBTableBinding {
     this.isLoaded = false;
     this.justCreated = false;
     this.keyFieldName = this.tableToStore.keyFieldName;
-    this.idb.getAll(this.tableStorageName).then( (result) => {
+    this.prependKey = prependKey;
+    let getQuery = prependKey
+      ? this.idb.getAllStartingWith(prependKey, this.tableStorageName)
+      : this.idb.getAll(this.tableStorageName);
+    getQuery.then( (result) => {
       if (result) {
         this.justCreated = false;
         // TODO: Sparse loading?
@@ -171,7 +176,7 @@ export class IndexedDBTableBinding {
   }
 
   checkBinding(el, doGet) {
-    let keyValue = el[this.keyFieldName].$v;
+    let keyValue = this.prependKey + el[this.keyFieldName].$v;
     let binding = this.boundRecords[keyValue];
     if (!binding) {
       this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue, doGet);

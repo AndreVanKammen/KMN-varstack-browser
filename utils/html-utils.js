@@ -349,15 +349,16 @@ button.${kmnClassName} {
   margin: 0;
   padding: 0;
   height: 24px;
+  border: 1px solid transparent;
 }
 button.${kmnClassName}:hover {
   background: var(--activeHoverColor);
   color: var(--activeforeGroundColor);
 }
-
 button.${kmnClassName}.selected {
-  background: var(--activeHoverColor);
+  background: var(--activeColor);
   color: var(--activeforeGroundColor);
+  border: 1px solid var(--headerColor);
 }
 button.${kmnClassName}:hover {
   background: var(--activeHoverColor);
