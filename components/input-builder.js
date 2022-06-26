@@ -41,7 +41,7 @@ const cssStr = /*css*/`
 }
 
 .${kmnClassName} td.isInput {
-  padding-right: 32px;
+  padding-right: 16px;
 }
 
 .${kmnClassName} td.isInput button {
