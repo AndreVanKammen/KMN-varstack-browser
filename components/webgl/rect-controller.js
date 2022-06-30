@@ -178,6 +178,21 @@ class CanvasUpdateRoutine {
 let rectController = null;
 const floatSizePerComponent = 16;
 export class RectController {
+  constructor() {
+    // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
+    /** @type {Record<string,ComponentInfo>} */
+    this._componentInfos = {};
+    this._arrayLength = 256;
+    this._webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
+    this._textureInfo = { texture: undefined, size: 0 }
+    /** @type {Record<string,CanvasUpdateGroup>} */
+    this._otherCanvasRoutines = {};
+    this.drawingDisabled = false;
+    this.frameDivider = 1;
+    this.errorCount = 0;
+    this.dpr = 1;
+  }
+
   /**
    * 
    * @param {ComponentInfo} info 
@@ -208,20 +223,6 @@ export class RectController {
 
     info.size.width   = box.width;
     info.size.height = box.height;
-  }
-
-  constructor() {
-    // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
-    /** @type {Record<string,ComponentInfo>} */
-    this._componentInfos = {};
-    this._arrayLength = 256;
-    this._webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
-    this._textureInfo = { texture: undefined, size: 0 }
-    /** @type {Record<string,CanvasUpdateGroup>} */
-    this._otherCanvasRoutines = {};
-    this.drawingDisabled = false;
-    this.frameDivider = 1;
-    this.errorCount = 0;
   }
 
   // TODO: convert HTMLElement to getcliprectInterface
@@ -277,6 +278,7 @@ export class RectController {
   drawComponents() {
     let gl = this.gl;
     let { w, h, dpr } = gl.updateCanvasSize(this.canvas);
+    this.dpr = dpr;
 
     let componentLength = 0;
     for (const component of Object.values(this._componentInfos)) {
