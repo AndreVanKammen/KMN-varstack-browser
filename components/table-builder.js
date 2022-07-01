@@ -8,9 +8,163 @@ import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { TableView } from "../../KMN-varstack.js/structures/table-view.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
 import { BaseVar } from "../../KMN-varstack.js/vars/base.js";
+import { addCSS, kmnClassName } from "../utils/html-utils.js";
 import InnerTextBinding from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
 
+const cssStr = /*css*/`
+/* tables, move to tablebuilder */
+table.${kmnClassName} {
+  position: absolute;
+  display: block; /* if set to table firefox makes 100% the height of the whole table and scrollbar disapears */
+  width: calc(100%);
+  height: 100%;
+  overflow: hidden;
+  border-spacing: 1px;
+}
+table.${kmnClassName}:focus {
+  outline-style: none;
+}
+tbody.${kmnClassName} {
+  background: var(--tableBackground);
+  overflow-x: auto;
+  overflow-y: scroll;
+  display: block;
+  width: 100%;
+  height: calc(100% - var(--tableHeaderHeight));
+}
+tbody.${kmnClassName}.noHead {
+  height: 100%;
+}
+thead.${kmnClassName} {
+  background: var(--tableBackground);
+  display: block;
+  height: var(--tableHeaderHeight);
+  width: calc(100%);
+}
+
+div.${kmnClassName}.filter-input {
+  position: relative;
+  display: inline-block;
+  height: 26px;
+}
+
+div.${kmnClassName}.selected-div {
+  position: relative;
+  display: inline-block;
+  height: 20px;
+}
+
+table.${kmnClassName}.filter {
+  --tableHeaderHeight: 78px;
+}
+
+thead.${kmnClassName} .filler {
+  width: 3px;
+}
+tbody.${kmnClassName} tr, thead.${kmnClassName} tr {
+ display: table;
+ width: calc(100% - 1px);
+ margin: 0;
+ table-layout: fixed;
+ vertical-align: top;
+}
+table.${kmnClassName} .nr {
+  text-align: right;
+  width: 30px;
+}
+table.${kmnClassName} th {
+  padding: 3px 6px;
+  background: var(--tableHeaderBackground);
+  font-weight: normal;
+  color: var(--tableHeaderColor);
+  overflow: hidden;
+} 
+table.${kmnClassName} th.selected {
+  background: var(--activeColor);
+}
+tbody.${kmnClassName} tr:hover {
+  /* background: var(--tableHoverColor); */
+  outline: 1px solid var(--activeColor);
+  cursor: pointer;
+}
+table.${kmnClassName} tr.selected {
+  background: var(--activeColor);
+}
+table.${kmnClassName} td.showoverflow {
+  overflow: visible;
+}
+table.${kmnClassName} td {
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  padding: 1px 6px;
+  border-radius: 3px;  
+  /* min-width: 34px; */
+  /* background: var(--codeBackground); */
+}
+
+/* No hovers on row anymore
+table tr:hover td+.isInput {
+  background: initial;
+  cursor: pointer;
+}
+*/
+
+table.${kmnClassName} td.isLabel {
+  padding: 0;
+}
+table.${kmnClassName} label {
+  display: block;
+  width: calc(100% - 16px);
+  /* height: calc(100% - 12px); */
+  color: rgb(164,164,164);
+  line-height: 100%;
+  padding: 2px 8px;
+  text-align: right;
+}
+
+th.${kmnClassName}.add,
+th.${kmnClassName}.up,
+th.${kmnClassName}.down,
+th.${kmnClassName}.delete,
+td.${kmnClassName}.none,
+td.${kmnClassName}.up,
+td.${kmnClassName}.down,
+td.${kmnClassName}.delete {
+  background: var(--activeColor);
+  width: 24px;
+  padding: 0;
+  fill: none;
+  stroke: rgb(128,128,128);
+  stroke-width: 2px;
+}
+th.${kmnClassName}.add:hover,
+td.${kmnClassName}.up:hover,
+th.${kmnClassName}.up:hover,
+td.${kmnClassName}.down:hover,
+th.${kmnClassName}.down:hover,
+td.${kmnClassName}.delete:hover {
+  background: var(--activeHoverColor);
+  stroke: white;
+  stroke-width: 3px;
+  fill: none;
+}
+
+/* Don't no why i need to do this to get the position ok */
+th.${kmnClassName}.add svg {
+  position: relative;
+  left: -2px;
+}
+
+th.${kmnClassName}.add.active {
+  background: var(--activeColor);
+}
+tr.${kmnClassName}.add-row {
+  background: var(--activeColor);
+  text-align: center;
+}
+`;
 /**
  * @template {RecordVar} R 
  * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
@@ -27,6 +181,8 @@ class TableBuilder {
     this.table = table;
     this.options = options || {};
     this.options.alternativeBindings = this.options.alternativeBindings || {};
+
+    addCSS('table-builder', cssStr, true);
     this.fieldNames = this.options.fieldNames;
     this.tableEl = element.$el({ tag: "table", cls: table.constructor.name });
     this.tableEl.setAttribute("tabindex", '1');
@@ -38,6 +194,7 @@ class TableBuilder {
 
     this.selectedRec = null;
     this.selectedIx = -1;
+    this.rowHeight = 16;// TODO Make dynamic
 
     if (!this.options.skipHeader) {
       this.thead = this.tableEl.$el({ tag: "thead" });
@@ -280,6 +437,22 @@ class TableBuilder {
   //   }, 250);
   // }
 
+  updateSelectedDiv() {
+    let showSelectedDiv = false;
+    if (this.lastSelectedRow) {
+      this.lastSelectedRow.style.height = 'unset';
+    }
+    if (this.selectedIx !== -1) {
+      let rowEl = this.htmlRows[this.selectedIx];
+      if (rowEl) {
+        this.selectedDiv.style.top = '-' + (this.tbody.scrollHeight - rowEl.offsetTop + this.selectDivHeight - this.rowHeight).toFixed(0) + 'px';
+        showSelectedDiv = true;
+        rowEl.style.height = this.selectDivHeight + 'px';
+        this.lastSelectedRow = rowEl;
+      }
+    }
+    this.selectedDiv.$setVisible(showSelectedDiv);
+  }
   selectRow(rec, ix = -1) {
     if (ix === -1) {
       if (!rec) {
@@ -304,12 +477,13 @@ class TableBuilder {
       return;
     }
     this.htmlRows[ix].$setSelected();
-    this.htmlRows[ix].scrollIntoView({ behavior: "auto", block: "nearest",inline: "nearest"});
+    this.htmlRows[ix].scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     this.selectedRec = rec;
     this.selectedIx = ix;
     if (this.onRowSelect) {
       this.onRowSelect(rec, ix);
     }
+    this.updateSelectedDiv();
   }
 
   handleRowClick(rec, ix) {
@@ -481,6 +655,11 @@ class TableBuilder {
       }
       // row.onclick = this.handleRowClick.bind(this, rec, ix);
       this.htmlRows.push(row);
+    }
+    if (this.options.initSelectedDiv) {
+      this.selectedDiv = this.tbody.$el({ cls: 'selected-div' });
+      this.selectDivHeight = this.options.initSelectedDiv(this.selectedDiv);
+      this.updateSelectedDiv()
     }
   }
 
