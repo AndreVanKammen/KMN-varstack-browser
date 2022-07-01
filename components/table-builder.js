@@ -187,7 +187,8 @@ class TableBuilder {
     this.tableEl = element.$el({ tag: "table", cls: table.constructor.name });
     this.tableEl.setAttribute("tabindex", '1');
     this.tableEl.onkeydown = this.handleKeyPress.bind(this);
-    // this.tableEl.onblur = this.handleFocusLoss.bind(this);
+    this.tableEl.onblur = this.handleFocusChange.bind(this);
+    this.tableEl.onfocus = this.handleFocusChange.bind(this);
 
     this.rowCache = {};
     this.htmlRows
@@ -425,7 +426,10 @@ class TableBuilder {
     // }
   }
 
-  // handleFocusLoss() {
+  handleFocusChange() {
+    console.log('this.isFocussed = ', document.activeElement === this.tableEl);
+    this.isFocussed = document.activeElement === this.tableEl;
+    this.updateSelectedDiv();
   //   setTimeout(() => {
   //     if (this.addMode) {
   //       console.log("focus lost!");
@@ -435,7 +439,7 @@ class TableBuilder {
   //       this.addRow.remove();
   //     }
   //   }, 250);
-  // }
+  }
 
   updateSelectedDiv() {
     if (!this.selectedDiv) {
@@ -445,7 +449,7 @@ class TableBuilder {
     if (this.lastSelectedRow) {
       this.lastSelectedRow.style.height = 'unset';
     }
-    if (this.selectedIx !== -1) {
+    if (this.selectedIx !== -1 && this.isFocussed) {
       let rowEl = this.htmlRows[this.selectedIx];
       if (rowEl) {
         let totalHeight = this.selectDivHeight + this.rowHeight;
