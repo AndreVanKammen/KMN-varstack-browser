@@ -676,8 +676,12 @@ class TableBuilder {
       this.htmlRows.push(row);
     }
     if (this.options.initSelectedDiv) {
-      this.selectedDiv = this.tbody.$el({ cls: 'selected-div' });
-      this.selectDivHeight = this.options.initSelectedDiv(this, this.selectedDiv);
+      if (!this.selectedDiv) {
+        this.selectedDiv = this.tbody.$el({ cls: 'selected-div' });
+        this.selectDivHeight = this.options.initSelectedDiv(this, this.selectedDiv);
+      } else {
+        this.tbody.appendChild(this.selectedDiv);
+      }
       this.updateSelectedDiv()
     }
   }
