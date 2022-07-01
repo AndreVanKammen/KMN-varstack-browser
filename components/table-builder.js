@@ -27,6 +27,7 @@ table.${kmnClassName}:focus {
 }
 tbody.${kmnClassName} {
   background: var(--tableBackground);
+  position: relative;
   overflow-x: auto;
   overflow-y: scroll;
   display: block;
@@ -50,9 +51,10 @@ div.${kmnClassName}.filter-input {
 }
 
 div.${kmnClassName}.selected-div {
-  position: relative;
+  position: absolute;
   display: inline-block;
-  height: 20px;
+  top: 0px;
+  height: auto;
 }
 
 table.${kmnClassName}.filter {
@@ -453,7 +455,9 @@ class TableBuilder {
       let rowEl = this.htmlRows[this.selectedIx];
       if (rowEl) {
         let totalHeight = this.selectDivHeight + this.rowHeight;
-        this.selectedDiv.style.top = '-' + (this.tbody.scrollHeight - rowEl.offsetTop + totalHeight + 5).toFixed(0) + 'px';
+        let topVal = (rowEl.offsetTop + this.rowHeight);
+        // console.log('Set top: ', topVal, this.selectedIx, this.tbody.scrollHeight, rowEl.offsetTop);
+        this.selectedDiv.style.top = topVal.toFixed(0) + 'px';
         showSelectedDiv = true;
         rowEl.style.height = totalHeight + 'px';
         this.lastSelectedRow = rowEl;
