@@ -430,8 +430,15 @@ class TableBuilder {
 
   handleFocusChange() {
     console.log('this.isFocussed = ', document.activeElement === this.tableEl);
-    this.isFocussed = document.activeElement === this.tableEl;
-    this.updateSelectedDiv();
+    let newIsFocussed = document.activeElement === this.tableEl;
+    if (this.isFocussed !== newIsFocussed) {
+      this.isFocussed = newIsFocussed
+      if (this.options.onFocusChange) {
+        this.options.onFocusChange();
+      }
+      this.updateSelectedDiv();
+    }
+
   //   setTimeout(() => {
   //     if (this.addMode) {
   //       console.log("focus lost!");
