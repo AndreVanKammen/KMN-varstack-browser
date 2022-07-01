@@ -448,9 +448,10 @@ class TableBuilder {
     if (this.selectedIx !== -1) {
       let rowEl = this.htmlRows[this.selectedIx];
       if (rowEl) {
-        this.selectedDiv.style.top = '-' + (this.tbody.scrollHeight - rowEl.offsetTop + this.selectDivHeight - this.rowHeight).toFixed(0) + 'px';
+        let totalHeight = this.selectDivHeight + this.rowHeight;
+        this.selectedDiv.style.top = '-' + (this.tbody.scrollHeight - rowEl.offsetTop + totalHeight + 5).toFixed(0) + 'px';
         showSelectedDiv = true;
-        rowEl.style.height = this.selectDivHeight + 'px';
+        rowEl.style.height = totalHeight + 'px';
         this.lastSelectedRow = rowEl;
       }
     }
@@ -661,7 +662,7 @@ class TableBuilder {
     }
     if (this.options.initSelectedDiv) {
       this.selectedDiv = this.tbody.$el({ cls: 'selected-div' });
-      this.selectDivHeight = this.options.initSelectedDiv(this.selectedDiv);
+      this.selectDivHeight = this.options.initSelectedDiv(this, this.selectedDiv);
       this.updateSelectedDiv()
     }
   }
