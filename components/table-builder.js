@@ -438,6 +438,9 @@ class TableBuilder {
   // }
 
   updateSelectedDiv() {
+    if (!this.selectedDiv) {
+      return;
+    }
     let showSelectedDiv = false;
     if (this.lastSelectedRow) {
       this.lastSelectedRow.style.height = 'unset';
