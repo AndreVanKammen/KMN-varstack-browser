@@ -184,7 +184,7 @@ export class RectController {
     this._componentInfos = {};
     this._arrayLength = 256;
     this._webglArray = new Float32Array(this._arrayLength * floatSizePerComponent);
-    this._textureInfo = { texture: undefined, size: 0 }
+    this._textureInfo = { texture: undefined, size: 0, bufferWidth: 1024 }
     /** @type {Record<string,CanvasUpdateGroup>} */
     this._otherCanvasRoutines = {};
     this.drawingDisabled = false;
@@ -482,3 +482,49 @@ export function getElementHash(element)  {
   } 
   return element.dataWebGLComponentHash;
 }
+
+
+
+/*
+
+  Some thoughts for improvement
+
+    ShaderInfo => placeholder for vertex+fragment shader and
+    ControllerInfo => placeholder for mouse/touch/kbd control behaviour, calls ShaderInfo to set a set of parameters
+    ComponentInfo => Placeholder for a component class => shaderProgram + controller
+    ClipInfo => Placeholder for the clipping rectangle
+    RectInfo => Placeholder for the drawing/control
+
+    ComponentInstance
+      ComponentInfo
+      ClipInfo
+      RectInfo
+
+    RenderInfoGroup 
+      ComponentInfo
+      ClipInfo
+      instances
+      instanceStartInArray
+
+  These should be queryable interface on ControllerInfo
+    ExtendedControllerInfo => extends ControllerInfo with extra info, should contain demo data (scope, miditrack, beatgrid, audioview etc)
+    PanZoomControllerInfo => extends ControllerInfo with basepanzoom controler
+
+  RectController changes
+    Can we use ext ControllerInfo to run canvasroutines as Components? no we need to overule draw event, but could re-use logic by composition
+    What to do with draw order, hidden cliprects/rectangles handle efficiently
+    Can we manage and render text in here
+    Can we use uniform blocks to speed up things
+
+  Steps to render
+    group by ComponentInfo & ClipInfo = RenderInfoGroup 
+      -now done in draw per frame, better to prepare and assign place in vertex pull array for all components
+      -drawCalls can be called per
+    update their data
+      -All instances ComponentInstance.update
+      -Once Per group before shader exec
+         ComponentInfo.update(gl,shader) replaces shaderinit
+         Cliprect.update(gl) replaces onupdate in componentinfo
+
+  We should be able to work without html elements here so we can make synthpanels
+*/

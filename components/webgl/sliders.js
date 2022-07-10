@@ -2,86 +2,8 @@ import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { ComponentInfo, getElementHash, RectController, RectInfo } from "./rect-controller.js";
-class Slider extends BaseBinding {
-  _controller = RectController.geInstance();
-  /** @type {FloatVar} */ 
-  _sliderVar = undefined;
-  min = 0;
-  max = 1;
-  step = 0.001;
-  /** 
-   * @param {FloatVar} sliderVar 
-   */
-  constructor(sliderVar) {
-    super(sliderVar);
 
-    if (sliderVar) {
-      this.sliderVar = sliderVar;
-    }
-  }
-  /**
-   * @param {number} clipHash
-   * @param {string} shaderName
-   */
-  initialize(clipHash, shaderName) {
-    this._componentInfo = this._controller.getComponentInfo(clipHash, shaderName, this.updateComponentInfo.bind(this));
-    this._sliderInfo = this._componentInfo.getFreeIndex(this.updateSliderInfo.bind(this))
-  }
-
-  /**
-   * @param {ComponentInfo} info 
-   */
-  updateComponentInfo(info) {
-    info.clipRect = { x: 0, y: 0, width: 16384, height: 16384 };
-  }
-
-  getSliderOffset() {
-    if (this.min !== 0 || this.max !== 1) {
-      return (this.sliderVar.$v - this.min) / (this.max - this.min);
-    } else {
-      return this.sliderVar.$v;
-    }
-  }
-
-  /* THIS DOES NOT WORK!!!!! @type {import("./rect-controller.js").UpdateFunc} */
-  /**@param {import("./rect-controller.js").RectInfo} info */
-  updateSliderInfo(info) {
-    info.value[0] = this.getSliderOffset();
-  }
-
-  setValue(x) {
-    x = Math.max(0.0, Math.min(1.0, x));
-    this.sliderVar.$v = this.min + Math.round(x * (this.max - this.min) / this.step) * this.step;
-  }
-
-  /** @type {FloatVar} */
-  get sliderVar() {
-    return this._sliderVar
-  }
-  set sliderVar(sliderVar) {
-    this._sliderVar = sliderVar
-    if (this._sliderVar.$varDefinition) {
-      if (this._sliderVar.$varDefinition.range) {
-        this.min = this._sliderVar.$varDefinition.range[0];
-        this.max = this._sliderVar.$varDefinition.range[1];
-      }
-      if (this._sliderVar.$varDefinition.step) {
-        this.step = this._sliderVar.$varDefinition.step;
-      }
-    }
-    this.lastWithinValue = this.getSliderOffset();
-  }
-
-  remove() {
-    if (this._sliderInfo) {
-      this._componentInfo.freeRectInfo(this._sliderInfo);
-      this._sliderInfo = undefined;
-    }
-    super.remove();
-  }
-}
-
-export class HorizontalSliderElement extends Slider {
+export class HorizontalSliderElement extends BaseBinding {
   /** @type {HTMLElement}*/
   _element;
   /**
@@ -90,11 +12,58 @@ export class HorizontalSliderElement extends Slider {
    */
   constructor(sliderVar, element) {
     super(sliderVar);
+
+    if (sliderVar) {
+      this._sliderVar = sliderVar;
+      this.lastWithinValue = this.getSliderOffset();
+    }
     this._element = element;
+    this._controller = RectController.geInstance();
     this.clipElement = element.$getClippingParent();
-    this.initialize(getElementHash(this.clipElement), 'slider');
+    this._componentInfo = this._controller.getComponentInfo(getElementHash(this.clipElement), 'slider', this.updateComponentInfo.bind(this));
+    this._sliderInfo = this._componentInfo.getFreeIndex(this.updateSliderInfo.bind(this))
     this._pointerTracker = new PointerTracker(this._element);
     this.size = 0.9
+  }
+
+  get min() {
+    if (this._sliderVar.$varDefinition) {
+      if (this._sliderVar.$varDefinition.range) {
+        return this._sliderVar.$varDefinition.range[0];
+      }
+    }
+    return 0.0;
+  }
+
+  get max() {
+    if (this._sliderVar.$varDefinition) {
+      if (this._sliderVar.$varDefinition.range) {
+        return this._sliderVar.$varDefinition.range[1];
+      }
+    }
+    return 1.0;
+  }
+
+  get step() {
+    if (this._sliderVar.$varDefinition) {
+      if (this._sliderVar.$varDefinition.step) {
+        return this._sliderVar.$varDefinition.step;
+      }
+    }
+    return 0.0000001;
+  }
+
+  setValue(x) {
+    x = Math.max(0.0, Math.min(1.0, x));
+    this._sliderVar.$v = this.min + Math.round(x * (this.max - this.min) / this.step) * this.step;
+  }
+
+  getSliderOffset() {
+    if (this.min !== 0 || this.max !== 1) {
+      return (this._sliderVar.$v - this.min) / (this.max - this.min);
+    } else {
+      return this._sliderVar.$v;
+    }
   }
 
   /**
@@ -110,7 +79,7 @@ export class HorizontalSliderElement extends Slider {
 
   /**@param {import("./rect-controller.js").RectInfo} info */
   updateSliderInfo(info) {
-    super.updateSliderInfo(info);
+    info.value[0] = this.getSliderOffset();
     let box = this._element.getBoundingClientRect();
     let pt = this._pointerTracker.getLastPrimary();
     info.mouse.x = ~~pt.currentX;
@@ -156,9 +125,13 @@ export class HorizontalSliderElement extends Slider {
     }
   }
 
-  remove() {
+  dispose() {
     this._pointerTracker.remove()
-    super.remove();
+    if (this._sliderInfo) {
+      this._componentInfo.freeRectInfo(this._sliderInfo);
+      this._sliderInfo = undefined;
+    }
+    super.dispose();
   }
 }
 
@@ -192,12 +165,12 @@ export class VerticalLevelElement extends BaseBinding {
     info.value[0] = this.baseVar.$v;
   }
 
-  remove() {
+  dispose() {
     if (this._componentInfoHandle) {
       this._componentInfo.freeRectInfo(this._componentInfoHandle);
       this._componentInfoHandle = undefined;
     }
     // this._pointerTracker.remove()
-    super.remove();
+    super.dispose();
   }
 }

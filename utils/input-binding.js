@@ -127,8 +127,8 @@ class InputBinding extends BaseBinding {
     element.dataVar = this.baseVar;
   }
 
-  remove() {
-    super.remove();
+  dispose() {
+    super.dispose();
     this.element.remove();
   }
 }
@@ -167,8 +167,8 @@ class EnumDropDownBinding extends BaseBinding {
     this.element.value = this.baseVar.$niceStr;
   }
 
-  remove() {
-    super.remove();
+  dispose() {
+    super.dispose();
     this.element.remove();
   }
 }
@@ -210,8 +210,8 @@ export class CreateInputBinding extends BaseBinding {
     this.parentElement = parentElement;
   }
 
-  remove() {
-    this.binding.remove();
+  dispose() {
+    this.binding.dispose();
   }
 }
 
