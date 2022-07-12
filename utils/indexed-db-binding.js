@@ -157,7 +157,9 @@ export class IndexedDBTableBinding {
     this.tableToStore.onFindKeyAsync = async (keyValue) => {
       let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
       if (result) {
-        return this.tableToStore.add(result);
+        let el = this.tableToStore.add(result);
+        this.checkBinding(el, false);
+        return el; 
       } else {
         return null;
       }
@@ -191,6 +193,17 @@ export class IndexedDBTableBinding {
     }
   }
 
+  async loadKeysStartingWith(keyValue) {
+    await this.idb.getAllStartingWith(this.tableStorageName, keyValue).then((result) => {
+      if (result) {
+        for (let entry of result) {
+          let el = this.tableToStore.add(entry);
+          this.checkBinding(el, false);
+        }
+      }
+    });
+  }
+
   checkBinding(el, doGet) {
     let keyValue = this.prependKey + el[this.keyFieldName].$v;
     let binding = this.boundRecords[keyValue];
@@ -202,7 +215,6 @@ export class IndexedDBTableBinding {
   handleArrayChanged() {
     this.tableMeta.count.$v = this.tableToStore.length;
     for (let ix = 0; ix < this.tableToStore.length; ix++) {
-      // TODO: See if we kan support sparse array so we only cache used records in memory, might be useful for large load on demand tables
       let el = this.tableToStore.element(ix);
       if (el) {
         this.checkBinding(el, true);
