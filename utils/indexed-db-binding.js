@@ -130,8 +130,9 @@ export class IndexedDBTableBinding {
    * @param {string} baseStorageName 
    * @param {any} defaultData 
    * @param {string} prependKey
+   * @param {boolean} preLoadData
    */
-  constructor(tableToStore, idb, baseStorageName, defaultData, prependKey = '') {
+  constructor(tableToStore, idb, baseStorageName, defaultData, prependKey = '', preLoadData = true) {
     this.tableToStore = tableToStore;
     this.storageName = baseStorageName;
     this.tableStorageName = baseStorageName + tableExtention;
@@ -153,26 +154,41 @@ export class IndexedDBTableBinding {
     this.justCreated = false;
     this.keyFieldName = this.tableToStore.keyFieldName;
     this.prependKey = prependKey;
-    let getQuery = prependKey
-      ? this.idb.getAllStartingWith(prependKey, this.tableStorageName)
-      : this.idb.getAll(this.tableStorageName);
-    getQuery.then( (result) => {
+    this.tableToStore.onFindKeyAsync = async (keyValue) => {
+      let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
       if (result) {
-        this.justCreated = false;
-        // TODO: Sparse loading?
-        for (let entry of result) {
-          let el = this.tableToStore.add(entry);
-          this.checkBinding(el, false);
-        }
+        return this.tableToStore.add(result);
+      } else {
+        return null;
       }
-    }).finally(() => {
+    }
+
+    const loadingFinished = () => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));
       if ((this.tableToStore.length === 0) && defaultData) {
         this.tableToStore.$v = defaultData;
       }
       this.handleArrayChanged();
       this.isLoaded = true;
-    });
+    };
+
+    if (preLoadData) {
+      let getQuery = prependKey
+        ? this.idb.getAllStartingWith(prependKey, this.tableStorageName)
+        : this.idb.getAll(this.tableStorageName);
+      getQuery.then((result) => {
+        if (result) {
+          this.justCreated = false;
+          // TODO: Sparse loading?
+          for (let entry of result) {
+            let el = this.tableToStore.add(entry);
+            this.checkBinding(el, false);
+          }
+        }
+      }).finally(loadingFinished);
+    } else {
+      loadingFinished();
+    }
   }
 
   checkBinding(el, doGet) {
