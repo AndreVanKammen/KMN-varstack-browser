@@ -516,7 +516,7 @@ export function getElementHash(element)  {
     ExtendedControllerInfo => extends ControllerInfo with extra info, should contain demo data (scope, miditrack, beatgrid, audioview etc)
     PanZoomControllerInfo => extends ControllerInfo with basepanzoom controler
 
-  RectController changes
+  RectController changes, now called RenderControl
     Can we use ext ControllerInfo to run canvasroutines as Components? no we need to overule draw event, but could re-use logic by composition
     What to do with draw order, hidden cliprects/rectangles handle efficiently
     Can we manage and render text in here
