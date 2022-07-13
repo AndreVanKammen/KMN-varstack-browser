@@ -96,8 +96,11 @@ export class HorizontalSliderControl extends ValuePointerControl {
   updateSliderInfo(info) {
     super.updateSliderInfo(info);
 
+    let knobOffset = info.size.width;
     info.size.width   = info.size.width - info.size.height * this.size;
     info.size.height  = info.size.height * this.size;
+    knobOffset /= info.size.width;
+    knobOffset = 0.5 * ( knobOffset - 1.0);
 
     let pt = this._pointerTracker.getLastPrimary();
 
@@ -107,11 +110,10 @@ export class HorizontalSliderControl extends ValuePointerControl {
         info.mouse.state += 4;
         y -= 1.25;
         y *= y;
-        let newValue = pt.currentX / info.size.width;
+        let newValue = pt.currentX / info.size.width - knobOffset;
         this.value = (this.lastWithinValue * y + newValue) / (y + 1);
       } else {
-        this.lastWithinValue = pt.currentX / info.size.width;
-        console.log(pt.currentX , info.size.width);
+        this.lastWithinValue = pt.currentX / info.size.width - knobOffset;
         this.value = this.lastWithinValue;
       }
     }
@@ -134,8 +136,11 @@ export class VerticalSliderControl extends ValuePointerControl {
   updateSliderInfo(info) {
     super.updateSliderInfo(info);
 
+    let knobOffset = info.size.height;
     info.size.width   = info.size.width * this.size;
     info.size.height  = info.size.height - info.size.width * this.size;
+    knobOffset /= info.size.height;
+    knobOffset = 0.5 * ( knobOffset - 1.0);
 
     let pt = this._pointerTracker.getLastPrimary();
 
@@ -145,10 +150,10 @@ export class VerticalSliderControl extends ValuePointerControl {
         info.mouse.state += 4;
         x -= 1.25;
         x *= x;
-        let newValue = pt.currentY / info.size.width;
+        let newValue = pt.currentY / info.size.width - knobOffset;
         this.value = (this.lastWithinValue * x + newValue) / (x + 1);
       } else {
-        this.lastWithinValue = pt.currentY / info.size.height;
+        this.lastWithinValue = pt.currentY / info.size.height - knobOffset;
         this.value = this.lastWithinValue;
       }
     }
