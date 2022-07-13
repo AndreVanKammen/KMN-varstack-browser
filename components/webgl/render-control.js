@@ -174,10 +174,10 @@ class CanvasUpdateRoutine {
 }
 
 
-/** @type {RectController} */ 
-let rectController = null;
+/** @type {RenderControl} */ 
+let renderControl = null;
 const floatSizePerComponent = 16;
-export class RectController {
+export class RenderControl {
   constructor() {
     // TODO seperate shaderInfo from componentInfo by registering ShaderInfo for shaderName
     /** @type {Record<string,ComponentInfo>} */
@@ -191,6 +191,7 @@ export class RectController {
     this.frameDivider = 1;
     this.errorCount = 0;
     this.dpr = 1;
+    this.registeredShaders = [];
   }
 
   /**
@@ -435,14 +436,18 @@ export class RectController {
   }
 
   static geInstance() {
-    if (!rectController) {
-      rectController = new RectController();
+    if (!renderControl) {
+      renderControl = new RenderControl();
     }
-    return rectController;
+    return renderControl;
   }
 
   getShaders() {
-    return ComponentShaders;
+    return this.registeredShaders;
+  }
+
+  registerShader(name, componentClass) {
+    this.registeredShaders.push({ name, componentClass, shaderCode: ComponentShaders[name] });
   }
 
   showExample = (name, options) => {
@@ -489,11 +494,12 @@ export function getElementHash(element)  {
 
   Some thoughts for improvement
 
-    ShaderInfo => placeholder for vertex+fragment shader and
-    ControllerInfo => placeholder for mouse/touch/kbd control behaviour, calls ShaderInfo to set a set of parameters
-    ComponentInfo => Placeholder for a component class => shaderProgram + controller
+    ShaderProgram => placeholder for vertex+fragment shader and
+    Controller => placeholder for mouse/touch/kbd control behaviour, calls ShaderInfo to set a set of parameters
+    Component => Placeholder for a component class => shaderProgram + controller
+    
     ClipInfo => Placeholder for the clipping rectangle
-    RectInfo => Placeholder for the drawing/control
+    RectInfo => Placeholder for the drawing rectangle
 
     ComponentInstance
       ComponentInfo
