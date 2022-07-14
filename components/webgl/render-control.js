@@ -523,9 +523,10 @@ export function getElementHash(element)  {
     Can we use uniform blocks to speed up things
 
   Steps to render
-    group by ComponentInfo & ClipInfo = RenderInfoGroup 
+    group by ShaderProgram & ClipInfo 
       -now done in draw per frame, better to prepare and assign place in vertex pull array for all components
-      -drawCalls can be called per
+      -loop with scissor function after loading shader doing the draw calls per clip region
+      -drawCalls can be called per block (like now)
     update their data
       -All instances ComponentInstance.update
       -Once Per group before shader exec
