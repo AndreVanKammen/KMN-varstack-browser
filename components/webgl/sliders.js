@@ -39,10 +39,6 @@ export class HorizontalSliderControl extends ValuePointerControl {
     }
     info.value[0] = this.value;
   }
-
-  dispose() {
-    this._pointerTracker.remove()
-  }
 }
 export class VerticalSliderControl extends ValuePointerControl {
   constructor(element, valueVar) {
@@ -78,10 +74,6 @@ export class VerticalSliderControl extends ValuePointerControl {
       }
     }
     info.value[0] = this.value;
-  }
-
-  dispose() {
-    this._pointerTracker.remove()
   }
 }
 
@@ -123,10 +115,10 @@ export class VerticalSliderElement extends BaseValueComponent {
 export class VerticalLevelElement extends BaseValueComponent {
   /**
    * @param {HTMLElement} element
-   * @param {FloatVar} sliderVar
+   * @param {FloatVar} levelVar
    */
-  constructor(sliderVar, element, shaderName) {
-    super(sliderVar, element, ValueControl, shaderName);
+  constructor(levelVar, element, shaderName) {
+    super(levelVar, element, ValueControl, shaderName || 'verticalLevel');
   }
 
   static get preferredSize() {
@@ -136,45 +128,6 @@ export class VerticalLevelElement extends BaseValueComponent {
     }
   }
 }
-
-
-// export class VerticalLevelElement extends BaseBinding {
-//   /**
-//    * @param {HTMLElement} element
-//    * @param {FloatVar} sliderVar
-//    */
-//   constructor(sliderVar, element, shaderName) {
-//     super(sliderVar);
-//     /** @type {HTMLElement}*/
-//     this._element = element;
-//     this._controller = RenderControl.geInstance();
-//     this.clipElement = element.$getClippingParent();
-//     this._componentInfo = this._controller.getComponentInfo(getElementHash(this.clipElement), shaderName || 'verticalLevel', this.updateComponentInfo.bind(this));
-//     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateComponentInstance.bind(this))
-//   }
-
-//   /**
-//    * @param {ComponentInfo} info 
-//    */
-//   updateComponentInfo(info) {
-//     RenderControl.setClipBoxFromElement(info, this.clipElement);
-//   }
-
-//   /**@param {RectInfo} info */
-//   updateComponentInstance(info) {
-//     RenderControl.setBoxDataFromElement(info, this._element);
-//     info.value[0] = this.baseVar.$v;
-//   }
-
-//   dispose() {
-//     if (this._componentInfoHandle) {
-//       this._componentInfo.freeRectInfo(this._componentInfoHandle);
-//       this._componentInfoHandle = undefined;
-//     }
-//     // this._pointerTracker.remove()
-//     super.dispose();
-//   }
-// }
 
 RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement);
 RenderControl.geInstance().registerShader('slider', HorizontalSliderElement);

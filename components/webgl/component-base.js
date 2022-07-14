@@ -53,6 +53,7 @@ export class ValueControl {
   
   /**@param {import("./render-control.js").RectInfo} info */
   updateRenderInfo(info) {
+    RenderControl.setBoxDataFromElement(info, this._element);
     info.value[0] = this.value;
   }
    
@@ -63,12 +64,11 @@ export class ValuePointerControl extends ValueControl {
   constructor(element, valueVar) {
     super(element, valueVar);
     this._pointerTracker = new PointerTracker(this._element);
-    this.lastWithinValue = this.value;
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
   updateRenderInfo(info) {
-    RenderControl.setBoxDataFromElement(info, this._element);
+    super.updateRenderInfo(info);
 
     let pt = this._pointerTracker.getLastPrimary();
     info.mouse.x = ~~pt.currentX;
@@ -88,6 +88,10 @@ export class ValuePointerControl extends ValueControl {
       info.mouse.y += 500;
     }
   }
+
+  dispose() {
+    this._pointerTracker.remove();
+  }
 }
 
 /**
@@ -106,8 +110,11 @@ export class BaseValueComponent {
     this._control = new ControlClass(element, valueVar);
 
     this._clipElement = element.$getClippingParent();
-    this._componentInfo = this._render.getComponentInfo(getElementHash(this._clipElement), ShaderClass, this.updateComponentInfo.bind(this));
-    this._sliderInfo = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
+    this._componentInfo = this._render.getComponentInfo(
+      getElementHash(this._clipElement),
+      ShaderClass,
+      this.updateComponentInfo.bind(this));
+    this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
   }
 
   static get preferredSize() {
@@ -131,9 +138,9 @@ export class BaseValueComponent {
 
   dispose() {
     this._control.dispose()
-    if (this._sliderInfo) {
-      this._componentInfo.freeRectInfo(this._sliderInfo);
-      this._sliderInfo = undefined;
+    if (this._componentInfoHandle) {
+      this._componentInfo.freeRectInfo(this._componentInfoHandle);
+      this._componentInfoHandle = undefined;
     }
   }
 }
