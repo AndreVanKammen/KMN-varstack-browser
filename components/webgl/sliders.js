@@ -66,10 +66,10 @@ export class VerticalSliderControl extends ValuePointerControl {
         info.mouse.state += 4;
         x -= 1.25;
         x *= x;
-        let newValue = pt.currentY / info.size.height - knobOffset;
+        let newValue = 1.0 - (pt.currentY / info.size.height - knobOffset);
         this.value = (this.lastWithinValue * x + newValue) / (x + 1);
       } else {
-        this.lastWithinValue = pt.currentY / info.size.height - knobOffset;
+        this.lastWithinValue = 1.0 - (pt.currentY / info.size.height - knobOffset);
         this.value = this.lastWithinValue;
       }
     }
@@ -103,7 +103,6 @@ export class VerticalSliderElement extends BaseValueComponent {
     super(sliderVar, element, VerticalSliderControl, 'vertical-slider');
   }
 
-
   static get preferredSize() {
     return {
       width: 24,
@@ -129,5 +128,6 @@ export class VerticalLevelElement extends BaseValueComponent {
   }
 }
 
+RenderControl.geInstance().registerShader('verticalLevel', VerticalLevelElement);
 RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement);
 RenderControl.geInstance().registerShader('slider', HorizontalSliderElement);

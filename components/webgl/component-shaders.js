@@ -32,7 +32,6 @@ vec4 renderComponent(vec2 center, vec2 size) {
   return  vec4(g, g, max(b-g,l)*0.8, a); // vec4(vec3(value.x),1.0);
 }`,
 "vertical-slider": /*glsl*/`
-
 float line(vec2 p, vec2 a, vec2 b)
 {
   vec2 pa = p - a;
@@ -42,7 +41,7 @@ float line(vec2 p, vec2 a, vec2 b)
 }
 
 vec4 renderComponent(vec2 center, vec2 size) {
-  vec2 posCenter = center + vec2(0.0,(value.x*2.0-1.0) * size.y * 0.5);
+  vec2 posCenter = center + vec2(0.0,(1.0-value.x*2.0) * size.y * 0.5);
   float maxS = min(size.x,size.y);
   float lineThickness = maxS * 0.1;
   float r = size.x * 0.5;
@@ -60,10 +59,10 @@ vec4 renderComponent(vec2 center, vec2 size) {
   }
   if (mouseInside) {
     float fade = 1.0+0.5*sin(float(drawCount)*0.1);
-    g = (1.0-smoothstep(0.0,lineThickness * fade,abs(d-r+fade)))*0.9;
+    g = (1.0-smoothstep(0.0,lineThickness * fade,abs(d-r+fade+lineThickness)))*0.9;
     l *= 1.1;
   } else {
-    // g = (1.0-smoothstep(0.0,lineThickness,abs(d-r+1.0)))*0.8;
+    g = (1.0-smoothstep(0.0,lineThickness,abs(d-r+lineThickness)))*0.8;
   }
   a = max(l,a);
   g = max(l,g)*0.8;

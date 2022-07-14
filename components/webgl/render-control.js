@@ -223,7 +223,7 @@ export class RenderControl {
     info.size.centerY = box.height / 2;
 
     info.size.width   = box.width;
-    info.size.height = box.height;
+    info.size.height  = box.height;
   }
 
   // TODO: convert HTMLElement to getcliprectInterface

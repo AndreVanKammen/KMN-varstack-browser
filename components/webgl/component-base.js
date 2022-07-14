@@ -90,7 +90,7 @@ export class ValuePointerControl extends ValueControl {
   }
 
   dispose() {
-    this._pointerTracker.remove();
+    this._pointerTracker.dispose();
   }
 }
 
