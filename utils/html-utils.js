@@ -97,11 +97,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display:block;
   left: unset;
   filter: brightness(0.8);
-    cursor: pointer;
-    height: 100%;
-    right: 0;
-    top: 0;
-    width: 16px;
+  cursor: pointer;
+  height: 100%;
+  right: 0;
+  top: 0;
+  width: 16px;
 }
 
 input[type=number] {
@@ -140,6 +140,7 @@ option.${kmnClassName} {
 input[type="checkbox"].${kmnClassName} {
   vertical-align: middle;
   width: 24px;
+  margin: 0;
 }
 
 input[type="checkbox"].${kmnClassName}:checked {
