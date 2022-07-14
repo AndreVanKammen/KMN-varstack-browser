@@ -150,7 +150,7 @@ export class VerticalSliderControl extends ValuePointerControl {
         info.mouse.state += 4;
         x -= 1.25;
         x *= x;
-        let newValue = pt.currentY / info.size.width - knobOffset;
+        let newValue = pt.currentY / info.size.height - knobOffset;
         this.value = (this.lastWithinValue * x + newValue) / (x + 1);
       } else {
         this.lastWithinValue = pt.currentY / info.size.height - knobOffset;
