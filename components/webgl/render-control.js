@@ -82,7 +82,12 @@ function getComponentKey(clipHash, shaderName) {
 }
 
 export class ComponentInfo {
-  constructor() {
+  /**
+   * 
+   * @param {RenderControl} owner 
+   */
+  constructor(owner) {
+    this.owner = owner;
     /** @type {ComponentUpdateFunc} */
     this.onUpdate;
     /** @type {ShaderInitFunc} */
@@ -132,7 +137,7 @@ export class ComponentInfo {
     if (this._shaderProgram === undefined) {
       this._shaderProgram = gl.getShaderProgram(
         baseVertexShader,
-        this.getShader(),
+        this.owner.handleIncludes(this.getShader()),
         // this.shaderHeader +
         //   ComponentShaders[this.shaderName] +
         // this.shaderFooter,
@@ -253,7 +258,7 @@ export class RenderControl {
     const key = getComponentKey(clipHash, shaderName)
     let componentInfo = this._componentInfos[key];
     if (!componentInfo) {
-      componentInfo = new ComponentInfo();
+      componentInfo = new ComponentInfo(this);
       componentInfo.clipHash = clipHash;
       componentInfo.shaderName = shaderName;
       componentInfo.onUpdate = onUpdate;
@@ -453,12 +458,47 @@ export class RenderControl {
   showExample = (name, options) => {
   }
 
+  // TODO move these functions to str utils or so
+  /**
+   * 
+   * @param {string} str 
+   * @returns {string[]}
+   */
+  strToLines(str) {
+    const CRLFregEx = new RegExp('\r\n', 'g');
+    str = str.replace(CRLFregEx, '\n');
+    return str.split('\n');
+  }
+
+  handleIncludes(sourceStr) {
+    let sourceLines = this.strToLines(sourceStr);
+    let result = [];
+    for (let line of sourceLines) {
+      result.push(line);
+      line = line.trim();
+      if (line.startsWith('//')) {
+        line = line.substring(3).trim();
+        if (line.startsWith('#include')) {
+          line = line.substring(8).trim();
+          let includeScript = ComponentShaders[line];
+          if (includeScript) {
+            console.log('Include handled: ', line);
+            result.push(includeScript);
+          } else {
+            console.error('Include not found: ', line);
+          }
+        }
+      }
+    }
+    return result.join('\n');
+  }
+
   compileShader = (name, source, options) => {
     console.log('RectControler compile: ', name, options);
     // TODO get componentInfo for different headers/footer
     let compileInfo = this.gl.getCompileInfo(
       baseComponentShaderHeader + 
-          source +
+      this.handleIncludes(source) +
       baseComponentShaderFooter,
       this.gl.FRAGMENT_SHADER,
       2

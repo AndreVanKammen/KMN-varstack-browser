@@ -7,7 +7,6 @@ import { ComponentInfo, getElementHash, RenderControl, RectInfo } from "./render
 export class HorizontalSliderControl extends ValuePointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
-    this._pointerTracker = new PointerTracker(this._element);
     this.lastWithinValue = this.value;
     this.size = 0.9
   }
@@ -43,7 +42,6 @@ export class HorizontalSliderControl extends ValuePointerControl {
 export class VerticalSliderControl extends ValuePointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
-    this._pointerTracker = new PointerTracker(this._element);
     this.lastWithinValue = this.value;
     this.size = 0.9
   }
