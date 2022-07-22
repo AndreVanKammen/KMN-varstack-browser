@@ -40,7 +40,7 @@ tbody.${kmnClassName}.noHead {
 thead.${kmnClassName} {
   background: var(--tableBackground);
   display: block;
-  height: var(--tableHeaderHeight);
+  /* height: var(--tableHeaderHeight); */
   width: calc(100%);
 }
 
@@ -321,7 +321,9 @@ class TableBuilder {
       }
       let headerElement = this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ', '-') });
       headerElement.innerText = headerName;
-      if (this.options.showFilterEdits) {
+      let fieldDefIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
+      let fieldIsNumber = (fieldDefIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldDefIx].sortIsNumber);
+      if (this.options.showFilterEdits && (!fieldIsNumber || this.options.showNumberFilters)) {
         if (!this.tableView) {
           this.tableView = new TableView(this.table);
         }
@@ -346,8 +348,7 @@ class TableBuilder {
           }
         });
 
-        let fieldIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
-        if (fieldIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldIx].sortIsNumber) {
+        if (fieldDefIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldDefIx].sortIsNumber) {
           // Give the var it's own definition
           baseVar2.$setDefinition(baseVar2.$varDefinition);
           baseVar2.$varDefinition.isReadOnly = false;
