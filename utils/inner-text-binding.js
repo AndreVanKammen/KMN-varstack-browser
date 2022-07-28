@@ -20,7 +20,7 @@ class InnerTextBinding extends BaseBinding {
   setElement (element) {
     this.element = element;
     this.element.innerText = this.baseVar.$niceStr;
-    this.changeEvent = this.baseVar.$addEvent(this.handleVarChanged.bind(this));
+    this.changeEvent = this.baseVar.$addDeferedEvent(this.handleVarChanged.bind(this));
   }
 }
 
