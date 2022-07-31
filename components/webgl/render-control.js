@@ -56,7 +56,7 @@ flat in vec4 value;
 #define mouseFineTune ((int(mouse.z) & 0x04) != 0)
 `;
 
-export const baseComponentShaderFooter = `
+export const baseComponentShaderFooter = /*glsl*/`
 
 out vec4 fragColor;
 void main(void) {

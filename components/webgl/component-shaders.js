@@ -3,7 +3,7 @@ export const ComponentShaders = {
 const float pi = 3.141592653589793;
 const float pi2 = 6.283185307179586;
 
-float edgeDistance=0.6;
+float edgeDistance=0.9;
 
 #define top(ps) ps.w
 #define bottom(ps) -ps.w

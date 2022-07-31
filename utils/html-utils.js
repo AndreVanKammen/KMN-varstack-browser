@@ -230,7 +230,6 @@ button.${kmnClassName}:hover {
   height: 240px;
   z-index: 10;
 }
-
 `;
 let defaultCSSAdded = false;
 

@@ -1,4 +1,5 @@
 import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
+import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { ComponentInfo, getElementHash, RenderControl } from "./render-control.js";
 
@@ -94,14 +95,67 @@ export class ValuePointerControl extends ValueControl {
   }
 }
 
+export class BooleanControl {
+  constructor(element, valueVar) {
+    this._element = element;
+    this._valueVar = valueVar;
+    this.easeFactor = 0.1;
+    this.valueSmooth = this.value ? 1.0 : 0.0;
+  }
+
+  set value(x) {
+    this._valueVar.$v = x;
+  }
+
+  get value() {
+    return this._valueVar.$v;
+  }
+  
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    RenderControl.setBoxDataFromElement(info, this._element);
+    this.easeFactor = 0.1;
+    this.valueSmooth *= 1.0 - this.easeFactor;
+    // TODO correct easefactor for framerate
+    this.valueSmooth += this.value ? this.easeFactor : 0.0;
+    info.value[0] = this.valueSmooth;
+  }
+   
+  dispose() {
+  }
+}
+export class BooleanPointerControl extends BooleanControl {
+  constructor(element, valueVar) {
+    super(element, valueVar);
+    this._pointerTracker = new PointerTracker(this._element);
+  }
+
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    super.updateRenderInfo(info);
+
+    let pt = this._pointerTracker.getLastPrimary();
+    info.mouse.x = ~~pt.currentX;
+    info.mouse.y = ~~pt.currentY;
+    info.mouse.state =
+      (pt.isInside > 0 ? 1 : 0)
+      + (pt.isDown > 0 ? 2 : 0);
+  }
+
+  dispose() {
+    this._pointerTracker.dispose();
+  }
+}
+
+
 /**
  * @template {ValueControl} T0
  */
 export class BaseValueComponent {
   /**
    * @param {HTMLElement} element
-   * @param {FloatVar} valueVar
-   * @param {new (HTMLElement,FloatVar) => T0} ControlClass - A generic parameter that flows through to the return type
+   * @param {BaseVar} valueVar
+   * @param {new (HTMLElement,BaseVar) => T0} ControlClass - A generic parameter that flows through to the return type
    */
   constructor(valueVar, element, ControlClass, ShaderClass) {
     // TODO make Refactor ShaderClass from ComponentInfo in RenderControl for now its a string
