@@ -6,16 +6,16 @@ import { RenderControl} from "./render-control.js";
 
 const playPauseShader = /*glsl*/`
 // #include distance-drawing
-const vec3 forgroundColor = vec3(0.8);
-const vec3 forgroundHoverColor = vec3(1.0);
-const vec3 actionColor = vec3(48.0/255.0,48.0/255.0,80.0/255.0);
-const vec3 actionHoverColor = vec3(62.0/255.0,62.0/255.0,192.0/255.0);
+const vec3 forgroundColor = vec3(0.0,0.0,0.6);
+const vec3 forgroundHoverColor = vec3(0.0,0.0,1.0);
+const vec3 actionColor = vec3(218.0/255.0,253.0/255.0,3.0/255.0);
+const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,48.0/255.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
 
   float playWidth = 0.8;
-  float maxS = minSize(posSize) * 0.75;
+  float maxS = minSize(posSize) * 0.65;
   float distPlay = drw_Triangle( posSize.xy,
           maxS*vec2(-playWidth,-1.0),
           maxS*vec2( playWidth,0.0),
@@ -24,14 +24,14 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float distPause = min(
       drw_Rectangle(posSize.xy,maxS*vec2(-0.5,0.0),maxS*vec2(0.1,1.0)),
       drw_Rectangle(posSize.xy,maxS*vec2(0.5,0.0),maxS*vec2(0.1,value.x)));
-  float dist = mix(distPlay,distPause,value.x)-maxS * 0.2;
+  float dist = mix(distPlay,distPause,value.x)-maxS * 0.3;
                    
   vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
   return addColorAndOutline(
         dist,
         mouseInside?actionHoverColor:actionColor,
         fc,
-        maxS * 0.02);
+        maxS * 0.05);
   // return addColorAndOutline(
   //           dist,
   //           vec3(0.25,0.25,0.8),
