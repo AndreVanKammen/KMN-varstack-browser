@@ -185,7 +185,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   }
   a = max(l,a);
   g = max(l,g)*0.8;
-  float activeColor = max(b-g,l)*0.8;
+  float activeColor = max(b-g,l);
   return  vec4(activeColor, activeColor, g, a); // vec4(vec3(value.x),1.0);
 }`,
 "vertical-slider": /*glsl*/`
