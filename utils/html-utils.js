@@ -36,7 +36,7 @@ div.${kmnClassName} {
   --subBorderWidth: 1px;
 
   --tableBackground: rgb(20, 20, 20);
-  --tableHeaderBackground: rgb(48, 48, 48);
+  --tableHeaderBackground: rgb(32, 32, 32);
   --tableHeaderColor: rgb(164, 164, 164);
   
   --tableHeaderHeight: 26px;
@@ -44,13 +44,15 @@ div.${kmnClassName} {
   --headerBackground: rgb(0,0,0);
   --headerColor: rgb(192, 192, 192);
 
-  --subHeaderBackground: rgb(76,76,76);
+  --subHeaderBackground: rgb(40,40,40);
   --subHeaderColor: rgb(192,192,192);
 
-  --activeColor: rgb(48,48,80);
-  --activeHoverColor: rgb(62,62,192);
+  --activeColor: rgb(54,54,54);
+  /*--activeHoverColor: rgb(62,62,192);*/
+  --activeHoverColor: rgb(218,253,3);
+  --activeforeHoverColor: rgb(18,18,18);
   
-  --activeforeGroundColor: rgb(255, 255, 255);
+  --activeforeGroundColor: rgb(255,255,255);
 
   --scrollBarThumb: rgb(64,64,64);
 }
@@ -144,6 +146,7 @@ input[type="checkbox"].${kmnClassName} {
 }
 
 input[type="checkbox"].${kmnClassName}:checked {
+  accent-color: var(--active-color);
   opacity: 0.7;
 }
 
@@ -201,6 +204,7 @@ button.${kmnClassName} {
   background: var(--activeColor);
   color: var(--subHeaderColor);
   border: none;
+  border-radius: 8px;
   margin: 0;
   padding: 0;
   height: 24px;
@@ -208,16 +212,12 @@ button.${kmnClassName} {
 }
 button.${kmnClassName}:hover {
   background: var(--activeHoverColor);
-  color: var(--activeforeGroundColor);
+  color: var(--activeforeHoverColor);
 }
 button.${kmnClassName}.selected {
   background: var(--activeColor);
   color: var(--activeforeGroundColor);
-  border: 1px solid var(--headerColor);
-}
-button.${kmnClassName}:hover {
-  background: var(--activeHoverColor);
-  color: var(--activeforeGroundColor);
+  border: 2px solid yellow;
 }
 
 .${kmnClassName}.drop-down-list {

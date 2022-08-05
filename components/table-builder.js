@@ -148,7 +148,8 @@ td.${kmnClassName}.down:hover,
 th.${kmnClassName}.down:hover,
 td.${kmnClassName}.delete:hover {
   background: var(--activeHoverColor);
-  stroke: white;
+  color: var(--activeforeHoverColor);
+  stroke: var(--activeforeHoverColor);
   stroke-width: 3px;
   fill: none;
 }
