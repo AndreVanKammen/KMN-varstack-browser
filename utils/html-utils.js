@@ -49,7 +49,7 @@ div.${kmnClassName} {
 
   --activeColor: rgb(54,54,54);
   /*--activeHoverColor: rgb(62,62,192);*/
-  --activeHoverColor: rgb(218,253,3);
+  --activeHoverColor: rgb(255,255,3);
   --activeforeHoverColor: rgb(18,18,18);
   
   --activeforeGroundColor: rgb(255,255,255);

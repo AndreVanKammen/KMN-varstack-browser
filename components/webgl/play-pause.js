@@ -8,7 +8,7 @@ const playPauseShader = /*glsl*/`
 // #include distance-drawing
 const vec3 forgroundColor = vec3(0.0,0.0,0.6);
 const vec3 forgroundHoverColor = vec3(0.0,0.0,1.0);
-const vec3 actionColor = vec3(218.0/255.0,253.0/255.0,3.0/255.0);
+const vec3 actionColor = vec3(255.0/255.0,255.0/255.0,3.0/255.0);
 const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,48.0/255.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
