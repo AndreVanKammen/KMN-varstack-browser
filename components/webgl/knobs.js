@@ -59,8 +59,8 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class RotationKnobControl extends ValuePointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
-    this.lastWithinValue = this.value;
     this.size = 0.9
+    this.valueSmooth = valueVar.$v;
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
@@ -70,20 +70,13 @@ export class RotationKnobControl extends ValuePointerControl {
     let pt = this._pointerTracker.getLastPrimary();
 
     if (pt.isDown > 0) {
-      // if (iMouse.z>0.5) {
-      //   // value = iMouse.x / iResolution.x;
-      //   vec2 v = iMouse.xy - iResolution.xy * 0.5;
-      //   float a = atan(v.x,v.y);
-      //   value = clamp((a + pi * 0.7) /pi2 / 0.7,0.0,1.0);
-      // }
       let x = info.mouse.x - info.size.centerX;
       let y = info.mouse.y - info.size.centerY;
       let a = Math.atan2(x, -y);
-      console.log(x, y);
-      let v = Math.min(Math.max((a + Math.PI * 0.7) / Math.PI / 2.0 / 0.7, 0.0), 1.0);
-      this.value = this.value * 0.9 + 0.1 * v;
+      this.value = Math.min(Math.max((a + Math.PI * 0.7) / Math.PI / 2.0 / 0.7, 0.0), 1.0);
     }
-    info.value[0] = this.value;
+    this.valueSmooth = this.valueSmooth * 0.9 + 0.1 * this.value;
+    info.value[0] = this.valueSmooth;
   }
 }
 export class KnobElement extends BaseValueComponent {

@@ -68,8 +68,8 @@ float drw_Line(vec2 p, vec2 a, vec2 b) {
   return length(pa - ba*h);
 }
 
-float drw_Circle(vec4 posSize, float radius) {
-  return length(posSize.xy) - radius;
+float drw_Circle(vec2 posSize, float radius) {
+  return length(posSize) - radius;
 }
 
 ivec2 tf_TilePos = ivec2(0);
