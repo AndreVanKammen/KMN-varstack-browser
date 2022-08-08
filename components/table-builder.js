@@ -254,47 +254,47 @@ class TableBuilder {
     let el = row.$el({ tag: tagName, cls: name });
     el.appendChild(svgIcon(pathData));
     el.onclick = (evt) => {
+      evt.preventDefault();
       evt.stopPropagation();
       func.call(this, rec);
     };
    }
   
+  moveDown() {
+    let sortIx = this.sortArray.indexOf(this.selectedIx);
+    if (sortIx >= 0 && sortIx < this.sortArray.length - 1) {
+      let ix = this.sortArray[sortIx + 1];
+      this.selectRow(this.table.array[ix], ix);
+      return true;
+    }
+  }
+  
+  moveUp() {
+    let sortIx = this.sortArray.indexOf(this.selectedIx);
+    if (sortIx > 0) {
+      let ix = this.sortArray[sortIx - 1];
+      this.selectRow(this.table.array[ix], ix);
+      return true;
+    }
+  }
+  
   handleKeyPress(evt) {
     // TODO scroll into view
     if (evt.key === 'ArrowDown') {
-      let sortIx = this.sortArray.indexOf(this.selectedIx);
-      if (sortIx >= 0 && sortIx < this.sortArray.length - 1) {
+      if (this.moveDown()) {
         evt.preventDefault();
         evt.stopPropagation();
-        let ix = this.sortArray[sortIx + 1];
-        this.selectRow(this.table.array[ix], ix);
       }
-      // for (let ix = this.selectedIx + 1; ix < this.htmlRows.length; ix++) {
-      //   if (this.htmlRows[ix].$isVisible()) {
-      //     evt.preventDefault();
-      //     evt.stopPropagation();
-      //     this.selectRow(this.table.array[ix], ix);
-      //     break;
-      //   }
-      // }
     } else if (evt.key === 'ArrowUp') {
-      let sortIx = this.sortArray.indexOf(this.selectedIx);
-      if (sortIx > 0 ) {
+      if (this.moveUp()) {
         evt.preventDefault();
         evt.stopPropagation();
-        let ix = this.sortArray[sortIx - 1];
-        this.selectRow(this.table.array[ix], ix);
       }
-      // for (let ix = this.selectedIx - 1; ix >= 0; ix--) {
-      //   if (this.htmlRows[ix].$isVisible()) {
-      //     evt.preventDefault();
-      //     evt.stopPropagation();
-      //     this.selectRow(this.table.array[ix], ix);
-      //     break;
-      //   }
-      // }
     } else if (evt.key === 'Enter') {
-      this.handleRowClick(this.selectedRec, this.selectedIx);
+      this.handleRowDblClick(this.selectedRec, this.selectedIx);
+      this.moveDown();
+      evt.preventDefault();
+      evt.stopPropagation();
     } else if (evt.key === 'Escape') {
       this.tableEl.blur();
     }
