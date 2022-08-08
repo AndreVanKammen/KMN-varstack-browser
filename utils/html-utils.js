@@ -143,10 +143,11 @@ input[type="checkbox"].${kmnClassName} {
   vertical-align: middle;
   width: 24px;
   margin: 0;
+  accent-color: var(--subHeaderBackground);
 }
 
 input[type="checkbox"].${kmnClassName}:checked {
-  accent-color: var(--active-color);
+  accent-color: var(--activeColor);
   opacity: 0.7;
 }
 
