@@ -250,7 +250,7 @@ class TableBuilder {
    * @param {String} pathData 
    * @param {(rec: RecordVar) => void} func 
    */
-   addFunc(row, tagName, rec, name, pathData, func) {
+  addFunc(row, tagName, rec, name, pathData, func) {
     let el = row.$el({ tag: tagName, cls: name });
     el.appendChild(svgIcon(pathData));
     el.onclick = (evt) => {
@@ -258,7 +258,7 @@ class TableBuilder {
       evt.stopPropagation();
       func.call(this, rec);
     };
-   }
+  }
   
   moveDown() {
     let sortIx = this.sortArray.indexOf(this.selectedIx);
@@ -374,14 +374,14 @@ class TableBuilder {
         if (this.options.sortOnHeaderClick) {
           headerElement.onclick = (evt) => {
             console.log(evt);
-              headerElement.$setSelected();
+            headerElement.$setSelected();
             if (evt.target === headerElement) {
               this.tableView.setSort(fieldName);
             } else {
-              this.tableView.setSort(fieldName,this.tableView.sortAscending);
+              this.tableView.setSort(fieldName, this.tableView.sortAscending);
             }
             this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
-              this.updateTable();
+            this.updateTable();
           }
         }
         // @ts-ignore
@@ -419,14 +419,14 @@ class TableBuilder {
 
   handleAdd() {
     // if (!this.addMode) {
-      if (this.options.addClick) {
-        this.options.addClick()
-      }
-      // this.addMode = true;
-      // this.addButton.classList.add("active");
-      // this.addRow = this.tbody.$el({ tag: "tr", cls: "add-row" });
-      // // TODO: get effects word from table or options
-      // this.addRow.innerText = "click effect to add here!";
+    if (this.options.addClick) {
+      this.options.addClick()
+    }
+    // this.addMode = true;
+    // this.addButton.classList.add("active");
+    // this.addRow = this.tbody.$el({ tag: "tr", cls: "add-row" });
+    // // TODO: get effects word from table or options
+    // this.addRow.innerText = "click effect to add here!";
     // }
   }
 
@@ -441,15 +441,15 @@ class TableBuilder {
       this.updateSelectedDiv();
     }
 
-  //   setTimeout(() => {
-  //     if (this.addMode) {
-  //       console.log("focus lost!");
-  //       // Rescedule to happen after click in table
-  //       this.addButton.classList.remove("active");
-  //       this.addMode = false;
-  //       this.addRow.remove();
-  //     }
-  //   }, 250);
+    //   setTimeout(() => {
+    //     if (this.addMode) {
+    //       console.log("focus lost!");
+    //       // Rescedule to happen after click in table
+    //       this.addButton.classList.remove("active");
+    //       this.addMode = false;
+    //       this.addRow.remove();
+    //     }
+    //   }, 250);
   }
 
   updateSelectedDiv() {
@@ -483,7 +483,7 @@ class TableBuilder {
         return;
       }
       ix = this.table.findIxForElement(rec);
-    } 
+    }
     if (0 > ix || ix >= this.htmlRows.length) {
       log.error("Index out of bound in selectRow");
     }
@@ -564,10 +564,10 @@ class TableBuilder {
       if (this.options.headerNames && this.options.headerNames[ix]) {
         headerName = this.options.headerNames[ix];
       }
-      let tdEl = row.$el({ tag: "td", cls: headerName.replaceAll(' ','-') });
+      let tdEl = row.$el({ tag: "td", cls: headerName.replaceAll(' ', '-') });
       let field = rec.$findVar(fieldName);
       if (field) {
-        let bindingIx = bindings.push(new this.bindings[ix](field, tdEl))-1;
+        let bindingIx = bindings.push(new this.bindings[ix](field, tdEl)) - 1;
         // TODO make better
         let changeDef = rec['_' + fieldName + '_def'];
         if (changeDef) {
@@ -585,15 +585,17 @@ class TableBuilder {
       // if (ix <= 0) {
       //   addFunc("none", "", () => { });
       // } else {
-      this.addFunc(row,'td',rec,"up", "M4,16L12,8L20,16", this.moveRowUp);
+      this.addFunc(row, 'td', rec, "up", "M4,16L12,8L20,16", this.moveRowUp);
       //}
       // TODO better detection for bottom row, this won't work with filter or sort
       // if (ix >= this.table.array.length - 1) {
       //   addFunc("none", "", () => { });
       // } else {
-      this.addFunc(row,'td',rec,"down", "M4,8L12,16L20,8", this.moveRowDown);
+      this.addFunc(row, 'td', rec, "down", "M4,8L12,16L20,8", this.moveRowDown);
       // }
-      this.addFunc(row,'td',rec,"delete", "M4,4L20,20M20,4L4,20", this.deleteRow);
+    }
+    if (this.options.editList || this.options.deleteButton) {
+      this.addFunc(row, 'td', rec, "delete", "M4,4L20,20M20,4L4,20", this.deleteRow);
     }
     // @ts-ignore: TODO other way to handle cleanup
     row.dataForCleanup = {
@@ -635,7 +637,8 @@ class TableBuilder {
             } else {
               minMax[fieldName].min = Math.min(minMax[fieldName].min, rec.$findVar(fieldName).$v);
               minMax[fieldName].max = Math.max(minMax[fieldName].max, rec.$findVar(fieldName).$v);
-            }          }
+            }
+          }
         }
       }
 

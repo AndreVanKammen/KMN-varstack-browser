@@ -164,6 +164,17 @@ export class IndexedDBTableBinding {
         return null;
       }
     }
+    this.tableToStore.onRemove = (record) => {
+      // TODO DELETE FROM DATABASE
+      // let keyValue = this.prependKey + record[this.keyFieldName].$v;
+      // let binding = this.boundRecords[keyValue];
+      // if (!binding) {
+      //   this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue, doGet);
+      // }
+      // let el = this.tableToStore.remove(record);
+      // this.checkBinding(el, false);
+      // return el;
+    };
 
     const loadingFinished = () => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));
