@@ -99,7 +99,7 @@ export class BooleanControl {
   constructor(element, valueVar) {
     this._element = element;
     this._valueVar = valueVar;
-    this.easeFactor = 0.1;
+    this.easeFactor = 0.06;
     this.valueSmooth = this.value ? 1.0 : 0.0;
   }
 
@@ -114,7 +114,6 @@ export class BooleanControl {
   /**@param {import("./render-control.js").RectInfo} info */
   updateRenderInfo(info) {
     RenderControl.setBoxDataFromElement(info, this._element);
-    this.easeFactor = 0.1;
     this.valueSmooth *= 1.0 - this.easeFactor;
     // TODO correct easefactor for framerate
     this.valueSmooth += this.value ? this.easeFactor : 0.0;

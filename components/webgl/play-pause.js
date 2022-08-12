@@ -9,7 +9,7 @@ const playPauseShader = /*glsl*/`
 const vec3 forgroundColor = vec3(0.0,0.0,0.6);
 const vec3 forgroundHoverColor = vec3(0.0,0.0,1.0);
 const vec3 actionColor = vec3(255.0/255.0,255.0/255.0,3.0/255.0);
-const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,48.0/255.0);
+const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,7.0/255.0);
 
 vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
@@ -27,11 +27,14 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float dist = mix(distPlay,distPause,value.x)-maxS * 0.3;
                    
   vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
-  return addColorAndOutline(
+  return addColor(
         dist,
-        mouseInside?actionHoverColor:actionColor,
-        fc,
-        maxS * 0.05);
+        mouseInside?actionHoverColor:actionColor);
+  // return addColorAndOutline(
+  //       dist,
+  //       mouseInside?actionHoverColor:actionColor,
+  //       fc,
+  //       maxS * 0.05);
   // return addColorAndOutline(
   //           dist,
   //           vec3(0.25,0.25,0.8),
