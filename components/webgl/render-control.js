@@ -32,7 +32,6 @@ void main(void) {
   if (pointIx==4) {
     pointIx = 2;
   }
-
   // Calculate X and Y from the index number we get
   vec4 boxPoint = vec4(((pointIx & 1) == 1) ? vec2(1.0,box.x + box.z) : vec2(0.0, box.x),
                        ((pointIx & 2) == 0) ? vec2(1.0,box.y + box.w) : vec2(0.0, box.y));
@@ -70,7 +69,6 @@ void main(void) {
 
 export class RectInfo {
   /** @type {UpdateFunc} */ onUpdate;
-  index = 0;
   rect  = {x:0, y:0, width:0, height:0};
   size  = {centerX:0, centerY:0, width:0, height:0};
   mouse = {x:0, y:0, state:0, enterTime:0};
@@ -120,14 +118,17 @@ export class ComponentInfo {
    */
   getFreeIndex(onUpdate) {
     const rectInfo = new RectInfo();
-    rectInfo.index = this._rectInfos.push(rectInfo) - 1;
+    this._rectInfos.push(rectInfo);
     rectInfo.onUpdate = onUpdate;
     return rectInfo;
   }
 
   /** @param {RectInfo} info */
   freeRectInfo(info) {
-    this._rectInfos.splice(info.index,1);
+    let ix = this._rectInfos.indexOf(info);
+    if (ix !== -1) {
+      this._rectInfos.splice(ix, 1);
+    }
   }
 
   /**
@@ -135,15 +136,28 @@ export class ComponentInfo {
    */
   getShaderProgram(gl) {
     if (this._shaderProgram === undefined) {
-      this._shaderProgram = gl.getShaderProgram(
-        baseVertexShader,
-        this.owner.handleIncludes(this.getShader()),
-        // this.shaderHeader +
-        //   ComponentShaders[this.shaderName] +
-        // this.shaderFooter,
-        2
-      );
-      console.log('Shader compiled: ', this.shaderName);
+      let sc = this.owner.shaderCache[this.shaderName];
+      let source = this.getShader();
+      if (sc && sc.source === source && sc.shaderProgram) {
+        this._shaderProgram = sc.shaderProgram;
+      } else {
+        this._shaderProgram = gl.getShaderProgram(
+          baseVertexShader,
+          this.owner.handleIncludes(this.getShader()),
+          // this.shaderHeader +
+          //   ComponentShaders[this.shaderName] +
+          // this.shaderFooter,
+          2
+        );
+        console.log('Shader compiled: ', this.shaderName);
+        this.owner.shaderCache[this.shaderName] = {
+          ...this.owner.shaderCache[this.shaderName],
+          ...{
+            source,
+            shaderProgram: this._shaderProgram
+          }
+        };
+      }
     }
     return this._shaderProgram;
   }
@@ -167,7 +181,6 @@ class CanvasUpdateRoutine {
   constructor(owner, routine, clipElement) {
     this.owner = owner;
     this.routine = routine;
-    this.index = -1;
     this.clipElement = clipElement;
   }
 
@@ -197,6 +210,7 @@ export class RenderControl {
     this.errorCount = 0;
     this.dpr = 1;
     this.registeredShaders = [];
+    this.shaderCache = {};
   }
 
   /**
@@ -245,7 +259,7 @@ export class RenderControl {
       canvasUpdateGroup = this._otherCanvasRoutines[name] = new CanvasUpdateGroup(name);
     }
     let canvasRoutine = new CanvasUpdateRoutine(canvasUpdateGroup, updateCanvasRoutine, clipElement)
-    canvasRoutine.index = canvasUpdateGroup.routines.push(canvasRoutine);
+    canvasUpdateGroup.routines.push(canvasRoutine);
     return canvasRoutine;
   }
 
@@ -364,6 +378,8 @@ export class RenderControl {
 
     gl.enable(gl.SCISSOR_TEST);
 
+    window.renderData = renderData
+    this._textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this._textureInfo);
     for (const rd of renderData) {
       const length = rd.componentLength;
       const clipRect = rd.component.clipRect;
@@ -379,7 +395,6 @@ export class RenderControl {
       shaderProgram.u.drawCount?.set(this.drawCount)
       if (shaderProgram.u.dataTexture) {
         gl.activeTexture(gl.TEXTURE3);
-        this._textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this._textureInfo);
         gl.bindTexture(gl.TEXTURE_2D, this._textureInfo.texture);
         gl.uniform1i(shaderProgram.u.dataTexture, 3);
         // gl.activeTexture(gl.TEXTURE0);
@@ -496,6 +511,10 @@ export class RenderControl {
   compileShader = (name, source, options) => {
     console.log('RectControler compile: ', name, options);
     // TODO get componentInfo for different headers/footer
+    let sc = this.shaderCache[name];
+    if (sc && sc.source === source) {
+      return sc.compileInfo;
+    }
     let compileInfo = this.gl.getCompileInfo(
       baseComponentShaderHeader + 
       this.handleIncludes(source) +
@@ -513,6 +532,14 @@ export class RenderControl {
     } else {
       console.log('Shader error: ',compileInfo);
     }
+    this.shaderCache[name] = {
+      ...this.shaderCache[name],
+      ...{
+        source,
+        compileInfo,
+        shaderProgram: 0
+      }
+    };
     return compileInfo;
   }
 }
