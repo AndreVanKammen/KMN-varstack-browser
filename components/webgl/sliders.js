@@ -31,9 +31,9 @@ vec4 renderComponent(vec2 center, vec2 size) {
   //  vec2(0.0),
   //  mouse.xy));
   //}
-  return max(addDefaultColor( distCircle+2.0),
+  return max(defaultColor(distCircle+2.0),
               addColor( distLine - 1.0,
-                        mouseInside ? forgroundColor * 0.5, forgroundColor));
+                        (mouseInside ? forgroundColor : forgroundColor * 0.7 )));
 }`);
 
 registerComponentShader('vertical-slider', /*glsl*/`
