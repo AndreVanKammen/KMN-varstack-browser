@@ -795,15 +795,15 @@ for (let ix = 0; ix < letterInfo.length; ix++) {
   letterMap[li.ch] = { ix: ix, w: li.w };
 }
 export class LetterComponent {
-  constructor(clipElement, fontSize, xOffset, letterInfo) {
+  constructor(box, fontSize, xOffset, letterInfo) {
     // TODO make Refactor ShaderClass from ComponentInfo in RenderControl for now its a string
     this._render = RenderControl.geInstance();
     this.letterInfo = letterInfo;
     this.xOffset = xOffset;
     this.fontSize = fontSize;
-    this._clipElement = clipElement;
+    this._box = box;
     this._componentInfo = this._render.getComponentInfo(
-      getElementHash(this._clipElement),
+      12349875,//getElementHash(this._clipElement),
       'letter-test',
       this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
@@ -820,27 +820,31 @@ export class LetterComponent {
    * @param {ComponentInfo} info 
    */
   updateComponentInfo(info) {
-    RenderControl.setClipBoxFromElement(info, this._clipElement);
+    // RenderControl.setClipBoxFromElement(info, this._clipElement);
+    info.clipRect.width  = window.innerWidth;
+    info.clipRect.height = window.innerHeight;
+    info.clipRect.x = 0;
+    info.clipRect.y = 0;
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
   updateRenderInfo(info) {
+    this._box.update();
     let box = {
       width: this.fontSize,
       height: this.fontSize,
-      x: this._componentInfo.clipRect.x + this.xOffset,
-      y: this._componentInfo.clipRect.y + 1
-
+      x: this._box.x + this.xOffset,
+      y: this._box.y + 1
     }
-    info.rect.width  = box.width;
-    info.rect.height = box.height;
-    info.rect.x      = box.x;
-    info.rect.y      = box.y;
+    info.rect.width = Math.min(Math.max(this._box.cw - this.xOffset, 0), this.fontSize);
+    info.rect.height = Math.min(this._box.ch, this.fontSize);
+    info.rect.x = box.x + this._box.cx;
+    info.rect.y = box.y + this._box.cy;
 
-    info.size.centerX = box.width / 2;
-    info.size.centerY = box.height / 2;
+    info.size.centerX = this.fontSize / 2 - this._box.cx;
+    info.size.centerY = this.fontSize / 2 - this._box.cy;
 
-    info.size.width   = box.width;
+    info.size.width   = this.fontSize;
     info.size.height = box.height;
     
     info.value[0] = this.letterInfo.ix / 84.0;
@@ -862,15 +866,50 @@ export class GLTextComponent {
    */
   constructor(element, textStr) {
     this.letterComponents = [];
+    this.clipElement = element.$getClippingParent();
     this.element = element;
     let fontSize = 22; //this.element.clientHeight;
     let xOffset = 0;
+    this.box = {
+      element,
+      clipElement: this.clipElement,
+      // viewport
+      x: 0,
+      y: 0,
+      w: 0,
+      h: 0,
+      // cropbox
+      cx: 0,
+      cy: 0,
+      cw: 0,
+      ch: 0,
+      lastUpd: RenderControl.geInstance().drawCount,
+      update: function () {
+        // @ts-ignore this is the current object we are called upon TS seems to mis that here
+        if (this.lastUpd !== RenderControl.geInstance().drawCount) {
+          // @ts-ignore
+          let clipBox = this.clipElement.getBoundingClientRect();
+          // @ts-ignore
+          let box = this.element.getBoundingClientRect();
+          this.x = box.x;
+          this.y = box.y;
+          this.w = box.width;
+          this.h = box.height;
+          this.cx = Math.max(clipBox.x - box.x, 0);
+          this.cy = Math.max(clipBox.y - box.y, 0);
+          this.cw = Math.min(box.width, (clipBox.x + clipBox.width) - box.x);
+          this.ch = Math.min(box.height, (clipBox.y + clipBox.height) - box.y);
+
+          this.lastUpd = RenderControl.geInstance().drawCount;
+        }
+      }
+    }
     for (let ch of textStr) {
       let letterInfo = letterMap[ch];
       if (letterInfo) {
         xOffset += letterInfo.w * fontSize / 4.;
         this.letterComponents.push(new LetterComponent(
-          this.element,
+          this.box,
           fontSize,
           xOffset,
           letterInfo));
@@ -879,6 +918,7 @@ export class GLTextComponent {
         xOffset += 0.7 * fontSize * 0.5;
       }
     }
+    this.width = xOffset;
   }
 
   dispose() {
@@ -911,3 +951,15 @@ export class GLTextBinding extends BaseBinding {
     this.changeEvent = this.baseVar.$addDeferedEvent(this.handleVarChanged.bind(this), true);
   }
 }
+
+// HTMLElement.prototype.$setTextNode = function(str) {
+//   this.$removeChildren();
+//   if (this.dataGlText) {
+//     this.dataGlText.dispose();
+//   }
+//   this.style.height = '24px';
+//   this.dataGlText = new GLTextComponent(this, str);
+//   this.style.width = this.dataGlText.width + 'px';
+// }
+
+

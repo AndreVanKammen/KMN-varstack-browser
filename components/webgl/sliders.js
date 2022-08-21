@@ -2,7 +2,80 @@ import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, ValueControl, ValuePointerControl } from "./component-base.js";
+import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
 import { ComponentInfo, getElementHash, RenderControl, RectInfo } from "./render-control.js";
+
+registerComponentShader('slider', /*glsl*/`
+// #include distance-drawing
+// #include default-constants
+
+vec4 renderComponent(vec2 center, vec2 size) {
+  // vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
+  vec4 posSize = vec4((localCoord.xy-center) * -1.0,size * 0.5);
+
+  float playWidth = 0.8;
+  float radius = minSize(posSize);
+  float maxS = posSize.z - radius * 0.25;
+  float distLine = drw_Line( posSize.xy,
+                             vec2(-maxS,0.0),
+                             vec2( maxS,0.0));
+  float distCircle = drw_Circle(
+      posSize.xy + vec2((value.x-0.5)*maxS*2.0,0.0),
+      radius);
+
+  dst_substract(distLine,distCircle-2.0);          
+  vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
+  //if (mouseFineTune) {
+  //  dst_Combine(distLine,drw_Line(
+  //  posSize.xy,
+  //  vec2(0.0),
+  //  mouse.xy));
+  //}
+  return max(addColorAndOutline( distCircle+2.0,
+                                 mouseInside?actionHoverColor:actionColor,
+                                 fc,
+                                 0.25) , 
+              addColor( distLine - 1.0,
+                        forgroundColor));
+}`);
+
+registerComponentShader('vertical-slider', /*glsl*/`
+float line(vec2 p, vec2 a, vec2 b)
+{
+  vec2 pa = p - a;
+  vec2 ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+
+vec4 renderComponent(vec2 center, vec2 size) {
+  vec2 posCenter = center + vec2(0.0,(1.0-value.x*2.0) * size.y * 0.5);
+  float maxS = min(size.x,size.y);
+  float lineThickness = maxS * 0.1;
+  float r = size.x * 0.5;
+  float d = length(localCoord - posCenter);
+  float b = 1.0-smoothstep(r-lineThickness,r,d);
+  float a = 1.0-smoothstep(r-lineThickness,r,d);
+  float g;
+  float l = 1.0-smoothstep(0.0,3.0,length(vec2(
+          localCoord.x-center.x,
+          max(0.0,abs(localCoord.y-center.y)-size.y*0.5))))-b;
+  if (mouseFineTune) {
+    a = max(0.15-0.15*smoothstep(0.0,500.0,length(localCoord - center)),a);
+    float m = a * 6.0;
+    l = max(l,m-m*smoothstep(0.0,2.0,line(localCoord, posCenter, mouse.xy)));
+  }
+  if (mouseInside) {
+    float fade = 1.0+0.5*sin(float(drawCount)*0.1);
+    g = (1.0-smoothstep(0.0,lineThickness * fade,abs(d-r+fade+lineThickness)))*0.9;
+    l *= 1.1;
+  } else {
+    g = (1.0-smoothstep(0.0,lineThickness,abs(d-r+lineThickness)))*0.8;
+  }
+  a = max(l,a);
+  g = max(l,g)*0.8;
+  return  vec4(g, g, max(b-g,l)*0.8, a); // vec4(vec3(value.x),1.0);
+}`);
 
 export class HorizontalSliderControl extends ValuePointerControl {
   constructor(element, valueVar) {
@@ -109,23 +182,5 @@ export class VerticalSliderElement extends BaseValueComponent {
   }
 }
 
-export class VerticalLevelElement extends BaseValueComponent {
-  /**
-   * @param {HTMLElement} element
-   * @param {FloatVar} levelVar
-   */
-  constructor(levelVar, element, shaderName) {
-    super(levelVar, element, ValueControl, shaderName || 'verticalLevel');
-  }
-
-  static get preferredSize() {
-    return {
-      width: 24,
-      height: 128
-    }
-  }
-}
-
-RenderControl.geInstance().registerShader('verticalLevel', VerticalLevelElement);
 RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement);
 RenderControl.geInstance().registerShader('slider', HorizontalSliderElement);

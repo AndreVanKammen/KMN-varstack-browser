@@ -1,5 +1,6 @@
 import { animationFrame } from "../../../KMN-utils-browser/animation-frame.js";
 import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
+import { ComponentShaderIncludes } from "./component-shader-includes.js";
 import { ComponentShaders } from "./component-shaders.js";
 
 
@@ -378,7 +379,6 @@ export class RenderControl {
 
     gl.enable(gl.SCISSOR_TEST);
 
-    window.renderData = renderData
     this._textureInfo = gl.createOrUpdateFloat32TextureBuffer(this._webglArray, this._textureInfo);
     for (const rd of renderData) {
       const length = rd.componentLength;
@@ -495,7 +495,7 @@ export class RenderControl {
         line = line.substring(3).trim();
         if (line.startsWith('#include')) {
           line = line.substring(8).trim();
-          let includeScript = ComponentShaders[line];
+          let includeScript = ComponentShaderIncludes[line];
           if (includeScript) {
             console.log('Include handled: ', line);
             result.push(includeScript);

@@ -1,9 +1,9 @@
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, ValueControl, ValuePointerControl } from "./component-base.js";
-import { ComponentShaders } from "./component-shaders.js";
+import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
 import { RenderControl} from "./render-control.js";
 
-const knobShader = /*glsl*/`
+registerComponentShader('turn-knob',/*glsl*/`
 // #include distance-drawing
 const vec3 forgroundColor = vec3(0.8);
 const vec3 forgroundHoverColor = vec3(1.0);
@@ -55,7 +55,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
         fc,
         maxS * 0.04-0.5) , addColor(dist, fc));
 }
-`;
+`);
 export class RotationKnobControl extends ValuePointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
@@ -96,5 +96,4 @@ export class KnobElement extends BaseValueComponent {
   }
 }
 
-ComponentShaders['knob'] = knobShader;
-RenderControl.geInstance().registerShader('knob', KnobElement);
+RenderControl.geInstance().registerShader('turn-knob', KnobElement);

@@ -1,15 +1,12 @@
 import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, BooleanPointerControl, ValueControl, ValuePointerControl } from "./component-base.js";
-import { ComponentShaders } from "./component-shaders.js";
+import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
 import { RenderControl} from "./render-control.js";
 
-const playPauseShader = /*glsl*/`
+registerComponentShader('play-pause', /*glsl*/`
 // #include distance-drawing
-const vec3 forgroundColor = vec3(0.0,0.0,0.6);
-const vec3 forgroundHoverColor = vec3(0.0,0.0,1.0);
-const vec3 actionColor = vec3(255.0/255.0,255.0/255.0,3.0/255.0);
-const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,7.0/255.0);
+// #include default-constants
 
 vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
@@ -26,21 +23,8 @@ vec4 renderComponent(vec2 center, vec2 size) {
       drw_Rectangle(posSize.xy,maxS*vec2(0.5,0.0),maxS*vec2(0.1,value.x)));
   float dist = mix(distPlay,distPause,value.x)-maxS * 0.3;
                    
-  vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
-  return addColor(
-        dist,
-        mouseInside?actionHoverColor:actionColor);
-  // return addColorAndOutline(
-  //       dist,
-  //       mouseInside?actionHoverColor:actionColor,
-  //       fc,
-  //       maxS * 0.05);
-  // return addColorAndOutline(
-  //           dist,
-  //           vec3(0.25,0.25,0.8),
-  //           vec3(1.0,1.0,1.0),
-  //           maxS * 0.02);
-}`;
+  return defaultColor(dist);
+}`);
 export class ToggleButtonControl extends BooleanPointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
@@ -83,5 +67,4 @@ export class PlayPauseElement extends BaseValueComponent {
   }
 }
 
-ComponentShaders['play-pause'] = playPauseShader;
 RenderControl.geInstance().registerShader('play-pause', PlayPauseElement);

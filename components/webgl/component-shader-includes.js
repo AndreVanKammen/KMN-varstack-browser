@@ -1,5 +1,5 @@
-export const ComponentShaders = {
-"distance-drawing": /*glsl*/`
+export const ComponentShaderIncludes = {
+  "distance-drawing": /*glsl*/`
 const float pi = 3.141592653589793;
 const float pi2 = 6.283185307179586;
 
@@ -154,38 +154,17 @@ vec4 addColorAndOutline(
   dist = abs(dist) - thickness - edgeDistance * 0.5;
   result += (1.0 - smoothstep(-edgeDistance, edgeDistance, dist)) * vec4(outLineColor.rgb, 1.0);
   return result;
-}`,
-"verticalLevel2":/*glsl*/`
-vec4 renderComponent(vec2 center, vec2 size) {
-  float level = smoothstep(localCoord.y - 1.0, localCoord.y + 1.0,(1.0-value.x) * size.y);
-  level = max(level,smoothstep(size.x* 0.3, size.x* 0.4,abs(localCoord.x-center.x)));
-  level = 1.0 - level;
-  return vec4(vec3(0.4,0.4,level), 0.3 * level);
-}`,
-"scope": /*glsl*/`vec4 renderComponent(vec2 center, vec2 size) {
-  float lineX = localCoord.x / size.x;
-  mat2x4 remLR = getEnergy();
-  const vec4 weight = vec4(0.25,1.0,3.0,0.4);
-  vec4 remL = remLR[0].wxzy * weight;
-  vec4 remR = remLR[1].wxzy * weight;
-  vec4 rem = (remL + remR) * 0.5;
-  rem.r = max(remL.r, remR.r);
-  vec2 sampleValue = getSample(lineX) / (0.0001 + 0.9999 * rem.r) * 0.25;
-  vec2 dist = abs((sampleValue + 1.0)*0.5 * size.y-vec2(localCoord.y));// + sign(sampleValue));
-  vec2 lineClr = (1.0-smoothstep(0.0,3.0,dist)) * 0.95;
-  vec3 barClr = smoothstep(-0.8,1.5, rem.rgb * size.x - length(
-    (localCoord-center + vec2((remL.r-remR.r) * size.x,-rem.a * size.x * 0.5)
-    ) / volumeScale));
-  barClr.r = max(barClr.r - barClr.b * barClr.b, 0.0);
-  barClr.g = max(barClr.g - barClr.b * barClr.b * 0.5, 0.0) * 0.8;
-  vec3 returnClr = max(vec3(lineClr, lineClr.x),
-                       vec3(barClr * vec3(0.3,0.17,0.35)));
-  float alpha = smoothstep(0.0, 0.2, max(returnClr.r,max(returnClr.g,returnClr.b)));
-  return vec4(pow(returnClr,vec3(1.0/2.1)), alpha);
-}`
 }
+#define currentForgroundColor (mouseInside ? forgroundHoverColor : forgroundColor)
+#define currentActionColor (mouseInside ? actionHoverColor : actionColor)
+#define defaultColor(dist) addColorAndOutline(dist, currentActionColor, currentForgroundColor, outLineThickness)
+`,
+"default-constants": /*glsl*/`
+const vec3 forgroundColor = vec3(0.6);
+const vec3 forgroundHoverColor = vec3(1.0);
+const vec3 actionColor = vec3(5.0,5.0,192.0)/255.0;
+const vec3 actionHoverColor = vec3(0.3,0.3,1.0);
 
-
-export function registerComponentShader(name, source) {
-  ComponentShaders[name] = source;
+const float outLineThickness = 0.25;
+`
 }
