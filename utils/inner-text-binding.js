@@ -6,7 +6,7 @@ import { BaseBinding } from "../../KMN-varstack.js/vars/base.js";
 import { GLTextBinding } from "../components/webgl/render-text.js";
 
 
-class InnerTextBindingOld extends BaseBinding {
+class InnerTextBinding extends BaseBinding {
   constructor (baseVar, element) {
     super(baseVar);
     if (element) {
@@ -23,9 +23,6 @@ class InnerTextBindingOld extends BaseBinding {
     this.element.innerText = this.baseVar.$niceStr;
     this.changeEvent = this.baseVar.$addDeferedEvent(this.handleVarChanged.bind(this));
   }
-}
-
-class InnerTextBinding extends GLTextBinding {
 }
 
 export default InnerTextBinding;
