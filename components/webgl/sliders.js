@@ -14,7 +14,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * -1.0,size * 0.5);
 
   float playWidth = 0.8;
-  float radius = minSize(posSize);
+  float radius = minSize(posSize) * (mouseInside ? 1.0 : 0.7);
   float maxS = posSize.z - radius * 0.25;
   float distLine = drw_Line( posSize.xy,
                              vec2(-maxS,0.0),
