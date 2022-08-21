@@ -674,10 +674,11 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float iTime = float(drawCount) / 180.0;
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
   float maxS = minSize(posSize);
-  float dist = getLetterDistance(posSize,int(floor(value.x * 84.0)) % 84) * maxS - 1.0;
+  float dist = getLetterDistance(posSize,int(value.x)) * maxS - 1.25;//1.15;
   return addColor(
-      dist,
-      vec3(1.0));
+      // dist*1.5,
+      dist * 0.8,
+      vec3(0.8));
 }
 `;
 
@@ -786,9 +787,6 @@ export class LetterTest extends BaseValueComponent {
   }
 }
 
-ComponentShaders['letter-test'] = playPauseShader;
-RenderControl.geInstance().registerShader('letter-test', LetterTest);
-
 const letterMap = {};
 for (let ix = 0; ix < letterInfo.length; ix++) {
   let li = letterInfo[ix];
@@ -834,7 +832,7 @@ export class LetterComponent {
       width: this.fontSize,
       height: this.fontSize,
       x: this._box.x + this.xOffset,
-      y: this._box.y + 1
+      y: this._box.y
     }
     info.rect.width = Math.min(Math.max(this._box.cw - this.xOffset, 0), this.fontSize);
     info.rect.height = Math.min(this._box.ch, this.fontSize);
@@ -842,12 +840,12 @@ export class LetterComponent {
     info.rect.y = box.y + this._box.cy;
 
     info.size.centerX = this.fontSize / 2 - this._box.cx;
-    info.size.centerY = this.fontSize / 2 - this._box.cy;
+    info.size.centerY = this.fontSize / 2 - this._box.cy; //Math.sin(this.letterInfo.ix+performance.now()/1000.0)*2;
 
     info.size.width   = this.fontSize;
     info.size.height = box.height;
     
-    info.value[0] = this.letterInfo.ix / 84.0;
+    info.value[0] = this.letterInfo.ix;
   }
 
   dispose() {
@@ -868,7 +866,7 @@ export class GLTextComponent {
     this.letterComponents = [];
     this.clipElement = element.$getClippingParent();
     this.element = element;
-    let fontSize = 22; //this.element.clientHeight;
+    let fontSize = 23; //this.element.clientHeight;
     let xOffset = 0;
     this.box = {
       element,
@@ -904,10 +902,16 @@ export class GLTextComponent {
         }
       }
     }
+    let first = true;
     for (let ch of textStr) {
       let letterInfo = letterMap[ch];
       if (letterInfo) {
-        xOffset += letterInfo.w * fontSize / 4.;
+        if (first) {
+          first = false;
+          xOffset -= fontSize / 4.;
+        } else {
+          xOffset += letterInfo.w * fontSize / 4.;
+        }
         this.letterComponents.push(new LetterComponent(
           this.box,
           fontSize,
@@ -917,6 +921,7 @@ export class GLTextComponent {
       } else {
         xOffset += 0.7 * fontSize * 0.5;
       }
+      xOffset = Math.ceil(xOffset + 0.2);
     }
     this.width = xOffset;
   }
@@ -947,10 +952,13 @@ export class GLTextBinding extends BaseBinding {
 
   setElement (element) {
     this.element = element;
-    this.element.style.height = '20px';
+    this.element.style.height = '16px';
     this.changeEvent = this.baseVar.$addDeferedEvent(this.handleVarChanged.bind(this), true);
   }
 }
+
+ComponentShaders['letter-test'] = playPauseShader;
+RenderControl.geInstance().registerShader('letter-test', LetterTest, HorizontalSliderControl);
 
 // HTMLElement.prototype.$setTextNode = function(str) {
 //   this.$removeChildren();

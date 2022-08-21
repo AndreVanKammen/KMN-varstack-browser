@@ -6,7 +6,7 @@ import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import { CreateInputBinding } from '../utils/input-binding.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
-import InnerTextBinding from '../utils/inner-text-binding.js';
+import { defaultTextBinding } from '../utils/inner-text-binding.js';
 import { TableVar } from '../../KMN-varstack.js/structures/table.js';
 
 let labelUid = 0;
@@ -118,7 +118,7 @@ class InputBuilder {
       if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
       let value = row.$el({ tag: 'td', cls: 'isValue' });
       if (v.$varDefinition.showValue || this.options.hideInput) {
-        new InnerTextBinding(v, value);
+        new defaultTextBinding(v, value);
       }
     }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);

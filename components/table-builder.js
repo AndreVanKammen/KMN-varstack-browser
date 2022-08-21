@@ -9,7 +9,7 @@ import { TableView } from "../../KMN-varstack.js/structures/table-view.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
 import { BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import { addCSS, kmnClassName } from "../utils/html-utils.js";
-import InnerTextBinding from "../utils/inner-text-binding.js";
+import { defaultTextBinding } from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
 
 const cssStr = /*css*/`
@@ -226,7 +226,7 @@ class TableBuilder {
     this.bindings = {};
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       this.bindings[ix] =
-        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding)
+        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : defaultTextBinding)
     }
     this.tableView = new TableView(this.table);
     this.table.addArrayChangeEvent(this.handleTableArrayChange.bind(this));

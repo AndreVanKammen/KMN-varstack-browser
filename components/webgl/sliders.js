@@ -179,5 +179,5 @@ export class VerticalSliderElement extends BaseValueComponent {
   }
 }
 
-RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement);
-RenderControl.geInstance().registerShader('slider', HorizontalSliderElement);
+RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement, VerticalSliderControl);
+RenderControl.geInstance().registerShader('slider', HorizontalSliderElement, HorizontalSliderControl);

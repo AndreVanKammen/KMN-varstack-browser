@@ -4,7 +4,7 @@
 
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
-import InnerTextBinding from '../../KMN-varstack-browser/utils/inner-text-binding.js';
+import { defaultTextBinding } from '../../KMN-varstack-browser/utils/inner-text-binding.js';
 import { addCSS, kmnClassName } from '../../KMN-varstack-browser/utils/html-utils.js';
 import GlslEditor from '../../KMN-utils-browser/glsl-editor.js';
 
@@ -87,7 +87,7 @@ class CodeEditor extends PanelBase {
     // Header need to be added last for fixed to work in css
     this.titleElement = this.headerElement.$el({ cls: 'codeTitle' });
     this.headerName = new Types.String();
-    this.headerNameBinding = new InnerTextBinding(this.headerName, this.titleElement);
+    this.headerNameBinding = new defaultTextBinding(this.headerName, this.titleElement);
     this.compileElement = this.headerElement.$el({ tag: 'button', cls: 'codeCompile' });
     this.compileElement.$setTextNode('COMPILE');
 

@@ -5,9 +5,9 @@
 import { BaseBinding, BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import createLookupHandler from './lookup-handler.js';
-import InnerTextBinding from './inner-text-binding.js';
 import { FloatVar } from '../../KMN-varstack.js/vars/float.js';
 import { HorizontalSliderElement } from '../components/webgl/sliders.js';
+import { defaultTextBinding } from './inner-text-binding.js';
 
 class ButtonInputElement extends BaseBinding{
   /** 
@@ -183,7 +183,7 @@ export class CreateInputBinding extends BaseBinding {
     super(baseVar)
     let parentElement = element;
     if (this.baseVar.$varDefinition.isReadOnly) {
-      this.binding = new InnerTextBinding(baseVar, element);
+      this.binding = new defaultTextBinding(baseVar, element);
     } else {
       if (baseVar.$varDefinition.inputType === 'dropdown') {
         this.binding = new EnumDropDownBinding(baseVar, parentElement);

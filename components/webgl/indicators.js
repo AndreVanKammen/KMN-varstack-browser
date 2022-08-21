@@ -28,4 +28,4 @@ export class VerticalLevelElement extends BaseValueComponent {
   }
 }
 
-RenderControl.geInstance().registerShader('verticalLevel', VerticalLevelElement);
+RenderControl.geInstance().registerShader('verticalLevel', VerticalLevelElement, ValueControl);

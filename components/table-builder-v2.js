@@ -8,7 +8,7 @@ import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
 import { BaseBinding, BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import { addCSS } from "../utils/html-utils.js";
-import InnerTextBinding from "../utils/inner-text-binding.js";
+import { defaultTextBinding } from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
 
 const cssStr = /*css*/`
@@ -179,7 +179,7 @@ class TableBuilder {
         currentX,
         fieldName,
         headerName,
-        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : InnerTextBinding))
+        this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : defaultTextBinding))
       this.columns.push(column);
       currentX += column._width + 20;
     }

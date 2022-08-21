@@ -1,5 +1,6 @@
 import { animationFrame } from "../../../KMN-utils-browser/animation-frame.js";
 import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
+import { BaseDemoComponent } from "./component-base.js";
 import { ComponentShaderIncludes } from "./component-shader-includes.js";
 import { ComponentShaders } from "./component-shaders.js";
 
@@ -210,7 +211,8 @@ export class RenderControl {
     this.frameDivider = 1;
     this.errorCount = 0;
     this.dpr = 1;
-    this.registeredShaders = [];
+    /** @type {Record<string,{demoClass:{new(levelVar, element, shaderName) : BaseDemoComponent}, controlClass: {new()}}>} */
+    this.registeredShaders = {};
     this.shaderCache = {};
   }
 
@@ -466,8 +468,17 @@ export class RenderControl {
     return this.registeredShaders;
   }
 
-  registerShader(name, componentClass) {
-    this.registeredShaders.push({ name, componentClass, shaderCode: ComponentShaders[name] });
+  /**
+   * 
+   * @param {string} shaderName 
+   * @param {{new(levelVar, element, shaderName)}} demoClass 
+   * @param {{new()}} controlClass
+   */
+  registerShader(shaderName, demoClass, controlClass) {
+    this.registeredShaders[shaderName] = {
+      demoClass,
+      controlClass
+    };
   }
 
   showExample = (name, options) => {

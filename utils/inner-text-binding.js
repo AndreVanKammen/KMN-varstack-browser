@@ -6,7 +6,7 @@ import { BaseBinding } from "../../KMN-varstack.js/vars/base.js";
 import { GLTextBinding } from "../components/webgl/render-text.js";
 
 
-class InnerTextBinding extends BaseBinding {
+export class InnerTextBinding extends BaseBinding {
   constructor (baseVar, element) {
     super(baseVar);
     if (element) {
@@ -25,4 +25,12 @@ class InnerTextBinding extends BaseBinding {
   }
 }
 
-export default InnerTextBinding;
+export let defaultTextBinding = InnerTextBinding;
+
+/**
+ * 
+ * @param {{new(baseVar, element)}} binding 
+ */
+export function setDefualtTextBinding(binding) {
+  defaultTextBinding = binding;
+}

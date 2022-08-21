@@ -3,11 +3,16 @@ import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { ComponentInfo, getElementHash, RenderControl } from "./render-control.js";
 
+export class PassiveControl {
+}
+
 /**
  * Maps a value for a control using min/max step and scale(to be made, linear/exponential)
  */
-export class ValueControl {
+export class ValueControl extends PassiveControl {
   constructor(element, valueVar) {
+    super();
+
     this._element = element;
     this._valueVar = valueVar;
   }
@@ -146,17 +151,30 @@ export class BooleanPointerControl extends BooleanControl {
   }
 }
 
+export class BaseDemoComponent {
+  static get preferredSize() {
+    return {
+      width: 48,
+      height: 48
+    }
+  }
+  dispose() {
+  }
+}
+
 
 /**
  * @template {ValueControl} T0
  */
-export class BaseValueComponent {
+export class BaseValueComponent extends BaseDemoComponent {
   /**
    * @param {HTMLElement} element
    * @param {BaseVar} valueVar
    * @param {new (HTMLElement,BaseVar) => T0} ControlClass - A generic parameter that flows through to the return type
    */
   constructor(valueVar, element, ControlClass, ShaderClass) {
+    super();
+
     // TODO make Refactor ShaderClass from ComponentInfo in RenderControl for now its a string
     this._render = RenderControl.geInstance();
 
@@ -168,13 +186,6 @@ export class BaseValueComponent {
       ShaderClass,
       this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
-  }
-
-  static get preferredSize() {
-    return {
-      width: 48,
-      height: 48
-    }
   }
 
   /**
@@ -195,5 +206,6 @@ export class BaseValueComponent {
       this._componentInfo.freeRectInfo(this._componentInfoHandle);
       this._componentInfoHandle = undefined;
     }
+    super.dispose();
   }
 }
