@@ -168,3 +168,37 @@ const vec3 actionHoverColor = vec3(0.3,0.3,1.0);
 const float outLineThickness = 0.25;
 `
 }
+
+export function RegisterComponentShaderInclude(name, source) {
+  ComponentShaderIncludes[name] = source;
+}
+
+const defaultConstants = {
+  forgroundColor: { t: 'vec3', v: 'vec3(0.6)' },
+  forgroundHoverColor: { t: 'vec3', v: 'vec3(1.0)' },
+  actionColor: { t: 'vec3', v: 'vec3(5.0, 5.0, 192.0) / 255.0' },
+  actionHoverColor: { t: 'vec3', v: 'vec3(0.3, 0.3, 1.0)' },
+  outLineThickness: { t: 'float', v: '0.25' }
+};
+
+function updateDefaultConstantsInclude() {
+  let str = '';
+  for (let [key, value] of Object.entries(defaultConstants)) {
+    str += `const ${value.t} ${key} = ${value.v};\n`;
+  }
+  RegisterComponentShaderInclude("default-constants", str);
+}
+
+/**
+ * Overide default constants
+ * @param {Record<string,string>} newConstants 
+ */
+export function UpdateConstants(newConstants) {
+  for (let [key, value] of Object.entries(newConstants)) {
+    defaultConstants[key].v = value;
+  }
+  updateDefaultConstantsInclude();
+}
+
+updateDefaultConstantsInclude();
+
