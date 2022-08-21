@@ -520,7 +520,7 @@ export class RenderControl {
   }
 
   compileShader = (name, source, options) => {
-    console.log('RectControler compile: ', name, options);
+    // console.log('RectControler compile: ', name, source, options);
     // TODO get componentInfo for different headers/footer
     let sc = this.shaderCache[name];
     if (sc && sc.source === source) {
@@ -612,4 +612,7 @@ export function getElementHash(element)  {
          Cliprect.update(gl) replaces onupdate in componentinfo
 
   We should be able to work without html elements here so we can make synthpanels
+
+  Default colors could also be color functions for gradients?
+    -they would need center info (dist), mouseInfo and localCoord
 */
