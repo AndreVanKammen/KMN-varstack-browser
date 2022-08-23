@@ -33,8 +33,9 @@ class IndexedDBBlobBinding {
     this.idb = idb;
     this.keyName = keyValue;
 
+    // TODO: loadcallback event handler
     this.blobVar._loadCallback = this.handleBlobLoad.bind(this);
-    this.blobVar.$addEvent(this.handleChanged.bind(this))
+    this.blobEvent = this.blobVar.$addEvent(this.handleChanged.bind(this))
   }
 
   handleChanged () {
@@ -46,6 +47,16 @@ class IndexedDBBlobBinding {
   async handleBlobLoad () {
     let result = await this.idb.getStoreValue(this.storageName, this.keyName);
     return result;
+  }
+
+  async remove() {
+    return await this.idb.deleteStoreValue(this.storageName, this.keyName);
+  }
+
+  dispose() {
+    if (this.blobEvent) {
+      this.blobVar.$removeEvent(this.blobEvent);
+    }
   }
 }
 
@@ -67,7 +78,6 @@ class IndexedDBRecordBindingBase {
     this.blobStores = [];
     this.varToStore.$linkBlobFields((name, v) => {
       this.blobStores.push(new IndexedDBBlobBinding(v, idb, baseStorageName, name, keyValue));
-
     });
     if (doGet) {
       this.idb.getStoreValue(this.storageName, this.keyName).then(
@@ -87,7 +97,7 @@ class IndexedDBRecordBindingBase {
     } else {
       this.varToStore.$addEvent(this.handleChanged.bind(this))
     }
-    this.updateSceduled = false;  
+    this.updateSceduled = false;
   }
 
   handleChanged() {
@@ -104,6 +114,18 @@ class IndexedDBRecordBindingBase {
           this.varToStore.$storeIsFinished();
         }
       });
+    }
+  }
+
+  async remove() {
+    for (let store of this.blobStores) {
+      return await store.remove();
+    }
+  }
+
+  dispose() {
+    for (let store of this.blobStores) {
+      store.dispose();
     }
   }
 }
@@ -149,32 +171,14 @@ export class IndexedDBTableBinding {
     this.tableMeta.name.$v = baseStorageName;
     this.tableMeta.count.$v = defaultData?.length || 0;
     this.tableMetaBinding = new IndexedDBRecordBinding(this.tableMeta, this.idb, tableMetaStore);
+    /** @type {Record<string,IndexedDBRecordBindingBase>} */
     this.boundRecords = {};
     this.isLoaded = false;
     this.justCreated = false;
     this.keyFieldName = this.tableToStore.keyFieldName;
     this.prependKey = prependKey;
-    this.tableToStore.onFindKeyAsync = async (keyValue) => {
-      let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
-      if (result) {
-        let el = this.tableToStore.add(result);
-        this.checkBinding(el, false);
-        return el; 
-      } else {
-        return null;
-      }
-    }
-    this.tableToStore.onRemove = (record) => {
-      // TODO DELETE FROM DATABASE
-      // let keyValue = this.prependKey + record[this.keyFieldName].$v;
-      // let binding = this.boundRecords[keyValue];
-      // if (!binding) {
-      //   this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue, doGet);
-      // }
-      // let el = this.tableToStore.remove(record);
-      // this.checkBinding(el, false);
-      // return el;
-    };
+    this.tableToStore.onFindKeyAsync = this.findKeyAsync.bind(this);
+    this.tableToStore.onRemove = this.removeRecordAsync.bind(this)
 
     const loadingFinished = () => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));
@@ -204,6 +208,34 @@ export class IndexedDBTableBinding {
     }
   }
 
+  async findKeyAsync(keyValue) {
+    let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
+    if (result) {
+      let el = this.tableToStore.add(result);
+      this.checkBinding(el, false);
+      return el; 
+    } else {
+      return null;
+    }
+  }
+
+  async removeRecordAsync(record) {
+    // TODO DELETE FROM DATABASE
+    let keyValue = this.prependKey + record[this.keyFieldName].$v;
+    let binding = this.boundRecords[keyValue];
+    if (binding) {
+      await binding.remove();
+      binding.dispose();
+    }
+    await this.idb.deleteStoreValue(this.tableStorageName, keyValue);
+    // if (!binding) {
+    //   this.boundRecords[keyValue] = new IndexedDBRecordBindingBase(el, this.idb, this.storageName, keyValue, doGet);
+    // }
+    // let el = this.tableToStore.remove(record);
+    // this.checkBinding(el, false);
+    // return el;
+  }
+  
   async loadKeysStartingWith(keyValue) {
     await this.idb.getAllStartingWith(this.tableStorageName, keyValue).then((result) => {
       if (result) {
