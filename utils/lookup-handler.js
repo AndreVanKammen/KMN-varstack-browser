@@ -8,6 +8,7 @@ import { ArrayTableVar, TableVar } from '../../KMN-varstack.js/structures/table.
 import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import defer from '../../KMN-utils.js/defer.js';
 
+/** @type {Record<string,TableBuilder>} */
 const tableViewCache = {};
 
 /** 
@@ -28,7 +29,6 @@ function getTableView(dropDown, baseVar, lookupTableName, showFieldName) {
       p = p.$parent;
     }
     tableVar = baseVar.$getMain()[lookupTableName];
-
   }
   // TODO cache tables, we don't want to make one for every field in a main table
   let tableViewKey = tableVar.$hash + '_' + showFieldName;

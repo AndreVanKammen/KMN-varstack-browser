@@ -178,7 +178,7 @@ export class IndexedDBTableBinding {
     this.keyFieldName = this.tableToStore.keyFieldName;
     this.prependKey = prependKey;
     this.tableToStore.onFindKeyAsync = this.findKeyAsync.bind(this);
-    this.tableToStore.onRemove = this.removeRecordAsync.bind(this)
+    this.tableToStore.onRemoveFromStore = this.removeRecordAsync.bind(this)
 
     const loadingFinished = () => {
       this.tableToStore.addArrayChangeEvent(this.handleArrayChanged.bind(this));

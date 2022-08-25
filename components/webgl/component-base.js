@@ -209,3 +209,54 @@ export class BaseValueComponent extends BaseDemoComponent {
     super.dispose();
   }
 }
+
+export class ToggleButtonControl extends BooleanPointerControl {
+  constructor(element, valueVar) {
+    super(element, valueVar);
+    this.lastWithinValue = this.value;
+    this.mouseDownInside = false;
+  }
+
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    super.updateRenderInfo(info);
+
+    let pt = this._pointerTracker.getLastPrimary();
+
+    if (pt.isDown > 0) {
+      this.mouseDownInside = true;
+    } else {
+      // let x = info.mouse.x - info.size.centerX;
+      // let y = info.mouse.y - info.size.centerY;
+      if (this.mouseDownInside && pt.isInside) {
+        this.value = !this.value;
+      }
+      this.mouseDownInside = false;
+    }
+  }
+}
+
+export class ActionButtonControl extends BooleanPointerControl {
+  constructor(element, valueVar) {
+    super(element, valueVar);
+    this.mouseDownInside = false;
+  }
+
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    super.updateRenderInfo(info);
+
+    let pt = this._pointerTracker.getLastPrimary();
+
+    if (pt.isDown > 0) {
+      this.mouseDownInside = true;
+    } else {
+      // let x = info.mouse.x - info.size.centerX;
+      // let y = info.mouse.y - info.size.centerY;
+      if (this.mouseDownInside && pt.isInside) {
+        this.value = true;
+      }
+      this.mouseDownInside = false;
+    }
+  }
+}

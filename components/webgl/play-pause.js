@@ -1,6 +1,6 @@
 import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
-import { BaseValueComponent, BooleanPointerControl, ValueControl, ValuePointerControl } from "./component-base.js";
+import { BaseValueComponent, BooleanPointerControl, ToggleButtonControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
 import { RenderControl} from "./render-control.js";
 
@@ -25,31 +25,6 @@ vec4 renderComponent(vec2 center, vec2 size) {
                    
   return defaultColor(dist);
 }`);
-export class ToggleButtonControl extends BooleanPointerControl {
-  constructor(element, valueVar) {
-    super(element, valueVar);
-    this.lastWithinValue = this.value;
-    this.mouseDownInside = false;
-  }
-
-  /**@param {import("./render-control.js").RectInfo} info */
-  updateRenderInfo(info) {
-    super.updateRenderInfo(info);
-
-    let pt = this._pointerTracker.getLastPrimary();
-
-    if (pt.isDown > 0) {
-      this.mouseDownInside = true;
-    } else {
-      let x = info.mouse.x - info.size.centerX;
-      let y = info.mouse.y - info.size.centerY;
-      if (this.mouseDownInside && pt.isInside) {
-        this.value = !this.value;
-      }
-      this.mouseDownInside = false;
-    }
-  }
-}
 export class PlayPauseElement extends BaseValueComponent {
   /**
    * @param {HTMLElement} element

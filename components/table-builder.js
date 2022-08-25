@@ -185,6 +185,7 @@ class TableBuilder {
     this.options = options || {};
     this.options.alternativeBindings = this.options.alternativeBindings || {};
 
+    this.parentElement = element;
     addCSS('table-builder', cssStr, true);
     this.fieldNames = this.options.fieldNames;
     this.tableEl = element.$el({ tag: "table", cls: table.constructor.name });
