@@ -21,7 +21,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float distPause = min(
       drw_Rectangle(posSize.xy,maxS*vec2(-0.5,0.0),maxS*vec2(0.1,1.0)),
       drw_Rectangle(posSize.xy,maxS*vec2(0.5,0.0),maxS*vec2(0.1,value.x)));
-  float dist = mix(distPlay,distPause,value.x)-maxS * 0.3;
+  float dist = mix(distPlay,distPause,value.x)-maxS * 0.15;
                    
   return defaultColor(dist);
 }`);

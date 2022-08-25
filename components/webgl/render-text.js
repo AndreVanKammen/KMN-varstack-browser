@@ -3,7 +3,6 @@ import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, BooleanPointerControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders } from "./component-shaders.js";
-import { ToggleButtonControl } from "./play-pause.js";
 import { ComponentInfo, getElementHash, RenderControl} from "./render-control.js";
 import { HorizontalSliderControl } from "./sliders.js";
 
