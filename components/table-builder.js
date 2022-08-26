@@ -552,8 +552,14 @@ class TableBuilder {
     }
   }
 
-  deleteRow(rec) {
-    this.table.remove(rec);
+  async deleteRow(rec) {
+    if (this.options.onRemoveConfirmation) {
+      if (await this.options.onRemoveConfirmation(rec)) {
+        this.table.remove(rec);
+      }
+    } else {
+      this.table.remove(rec);
+    }
   }
 
   /**
