@@ -6,8 +6,8 @@ import { RenderControl} from "./render-control.js";
 registerComponentShader('play-next', /*glsl*/`
 // #include distance-drawing
 // #include default-constants
-
 vec4 renderComponent(vec2 center, vec2 size) {
+  actionColor = forgroundColor;
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
 
   float playWidth = 0.8;

@@ -184,7 +184,7 @@ const defaultConstants = {
 function updateDefaultConstantsInclude() {
   let str = '';
   for (let [key, value] of Object.entries(defaultConstants)) {
-    str += `const ${value.t} ${key} = ${value.v};\n`;
+    str += `${value.t} ${key} = ${value.v};\n`;
   }
   RegisterComponentShaderInclude("default-constants", str);
 }
