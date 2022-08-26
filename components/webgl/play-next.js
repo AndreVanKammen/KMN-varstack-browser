@@ -11,7 +11,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
 
   float playWidth = 0.8;
-  float maxS = minSize(posSize) * 0.65;
+  float maxS = minSize(posSize) * 0.65 * (1.0-0.4*value.x);
   float dist = drw_Triangle( posSize.xy,
                              maxS*vec2(-playWidth,-1.0),
                              maxS*vec2( playWidth,0.0),

@@ -12,7 +12,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
 
   float playWidth = 0.8;
-  float maxS = minSize(posSize) * 0.5;
+  float maxS = minSize(posSize) * 0.5 * (1.0-0.4*value.x);
   if (posSize.x>0.0) {
     posSize.x -= maxS*(1.0+playWidth);
   }
