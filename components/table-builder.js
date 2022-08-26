@@ -58,6 +58,10 @@ div.${kmnClassName}.selected-div {
 }
 
 table.${kmnClassName}.filter {
+  --tableHeaderHeight: 52px;
+}
+
+table.${kmnClassName}.filter2 {
   --tableHeaderHeight: 78px;
 }
 
