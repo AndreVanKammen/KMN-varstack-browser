@@ -1015,7 +1015,7 @@ Types.addRecord('LetterTestSettings', {
   fontSharpness: 'Float:defval>1.25,range>0.1..2.5',
   opacityCurve: 'Float:defval>2.2,range>0.1..3.0',
   extraHeight: 'Float:defval>0.15,range>0.0..0.5',
-  demoText: 'String'
+  demoText: 'Text:direct>true'
 });
 
 export class LetterTest extends BaseDemoComponent {

@@ -86,6 +86,7 @@ class InputBinding extends BaseBinding {
     if (this.baseVar.$varDefinition.isReadOnly) {
       element.setAttribute('readOnly', ''); 
     }
+    console.log('Input', element, this.baseVar);
 
     if (element.type === 'checkbox') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedChecked.bind(this));
