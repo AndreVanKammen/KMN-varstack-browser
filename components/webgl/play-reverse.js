@@ -1,4 +1,4 @@
-import { ActionVar } from "../../../KMN-varstack.js/vars/action.js";
+import { ActionHandler, ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { ActionButtonControl, BaseValueComponent} from "./component-base.js";
 import { registerComponentShader } from "./component-shaders.js";
 import { RenderControl} from "./render-control.js";
@@ -42,5 +42,13 @@ export class PlayReverseElement extends BaseValueComponent {
     }
   }
 }
+class PlayReverseDemo extends PlayReverseElement {
+  /**
+   * @param {HTMLElement} element
+   */
+   constructor(element) {
+     super(new ActionHandler(), element);
+  }
+}
 
-RenderControl.geInstance().registerShader('play-reverse', PlayReverseElement, ActionButtonControl);
+RenderControl.geInstance().registerShader('play-reverse', PlayReverseDemo, ActionButtonControl);

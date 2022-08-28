@@ -2,7 +2,7 @@
 // Licensed under CC BY-NC-SA 
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
+import { BaseBinding, BaseVar } from '../../KMN-varstack.js/vars/base.js';
 import { RecordVar } from '../../KMN-varstack.js/structures/record.js';
 import { CreateInputBinding } from '../utils/input-binding.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
@@ -76,6 +76,8 @@ class InputBuilder {
       this.table.classList.add('vertical');
     }
     addCSS('input-builder', cssStr);
+    /** @type {BaseBinding[]} */
+    this.bindings = [];
   }
 
   /**
@@ -105,6 +107,7 @@ class InputBuilder {
     let input = null;
     if (!this.options.hideInput) {
       input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
+      this.bindings.push(input);
       input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
       // @ts-ignore
       if (input.binding.element) {
@@ -118,7 +121,7 @@ class InputBuilder {
       if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
       let value = row.$el({ tag: 'td', cls: 'isValue' });
       if (v.$varDefinition.showValue || this.options.hideInput) {
-        new defaultTextBinding(v, value);
+        this.bindings.push(new defaultTextBinding(v, value))
       }
     }
     label.onclick = (event) => this.options.onLabelClick(event, labelName, v);
@@ -143,6 +146,14 @@ class InputBuilder {
         this.addVar(v, prefix + name)
       }
     }  
+  }
+
+  dispose() {
+    for (let bnd of this.bindings) {
+      bnd.dispose();
+    }
+    this.bindings = [];
+    this.table.remove();
   }
 }
 

@@ -178,6 +178,23 @@ export class VerticalSliderElement extends BaseValueComponent {
     }
   }
 }
+class VerticalSliderDemo extends VerticalSliderElement {
+  /**
+   * @param {HTMLElement} element
+   */
+   constructor(element) {
+     super(new FloatVar(), element);
+  }
+}
 
-RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderElement, VerticalSliderControl);
-RenderControl.geInstance().registerShader('slider', HorizontalSliderElement, HorizontalSliderControl);
+class HorizontalSliderDemo extends HorizontalSliderElement {
+  /**
+   * @param {HTMLElement} element
+   */
+   constructor(element) {
+     super(new FloatVar(), element);
+  }
+}
+
+RenderControl.geInstance().registerShader('vertical-slider', VerticalSliderDemo, VerticalSliderControl);
+RenderControl.geInstance().registerShader('slider', HorizontalSliderDemo, HorizontalSliderControl);

@@ -42,4 +42,15 @@ export class PlayPauseElement extends BaseValueComponent {
   }
 }
 
-RenderControl.geInstance().registerShader('play-pause', PlayPauseElement, ToggleButtonControl);
+class PlayPauseDemo extends PlayPauseElement {
+  /**
+   * @param {HTMLElement} element
+   */
+   constructor(element) {
+     super(new BoolVar(), element);
+  }
+}
+
+
+
+RenderControl.geInstance().registerShader('play-pause', PlayPauseDemo, ToggleButtonControl);

@@ -1,4 +1,5 @@
 import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
+import { RecordVar } from "../../../KMN-varstack.js/structures/record.js";
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { ComponentInfo, getElementHash, RenderControl } from "./render-control.js";
@@ -158,6 +159,10 @@ export class BaseDemoComponent {
       height: 48
     }
   }
+  /** @type {RecordVar} */
+  get demoData() {
+    return null;
+  }
   dispose() {
   }
 }
@@ -187,6 +192,11 @@ export class BaseValueComponent extends BaseDemoComponent {
       this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
   }
+
+  get demoData() {
+    return this._control._valueVar;
+  }
+
 
   /**
    * @param {ComponentInfo} info 

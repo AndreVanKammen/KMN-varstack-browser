@@ -1,17 +1,24 @@
 import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
 import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
-import { BaseValueComponent, BooleanPointerControl, ValueControl, ValuePointerControl } from "./component-base.js";
+import { Types } from "../../../KMN-varstack.js/varstack.js";
+import { BaseDemoComponent, BaseValueComponent, BooleanPointerControl, PassiveControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders } from "./component-shaders.js";
 import { ComponentInfo, getElementHash, RenderControl} from "./render-control.js";
 import { HorizontalSliderControl } from "./sliders.js";
 
-const playPauseShader = /*glsl*/`
-// #include distance-drawing
-const vec3 forgroundColor = vec3(0.0,0.0,0.6);
-const vec3 forgroundHoverColor = vec3(0.0,0.0,1.0);
-const vec3 actionColor = vec3(255.0/255.0,255.0/255.0,3.0/255.0);
-const vec3 actionHoverColor = vec3(255.0/255.0,255.0/255.0,48.0/255.0);
+ComponentShaders['distance-font'] = /*glsl*/`
+
+uniform float fontWeight;
+uniform float fontSharpness;
+uniform float opacityCurve;
+uniform float extraHeight;
+
+const float pi = 3.141592653589793;
+const float pi2 = 6.283185307179586;
+
+#define yOfs (.25+extraHeight)
+#define deg(x) (x*pi/180.0-pi)
 
 // line function, used in k, v, w, x, y, z, 1, 2, 4, 7 and ,
 // rest is drawn using (stretched) circle(g)
@@ -32,35 +39,50 @@ float line(vec2 p, vec2 a, vec2 b)
 float _u(vec2 uv, float w, float v) {
   return length(vec2(
         abs(length(vec2(uv.x,
-                         max(0.0,-(.4-v)-uv.y) ))-w)
-        ,max(0.,uv.y-.4)));
+                         max(0.0,-(yOfs-v)-uv.y) ))-w)
+        ,max(0.,uv.y-(yOfs))));
 }
 float _i(vec2 uv) {
-  return length(vec2(uv.x,max(0.,abs(uv.y)-.4)));
+  return length(vec2(uv.x,max(0.,abs(uv.y)-yOfs)));
 }
-float _j(vec2 uv) {
-  uv.x+=.2;
-  uv.y+=.55;
+float _j(vec2 uvo) {
+  vec2 uv = uvo;
+  uv.x+=.25;
+  uv.y+= yOfs+.125;
   float x = uv.x>0.&&uv.y<0.?
                 abs(length(uv)-.25)
-                :min(length(uv+vec2(0.,.25)),
-                      length(vec2(uv.x-.25,max(0.,abs(uv.y-.475)-.475))));
+                :min(length(uv+vec2(.0,.25)),
+                      length(vec2(uvo.x,max(0.,abs(uvo.y+.0625)-yOfs-+.0625))));
   return x;
 }
 float _l(vec2 uv) {
   uv.y -= .2;
-  return length(vec2(uv.x,max(0.,abs(uv.y)-.6)));
+  return length(vec2(uv.x,max(0.,abs(uv.y)-.2-yOfs)));
 }
 float _o(vec2 uv) {
-  return abs(length(vec2(uv.x,max(0.,abs(uv.y)-.15)))-.25);
+  return abs(length(vec2(uv.x,max(0.,abs(uv.y)-extraHeight)))-0.25);
 }
 
 // Here is the alphabet
-float aa(vec2 uv) {
-  uv = -uv;
-  float x = abs(length(vec2(max(0.,abs(uv.x)-.05),uv.y-.2))-.2);
-  x = min(x,length(vec2(uv.x+.25,max(0.,abs(uv.y-.2)-.2))));
-  return min(x,(uv.x<0.?uv.y<0.:atan(uv.x,uv.y+0.15)>2.)?_o(uv):length(vec2(uv.x-.22734,uv.y+.254)));
+// float aa(vec2 uv) {
+//   uv = -uv;
+//   float x = abs(length(vec2(max(0.,abs(uv.x)-.05),uv.y-.2))-.2);
+//   x = min(x,length(vec2(uv.x+.25,max(0.,abs(uv.y-.2)-.2))));
+//   return min(x,(uv.x<0.?uv.y<0.:atan(uv.x,uv.y+0.15)>2.)?_o(uv):length(vec2(uv.x-.22734,uv.y+.254)));
+// }
+float aa(vec2 uvo) {
+  float center = yOfs * 0.5;
+  float a = atan(uvo.x*sign(uvo.y),abs(uvo.y)-center);
+  
+  vec2 uv = vec2(uvo.x,a>deg(0.0) && a<deg(90.0) ? -abs(uvo.y):abs(uvo.y));
+  float x = abs(length(
+        vec2( max(0., abs(uv.x) - 0.25 + center),
+              uv.y - center))
+                 -center );
+
+  x = min(x,length(vec2(uvo.x+0.25,uvo.y-center)));
+  // x = a>deg(45.0) && a<deg(115.0) ? length(vec2(x,abs(a-deg(115.0))*0.25)) : x;
+  return min(x,length(vec2(uvo.x-0.25,max(0.0,abs(uvo.y+0.25*yOfs)-0.75*yOfs))));
 }
 float bb(vec2 uv) {
   float x = _o(uv);
@@ -71,7 +93,7 @@ float cc(vec2 uv) {
   float x = _o(uv);
   uv.y= abs(uv.y);
   return uv.x<0.||atan(uv.x,uv.y-0.15)<1.14?x:
-  min(length(vec2(uv.x+.25,max(0.0,abs(uv.y)-.15))),//makes df right 
+  min(length(vec2(uv.x+.25,max(0.0,abs(uv.y)-extraHeight))),//makes df right 
        length(uv+vec2(-.22734,-.254)));
 }
 float dd(vec2 uv) {
@@ -80,21 +102,21 @@ float dd(vec2 uv) {
 }
 float ee(vec2 uv) {
   float x = _o(uv);
-  return min(uv.x<0.||uv.y>.05||atan(uv.x,uv.y+0.15)>2.?x:length(vec2(uv.x-.22734,uv.y+.254)),
-              length(vec2(max(0.,abs(uv.x)-.25),uv.y-.05)));
+  return min(uv.x<0.||uv.y>.0||atan(uv.x,uv.y+0.15)>2.?x:length(vec2(uv.x-.22734,uv.y+.254)),
+              length(vec2(max(0.,abs(uv.x)-.25),uv.y-.0)));
 }
 float ff(vec2 uv) {
   uv.x *= -1.;
-  uv.x += .05;
   float x = _j(vec2(uv.x,-uv.y));
-  uv.y -= .4;
+  uv.x += .05;
+  uv.y -= yOfs;
   x = min(x,length(vec2(max(0.,abs(uv.x-.05)-.25),uv.y)));
   return x;
 }
 float gg(vec2 uv) {
   float x = _o(uv);
-  return min(x,uv.x>0.||atan(uv.x,uv.y+.6)<-2.?
-              _u(uv,0.25,-0.2):
+  return min(x,uv.x>0.||atan(uv.x,uv.y + .6) < -2. ?
+              _u(uv,0.25,-0.2) :
               length(uv+vec2(.23,.7)));
 }
 float hh(vec2 uv) {
@@ -105,15 +127,14 @@ float hh(vec2 uv) {
   return min(x,_l(uv));
 }
 float ii(vec2 uv) {
-  return min(_i(uv),length(vec2(uv.x,uv.y-.6)));
+  return min(_i(uv),length(vec2(uv.x,uv.y-.2-yOfs)));
 }
 float jj(vec2 uv) {
-  uv.x+=.05;
-  return min(_j(uv),length(vec2(uv.x-.05,uv.y-.6)));
+  return min(_j(vec2(uv.x+0.05,uv.y)),length(vec2(uv.x+.05,uv.y-.2-yOfs)));
 }
 float kk(vec2 uv) {
-  float x = line(uv,vec2(-.25,-.1), vec2(0.25,0.4));
-  x = min(x,line(uv,vec2(-.15,.0), vec2(0.25,-0.4)));
+  float x = line(uv,vec2(-.25,-.1), vec2(0.25,yOfs));
+  x = min(x,line(uv,vec2(-.15,.0), vec2(0.25,-yOfs)));
   uv.x+=.25;
   return min(x,_l(uv));
 }
@@ -158,19 +179,21 @@ float rr(vec2 uv) {
   uv.x+=.25;
   return min(x,_i(uv));
 }
-float ss(vec2 uv) {
-  if (uv.y <.225-uv.x*.5 && uv.x>0. || uv.y<-.225-uv.x*.5)
-    uv = -uv;
-  float a = abs(length(vec2(max(0.,abs(uv.x)-.05),uv.y-.2))-.2);
-  float b = length(vec2(uv.x-.231505,uv.y-.284));
-  float x = atan(uv.x-.05,uv.y-0.2)<1.14?a:b;
+float ss(vec2 uvo) {
+  float center = yOfs * 0.5;
+  float a = atan(uvo.x*sign(uvo.y),abs(uvo.y)-center);
+  
+  vec2 uv = vec2(uvo.x, a>deg(270.0) && a<deg(360.0) ? -abs(uvo.y):abs(uvo.y));
+  float x = abs(length(
+        vec2( max(0., abs(uv.x) - 0.25 + center),
+              uv.y - center))
+                 -center );
+  x = min(x,length(vec2(uvo.x-0.25,uvo.y-center)));
   return x;
 }
 float tt(vec2 uv) {
   uv.x *= -1.;
-  uv.y -= .4;
-  uv.x += .05;
-  float x = min(_j(uv),length(vec2(max(0.,abs(uv.x-.05)-.25),uv.y)));
+  float x = min(_j(uv+vec2(-.05,-0.2-yOfs*0.5)),length(vec2(max(0.,abs(uv.x-.05)-.25),uv.y-yOfs)));
   return x;
 }
 float uu(vec2 uv) {
@@ -178,25 +201,25 @@ float uu(vec2 uv) {
 }
 float vv(vec2 uv) {
   uv.x=abs(uv.x);
-  return line(uv,vec2(0.25,0.4), vec2(0.,-0.4));
+  return line(uv,vec2(0.25,yOfs), vec2(0.,-yOfs));
 }
 float ww(vec2 uv) {
   uv.x=abs(uv.x);
-  return min(line(uv,vec2(0.3,0.4), vec2(.2,-0.4)),
-              line(uv,vec2(0.2,-0.4), vec2(0.,0.1)));
+  return min(line(uv,vec2(0.3,yOfs), vec2(.2,-yOfs)),
+              line(uv,vec2(0.2,-yOfs), vec2(0.,0.1)));
 }
 float xx(vec2 uv) {
   uv=abs(uv);
-  return line(uv,vec2(0.,0.), vec2(.3,0.4));
+  return line(uv,vec2(0.,0.), vec2(.3,yOfs));
 }
 float yy(vec2 uv) {
-  return min(line(uv,vec2(.0,-.2), vec2(-.3,0.4)),
-              line(uv,vec2(.3,.4), vec2(-.3,-0.8)));
+  return min(line(uv,vec2(.0,-.2), vec2(-.3,yOfs)),
+              line(uv,vec2(.3,yOfs), vec2(-.3,-0.8)));
 }
 float zz(vec2 uv) {
-  float l = line(uv,vec2(0.25,0.4), vec2(-0.25,-0.4));
+  float l = line(uv,vec2(0.25,yOfs), vec2(-0.25,-yOfs));
   uv.y=abs(uv.y);
-  float x = length(vec2(max(0.,abs(uv.x)-.25),uv.y-.4));
+  float x = length(vec2(max(0.,abs(uv.x)-.25),uv.y-yOfs));
   return min(x,l);
 }
 
@@ -577,7 +600,7 @@ bool hit(vec2 uv,inout float cp,float w, float px) {
 #define lc(nr,ch) case nr: return ch(p);
 
 float getLetterDistance(vec4 posSize, int nr) {
-  float maxS = minSize(posSize);
+  float maxS = min(posSize.z,posSize.w);
   float d = 0.0;
   vec2 p = posSize.xy/maxS;
   switch (nr) {
@@ -672,12 +695,9 @@ float getLetterDistance(vec4 posSize, int nr) {
 vec4 renderComponent(vec2 center, vec2 size) {
   float iTime = float(drawCount) / 180.0;
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
-  float maxS = minSize(posSize);
-  float dist = getLetterDistance(posSize,int(value.x)) * maxS - 1.25;//1.15;
-  return addColor(
-      // dist*1.5,
-      dist * 0.8,
-      vec3(0.8));
+  float maxS = min(posSize.z,posSize.w);
+  float dist = getLetterDistance(posSize,int(value.x)) * maxS;
+  return vec4(vec3(0.75), pow(1.0 - smoothstep(fontWeight, fontWeight+fontSharpness, dist),opacityCurve));
 }
 `;
 
@@ -769,39 +789,29 @@ const letterInfo = [
   { ch: '}', w: 0.7 }]; // #define _close3 ch(close3
 // ascii:   !"#$%&'()*+,-./0-9:;<=>?@A-Z[\]^_`a-z{|}~
 // missing:  "#$% '                 @    \ ^ `      ~
-export class LetterTest extends BaseValueComponent {
-  /**
-   * @param {HTMLElement} element
-   * @param {BoolVar} boolVar
-   */
-  constructor(boolVar, element) {
-    super(boolVar, element, HorizontalSliderControl, 'letter-test');
-  }
-
-  static get preferredSize() {
-    return {
-      width: 128,
-      height: 128
-    }
-  }
-}
 
 const letterMap = {};
 for (let ix = 0; ix < letterInfo.length; ix++) {
   let li = letterInfo[ix];
   letterMap[li.ch] = { ix: ix, w: li.w };
 }
+let globalFontWeight = 0.5;
+let globalFontSharpness = 1.25;
+let globalOpacityCurve = 2.2;
+let globalExtraHeight = 0.15;
+
 export class LetterComponent {
-  constructor(box, fontSize, xOffset, letterInfo) {
+  constructor(box, fontSize, xOffset, yOffset, letterInfo) {
     // TODO make Refactor ShaderClass from ComponentInfo in RenderControl for now its a string
     this._render = RenderControl.geInstance();
     this.letterInfo = letterInfo;
     this.xOffset = xOffset;
+    this.yOffset = yOffset;
     this.fontSize = fontSize;
     this._box = box;
     this._componentInfo = this._render.getComponentInfo(
       12349875,//getElementHash(this._clipElement),
-      'letter-test',
+      'distance-font',
       this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
   }
@@ -822,6 +832,18 @@ export class LetterComponent {
     info.clipRect.height = window.innerHeight;
     info.clipRect.x = 0;
     info.clipRect.y = 0;
+    info.onShaderInit = this.handleShaderInit;
+  }
+
+  /**
+   * @param {import("../../../KMN-utils.js/webglutils.js").RenderingContextWithUtils} gl 
+   * @param {import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt} shader 
+   */
+  handleShaderInit = (gl, shader) => {
+    shader.u.fontWeight?.set(globalFontWeight);
+    shader.u.fontSharpness?.set(globalFontSharpness);
+    shader.u.opacityCurve?.set(globalOpacityCurve);
+    shader.u.extraHeight?.set(globalExtraHeight);
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
@@ -831,10 +853,10 @@ export class LetterComponent {
       width: this.fontSize,
       height: this.fontSize,
       x: this._box.x + this.xOffset,
-      y: this._box.y
+      y: this._box.y + this.yOffset
     }
     info.rect.width = Math.min(Math.max(this._box.cw - this.xOffset, 0), this.fontSize);
-    info.rect.height = Math.min(this._box.ch, this.fontSize);
+    info.rect.height = Math.min(Math.max(this._box.ch - this.yOffset, 0), this.fontSize);
     info.rect.x = box.x + this._box.cx;
     info.rect.y = box.y + this._box.cy;
 
@@ -860,13 +882,14 @@ export class GLTextComponent {
    * 
    * @param {HTMLElement} element 
    * @param {string} textStr 
+   * @param {number} fontSize
    */
-  constructor(element, textStr) {
+  constructor(element, textStr, fontSize = 23) {
     this.letterComponents = [];
     this.clipElement = element.$getClippingParent();
     this.element = element;
-    let fontSize = 23; //this.element.clientHeight;
-    let xOffset = 0;
+    this.textStr = textStr;
+    this._fontSize = fontSize;
     this.box = {
       element,
       clipElement: this.clipElement,
@@ -900,9 +923,23 @@ export class GLTextComponent {
           this.lastUpd = RenderControl.geInstance().drawCount;
         }
       }
-    }
+    };
+    this.build();
+  }
+
+  build() {
+    const fontSize = this.fontSize;
+    const textStr = this.textStr;
+    let yOffset = 0;
+    let xOffset = 0;
     let first = true;
     for (let ch of textStr) {
+      if (ch === '\n') {
+        yOffset += fontSize;
+        xOffset = 0;
+        first = true;
+        continue;
+      }
       let letterInfo = letterMap[ch];
       if (letterInfo) {
         if (first) {
@@ -915,30 +952,46 @@ export class GLTextComponent {
           this.box,
           fontSize,
           xOffset,
+          yOffset,
           letterInfo));
         xOffset += letterInfo.w * fontSize / 4.;
       } else {
         xOffset += 0.7 * fontSize * 0.5;
       }
-      xOffset = Math.ceil(xOffset + 0.2);
+      // xOffset = Math.ceil(xOffset + 0.2);
     }
     this.width = xOffset;
   }
 
-  dispose() {
+  clear() {
     for (let lc of this.letterComponents) {
       lc.dispose();
     }
+    this.letterComponents = [];
+  }
+
+  dispose() {
+    this.clear();
+  }
+
+  get fontSize() {
+    return this._fontSize;
+  }
+
+  set fontSize(size) {
+    this._fontSize = size;
+    this.clear();
+    this.build();
   }
 }
 
 export class GLTextBinding extends BaseBinding {
   constructor (baseVar, element) {
     super(baseVar);
+    this.glText = null;
     if (element) {
       this.setElement(element);
     }
-    this.glText = null;
   }
 
   handleVarChanged(baseVar) {
@@ -956,8 +1009,55 @@ export class GLTextBinding extends BaseBinding {
   }
 }
 
-ComponentShaders['letter-test'] = playPauseShader;
-RenderControl.geInstance().registerShader('letter-test', LetterTest, HorizontalSliderControl);
+Types.addRecord('LetterTestSettings', {
+  fontSize: 'Float:defval>23,range>6..112',
+  fontWeight: 'Float:defval>0.5,range>0.0..7.0',
+  fontSharpness: 'Float:defval>1.25,range>0.1..2.5',
+  opacityCurve: 'Float:defval>2.2,range>0.1..3.0',
+  extraHeight: 'Float:defval>0.15,range>0.0..0.5',
+  demoText: 'String'
+});
+
+export class LetterTest extends BaseDemoComponent {
+  /**
+   * @param {HTMLElement} element
+   */
+  constructor(element) {
+    super();
+    this._demoData = new Types.LetterTestSettings();
+    this._demoData.demoText.$v =
+      'ABCDEFGHIJKLMNOPQRSTUVW\n' +
+      'abcdefghijklmnopqrstuvwxyz\n' +
+      `!?"#$',.:;<=>@[\]_\`{}~\n` +
+      '+-*/(1234567890)&|^%';
+    
+    this.textBinding = new GLTextBinding(this._demoData.demoText, element);
+    this._demoData.fontSize.$addDeferedEvent((size) => {
+      this.textBinding.glText.fontSize = size.$v;
+    });
+    this._demoData.fontWeight.$addEvent(x => globalFontWeight = x.$v);
+    this._demoData.fontSharpness.$addEvent(x => globalFontSharpness = x.$v);
+    this._demoData.opacityCurve.$addEvent(x => globalOpacityCurve = x.$v);
+    this._demoData.extraHeight.$addEvent(x => globalExtraHeight = x.$v);
+  }
+
+  get demoData() {
+    return this._demoData;
+  }
+
+  static get preferredSize() {
+    return {
+      width: 600,
+      height: 240
+    }
+  }
+  dispose() {
+    this.textBinding.dispose();
+  }
+}
+
+
+RenderControl.geInstance().registerShader('distance-font', LetterTest, PassiveControl);
 
 // HTMLElement.prototype.$setTextNode = function(str) {
 //   this.$removeChildren();
