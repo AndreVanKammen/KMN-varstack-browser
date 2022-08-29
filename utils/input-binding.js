@@ -82,11 +82,13 @@ class InputBinding extends BaseBinding {
     this.element = element;
     element.value = this.baseVar.$v;
     let typeArr = this.baseVar.$varDefinition.inputType.split(':');
-    element.type = this.type || typeArr[0];
+    if ((this.type || typeArr[0]) !== 'textarea') {
+      element.type = this.type || typeArr[0];
+    }
     if (this.baseVar.$varDefinition.isReadOnly) {
       element.setAttribute('readOnly', ''); 
     }
-    console.log('Input', element, this.baseVar);
+    // console.log('Input', element, this.baseVar);
 
     if (element.type === 'checkbox') {
       this.changeEvent = this.baseVar.$addEvent(this.handleVarChangedChecked.bind(this));
@@ -200,7 +202,12 @@ export class CreateInputBinding extends BaseBinding {
         if (element instanceof HTMLInputElement) {
           inputElement = element;
         } else {
-          inputElement = parentElement.$el({ tag: 'input', cls: 'inline-input' });
+          if (baseVar.$varDefinition.inputType === 'textarea') {
+            // @ts-ignore F*** HTML
+            inputElement = parentElement.$el({ tag: 'textarea', cls: 'inline-input' });
+          } else {
+            inputElement = parentElement.$el({ tag: 'input', cls: 'inline-input' });
+          }
         }
         // TODO HACKY: If this is a record variable then show the value field
         if (baseVar instanceof RecordVar) {

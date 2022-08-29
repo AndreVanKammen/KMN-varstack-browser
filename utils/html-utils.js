@@ -159,6 +159,7 @@ input.${kmnClassName}:focus {
   outline-style: solid;
 }
 
+textarea.${kmnClassName},
 input.${kmnClassName} {
   border: none;
   color-scheme: dark;
@@ -172,6 +173,11 @@ input.${kmnClassName} {
   outline-color: var(--activeColor);
   outline-width: 2px;
 }
+textarea.${kmnClassName} {
+  width:100%;
+  height:120px;
+}
+
 
 /*
   Other content
