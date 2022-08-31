@@ -512,6 +512,15 @@ class TableBuilder {
     this.updateSelectedDiv();
   }
 
+  selectRowAndEdit(rec, fieldName) {
+    this.selectRow(rec);
+    let input = this.htmlRows[this.selectedIx].querySelector('.kmn.' + fieldName)?.firstElementChild;
+    if (input instanceof HTMLInputElement) {
+      input.focus();
+      input.select();
+    }
+  }
+
   handleRowClick(rec, ix) {
     this.selectRow(rec, ix);
     if (this.onRowClick) {
