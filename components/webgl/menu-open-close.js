@@ -11,7 +11,7 @@ registerComponentShader('menu-open-close', /*glsl*/`
 float hamburger(vec2 uv) {
   uv.y = abs(uv.y);
   float x = min(length(vec2(max(0.,abs(uv.x)-.5),uv.y)),
-                length(vec2(max(0.,abs(uv.x)-.5),uv.y-.4)));
+                length(vec2(max(0.,abs(uv.x)-.5),uv.y-.4* (1.0-value.x))));
   // x = min(x,    length(vec2(max(0.,abs(uv.x)-.25),uv.y+.25)));
   return x; // max(0.0,x-1.7);
 }
@@ -38,7 +38,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
     
   float dist = mix(hamburger(uv),
                    close(uv),
-                   value.x) * maxS - 1.5;
+                   value.x) * maxS - 1.75;
       
   return defaultColor(dist);
 }`);
