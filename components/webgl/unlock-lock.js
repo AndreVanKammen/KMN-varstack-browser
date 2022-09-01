@@ -9,7 +9,7 @@ registerComponentShader('unlock-lock', /*glsl*/`
 // #include default-constants
 
 float lock(vec2 uv) {
-  float up = smoothstep(0.0,0.5,1.0-value.x);
+  float up = smoothstep(0.0,0.4,1.0-value.x);
   float rot = smoothstep(0.6,1.0,1.0-value.x);
   uv.y += .2 + up * 0.1;
   uv.x += rot * 0.25;
@@ -30,9 +30,9 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
   vec2 uv = posSize.xy / maxS;
     
-  float dist = lock(uv) * maxS - 2.5;
+  float dist = lock(uv*0.8) * maxS - .5;
       
-  return defaultColor(dist);
+  return defaultColor(dist) * (0.5+0.5*value.x);
 }
 `);
 export class UnlockLockElement extends BaseValueComponent {
