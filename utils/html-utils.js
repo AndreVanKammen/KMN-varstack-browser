@@ -207,6 +207,7 @@ textarea.${kmnClassName} {
 }
 
 button.${kmnClassName} {
+  outline: none;
   cursor: pointer;
   background: var(--activeColor);
   color: var(--subHeaderColor);
