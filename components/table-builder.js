@@ -84,6 +84,7 @@ table.${kmnClassName} th {
   background: var(--tableHeaderBackground);
   font-weight: normal;
   color: var(--tableHeaderColor);
+  text-align: left;
   overflow: hidden;
 } 
 table.${kmnClassName} th.selected {
@@ -138,7 +139,6 @@ td.${kmnClassName}.none,
 td.${kmnClassName}.up,
 td.${kmnClassName}.down,
 td.${kmnClassName}.delete {
-  background: var(--activeColor);
   width: 24px;
   padding: 0;
   fill: none;
@@ -151,9 +151,8 @@ th.${kmnClassName}.up:hover,
 td.${kmnClassName}.down:hover,
 th.${kmnClassName}.down:hover,
 td.${kmnClassName}.delete:hover {
-  background: var(--activeHoverColor);
-  color: var(--activeforeHoverColor);
-  stroke: var(--activeforeHoverColor);
+  color: var(--activeHoverColor);
+  stroke: var(--activeHoverColor);
   stroke-width: 3px;
   fill: none;
 }
@@ -326,7 +325,7 @@ class TableBuilder {
         headerName = this.options.headerNames[ix];
       }
       let headerElement = this.headRow.$el({ tag: "th", cls: headerName.replaceAll(' ', '-') });
-      headerElement.innerText = headerName;
+      headerElement.innerText = headerName.toUpperCase();
       let fieldDefIx = this.table.elementType.prototype._fieldNames.indexOf(fieldName);
       let fieldIsNumber = (fieldDefIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldDefIx].sortIsNumber);
       if (this.options.showFilterEdits && (!fieldIsNumber || this.options.showNumberFilters)) {
@@ -412,6 +411,8 @@ class TableBuilder {
     if (this.options.editList) {
       this.addFunc(this.headRow, 'th', null, "up", "M4,16L12,8L20,16", this.moveRowUp);
       this.addFunc(this.headRow, 'th', null, "down", "M4,8L12,16L20,8", this.moveRowDown);
+    }
+    if (this.options.editList || this.options.deleteButton) {
       this.addButton = this.headRow.$el({ tag: "th", cls: "add" });
       // this.addButton.width = "20px";
       this.addButton.appendChild(svgIcon("M12,4v16M4,12h16"));
