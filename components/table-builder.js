@@ -173,6 +173,7 @@ td.${kmnClassName}.add-row {
  stroke: none;
 }
 
+tr.${kmnClassName}.selected td.${kmnClassName}.add-row,
 tr.${kmnClassName}:hover td.${kmnClassName}.add-row {
   stroke: var(--activeHoverColor);
 }
