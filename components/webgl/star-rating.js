@@ -10,7 +10,12 @@ registerComponentShader('star-rating', /*glsl*/`
 // #include default-constants
 
 vec4 renderComponent(vec2 center, vec2 size) {
-  outLineThickness = 1.0;
+  outLineThickness = 1.25;
+  forgroundColor = vec3(0.2);
+  forgroundHoverColor = vec3(0.5);
+  //actionColor = vec3(5.0,5.0,192.0)/255.0;
+  //actionHoverColor = vec3(0.3,0.3,1.0);
+
   vec4 posSize = vec4((localCoord.xy-center) ,size);
   float maxS = min(posSize.w,posSize.z/5.0)*0.5;
   posSize.y -= maxS*0.04;
@@ -27,11 +32,16 @@ vec4 renderComponent(vec2 center, vec2 size) {
     dist = maxS;
   } else {
     if (starLevel>value.x) {
-      dist = abs(dist)-outLineThickness;
+      if (mouseInside) {
+        actionHoverColor = vec3(0.6);
+        dist = abs(dist)-outLineThickness;
+      } else {
+        dist = maxS;
+      }
     }
   }
 
-  return defaultColor(dist);
+  return addColorAndOutline(dist, currentActionColor, mouseInside?vec3(0.6):vec3(0.1), outLineThickness);
 }`);
 
 export class StarRatingElement extends BaseValueComponent {
@@ -40,7 +50,7 @@ export class StarRatingElement extends BaseValueComponent {
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ToggleButtonControl, 'star-rating');
+    super(boolVar, element, HorizontalSliderControl, 'star-rating');
     this._control.easeFactor = 0.02;
   }
 

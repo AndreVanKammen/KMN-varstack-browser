@@ -68,6 +68,12 @@ table.${kmnClassName}.filter2 {
 thead.${kmnClassName} .filler {
   width: 3px;
 }
+
+thead.${kmnClassName}.sort-on-header th:hover {
+  cursor: pointer;
+  color: yellow;
+  font-weight: 600;
+}
 tbody.${kmnClassName} tr, thead.${kmnClassName} tr {
  display: table;
  width: calc(100% - 1px);
@@ -131,11 +137,16 @@ table.${kmnClassName} label {
   text-align: right;
 }
 
+td.${kmnClassName} svg.icon,
+th.${kmnClassName} svg.icon {
+  margin-top: -4px
+}
 th.${kmnClassName}.add,
 th.${kmnClassName}.up,
 th.${kmnClassName}.down,
 th.${kmnClassName}.delete,
 td.${kmnClassName}.none,
+td.${kmnClassName}.add-row,
 td.${kmnClassName}.up,
 td.${kmnClassName}.down,
 td.${kmnClassName}.delete {
@@ -146,6 +157,7 @@ td.${kmnClassName}.delete {
   stroke-width: 2px;
 }
 th.${kmnClassName}.add:hover,
+td.${kmnClassName}.add-row:hover,
 td.${kmnClassName}.up:hover,
 th.${kmnClassName}.up:hover,
 td.${kmnClassName}.down:hover,
@@ -157,6 +169,14 @@ td.${kmnClassName}.delete:hover {
   fill: none;
 }
 
+td.${kmnClassName}.add-row {
+ stroke: none;
+}
+
+tr.${kmnClassName}:hover td.${kmnClassName}.add-row {
+  stroke: var(--activeHoverColor);
+}
+ 
 /* Don't no why i need to do this to get the position ok */
 th.${kmnClassName}.add svg {
   position: relative;
@@ -208,6 +228,7 @@ class TableBuilder {
       this.thead = this.tableEl.$el({ tag: "thead" });
       this.headRow = this.thead.$el({ tag: "tr" });
       this.tbody = this.tableEl.$el({ tag: "tbody" });
+      this.thead.classList.toggle('sort-on-header', !!this.options.sortOnHeaderClick);
     } else {
       this.tbody = this.tableEl.$el({ tag: "tbody" });
       this.tbody.classList.add('noHead');
@@ -252,7 +273,7 @@ class TableBuilder {
    * @param {RecordVar} rec 
    * @param {String} name 
    * @param {String} pathData 
-   * @param {(rec: RecordVar) => void} func 
+   * @param {(rec: import("../../../TS/table-builder").ArrayTableType<T>) => void} func 
    */
   addFunc(row, tagName, rec, name, pathData, func) {
     let el = row.$el({ tag: tagName, cls: name });
@@ -317,6 +338,12 @@ class TableBuilder {
       this.filterRec.$parent = this.table;
       this.filterRec2.$parent = this.table;
       this.tableEl.classList.add('filter');
+    }
+    if (this.options.addButton) {
+      this.addButton = this.headRow.$el({ tag: "th", cls: "add" });
+      // this.addButton.width = "20px";
+      // this.addButton.appendChild(svgIcon("M12,4v16M4,12h16"));
+      // this.addButton.onclick = this.handleAdd.bind(this);
     }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       let fieldName = this.fieldNames[ix];
@@ -578,6 +605,9 @@ class TableBuilder {
    */
   _fillRow(row, rec) {
     let bindings = [];
+    if (this.options.addButton) {
+      this.addFunc(row, 'td', rec, "add-row", "M12,4v16M4,12h16", (rec) => this.onRowDblClick(rec,-1));
+    }
     for (let ix = 0; ix < this.fieldNames.length; ix++) {
       // this.fieldNames.forEach((x) => {
       let fieldName = this.fieldNames[ix];
