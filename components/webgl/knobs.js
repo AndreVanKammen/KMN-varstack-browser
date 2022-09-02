@@ -22,7 +22,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
       sin(angle), cos(angle));
   
   float dist = 100.0;
-  float knobDist = drw_Circle(posSize, maxS * 0.6);
+  float knobDist = drw_Circle(posSize.xy, maxS * 0.6);
      
   dst_Combine(dist,
                drw_Rectangle(
@@ -85,7 +85,7 @@ export class KnobElement extends BaseValueComponent {
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
-    super(sliderVar, element, RotationKnobControl, 'knob');
+    super(sliderVar, element, RotationKnobControl, 'turn-knob');
   }
 
   static get preferredSize() {
@@ -96,4 +96,14 @@ export class KnobElement extends BaseValueComponent {
   }
 }
 
-RenderControl.geInstance().registerShader('turn-knob', KnobElement);
+class KnobDemo extends KnobElement {
+  /**
+   * @param {HTMLElement} element
+   */
+   constructor(element) {
+     super(new FloatVar(), element);
+  }
+}
+
+
+RenderControl.geInstance().registerShader('turn-knob', KnobDemo, RotationKnobControl);

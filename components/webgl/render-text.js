@@ -7,9 +7,7 @@ import { ComponentShaders } from "./component-shaders.js";
 import { ComponentInfo, getElementHash, RenderControl} from "./render-control.js";
 import { HorizontalSliderControl } from "./sliders.js";
 
-ComponentShaders['distance-font'] = /*glsl*/`
-
-uniform float fontWeight;
+ComponentShaders['distance-font'] = /*glsl*/`uniform float fontWeight;
 uniform float fontSharpness;
 uniform float opacityCurve;
 uniform float extraHeight;
@@ -599,8 +597,7 @@ bool hit(vec2 uv,inout float cp,float w, float px) {
 
 #define lc(nr,ch) case nr: return ch(p);
 
-float getLetterDistance(vec4 posSize, int nr) {
-  float maxS = min(posSize.z,posSize.w);
+float getLetterDistance(vec4 posSize, float maxS, int nr) {
   float d = 0.0;
   vec2 p = posSize.xy/maxS;
   switch (nr) {
@@ -696,8 +693,10 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float iTime = float(drawCount) / 180.0;
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
   float maxS = min(posSize.z,posSize.w);
-  float dist = getLetterDistance(posSize,int(value.x)) * maxS;
-  return vec4(vec3(0.75), pow(1.0 - smoothstep(fontWeight, fontWeight+fontSharpness, dist),opacityCurve));
+  float fw = maxS*fontWeight * 0.1;
+  maxS -= fw;
+  float dist = getLetterDistance(posSize, maxS, int(value.x)) * maxS;
+  return vec4(vec3(0.75), pow(1.0 - smoothstep(fw, fw+fontSharpness, dist),opacityCurve));
 }
 `;
 
