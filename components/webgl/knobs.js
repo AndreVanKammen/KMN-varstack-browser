@@ -5,12 +5,10 @@ import { RenderControl} from "./render-control.js";
 
 registerComponentShader('turn-knob',/*glsl*/`
 // #include distance-drawing
-const vec3 forgroundColor = vec3(0.8);
-const vec3 forgroundHoverColor = vec3(1.0);
-const vec3 actionColor = vec3(48.0/255.0,48.0/255.0,80.0/255.0);
-const vec3 actionHoverColor = vec3(62.0/255.0,62.0/255.0,192.0/255.0);
+// #include default-constants
 
 vec4 renderComponent(vec2 center, vec2 size) {
+  actionColor = vec3(0.5);
   vec4 posSize = vec4((localCoord.xy-center) * -1.0,size * 0.5);
 
   // posSize.y += 0.15 * minSize(posSize);
@@ -48,10 +46,10 @@ vec4 renderComponent(vec2 center, vec2 size) {
   dst_substract(knobDist,
     (drw_Rectangle(posSize3.xy,vec2(0.0),maxS*vec2(0.1,0.1))-0.4*maxS));
 
-  vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
+  vec3 fc = vec3(1.0);// mouseInside?forgroundHoverColor:forgroundColor;
   return max(addColorAndOutline(
         knobDist,
-        mouseInside?actionHoverColor:actionColor,
+        mouseInside?actionHoverColor * 0.8:actionColor * 0.6,
         fc,
         maxS * 0.04-0.5) , addColor(dist, fc));
 }

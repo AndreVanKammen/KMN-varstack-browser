@@ -113,7 +113,7 @@ export class VerticalSliderControl extends ValuePointerControl {
   constructor(element, valueVar) {
     super(element, valueVar);
     this.lastWithinValue = this.value;
-    this.size = 0.9
+    this.size = 1.0
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
