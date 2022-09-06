@@ -1,3 +1,4 @@
+import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
@@ -55,6 +56,11 @@ vec4 renderComponent(vec2 center, vec2 size) {
 }
 `);
 export class RotationKnobControl extends ValuePointerControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {BaseVar} valueVar 
+   */
   constructor(element, valueVar) {
     super(element, valueVar);
     this.size = 0.9
@@ -83,7 +89,7 @@ export class KnobElement extends BaseValueComponent {
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
-    super(sliderVar, element, RotationKnobControl, 'turn-knob');
+    super(element, new RotationKnobControl(element, sliderVar), 'turn-knob');
   }
 
   static get preferredSize() {

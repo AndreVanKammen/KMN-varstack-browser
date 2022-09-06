@@ -31,7 +31,7 @@ export class PlayPauseElement extends BaseValueComponent {
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ToggleButtonControl, 'play-pause');
+    super(element, new ToggleButtonControl(element, boolVar), 'play-pause');
   }
 
   static get preferredSize() {

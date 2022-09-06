@@ -47,11 +47,11 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class StarRatingElement extends BaseValueComponent {
   /**
    * @param {HTMLElement} element
-   * @param {BoolVar} boolVar
+   * @param {FloatVar} floatVar
    */
-  constructor(boolVar, element) {
-    super(boolVar, element, HorizontalSliderControl, 'star-rating');
-    this._control.easeFactor = 0.02;
+  constructor(floatVar, element) {
+    let control = new HorizontalSliderControl(element, floatVar);
+    super(element, control, 'star-rating');
   }
 
   static get preferredSize() {
@@ -67,7 +67,7 @@ class StarRatingDemo extends StarRatingElement {
    * @param {HTMLElement} element
    */
    constructor(element) {
-     super(new BoolVar(), element);
+     super(new FloatVar(), element);
   }
 }
 

@@ -33,7 +33,7 @@ export class PlayForwardElement extends BaseValueComponent {
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ActionButtonControl, 'play-forward');
+    super(element, new ActionButtonControl(element, boolVar), 'play-forward');
   }
 
   static get preferredSize() {

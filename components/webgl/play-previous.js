@@ -33,7 +33,7 @@ export class PlayPreviousElement extends BaseValueComponent {
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ActionButtonControl, 'play-previous');
+    super(element, new ActionButtonControl(element, boolVar), 'play-previous');
   }
 
   static get preferredSize() {

@@ -43,8 +43,9 @@ export class UnlockLockElement extends BaseValueComponent {
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ToggleButtonControl, 'unlock-lock');
-    this._control.easeFactor = 0.02;
+    let control = new ToggleButtonControl(element, boolVar)
+    control.easeFactor = 0.01;
+    super(element, control, 'unlock-lock');
   }
 
   static get preferredSize() {

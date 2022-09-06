@@ -75,6 +75,11 @@ vec4 renderComponent(vec2 center, vec2 size) {
 }`);
 
 export class HorizontalSliderControl extends ValuePointerControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {FloatVar} valueVar 
+   */
   constructor(element, valueVar) {
     super(element, valueVar);
     this.lastWithinValue = this.value;
@@ -110,7 +115,12 @@ export class HorizontalSliderControl extends ValuePointerControl {
   }
 }
 export class VerticalSliderControl extends ValuePointerControl {
-  constructor(element, valueVar) {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {FloatVar} valueVar 
+   */
+   constructor(element, valueVar) {
     super(element, valueVar);
     this.lastWithinValue = this.value;
     this.size = 1.0
@@ -151,7 +161,7 @@ export class HorizontalSliderElement extends BaseValueComponent {
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
-    super(sliderVar, element, HorizontalSliderControl, 'slider');
+    super(element, new HorizontalSliderControl(element, sliderVar), 'slider');
   }
 
   static get preferredSize() {
@@ -168,7 +178,7 @@ export class VerticalSliderElement extends BaseValueComponent {
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
-    super(sliderVar, element, VerticalSliderControl, 'vertical-slider');
+    super(element, new VerticalSliderControl(element, sliderVar), 'vertical-slider');
   }
 
   static get preferredSize() {

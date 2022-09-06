@@ -32,7 +32,7 @@ export class PlayNextElement extends BaseValueComponent {
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ActionButtonControl, 'play-next');
+    super(element, new ActionButtonControl(element, boolVar), 'play-next');
   }
 
   static get preferredSize() {

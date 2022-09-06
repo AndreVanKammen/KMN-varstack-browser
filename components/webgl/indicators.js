@@ -1,5 +1,5 @@
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
-import { BaseValueComponent, ValueControl } from "./component-base.js";
+import { BaseValueComponent, PassiveValueControl, ValueControl } from "./component-base.js";
 import { registerComponentShader } from "./component-shaders.js";
 import { RenderControl } from "./render-control.js";
 
@@ -17,7 +17,7 @@ export class VerticalLevelElement extends BaseValueComponent {
    * @param {FloatVar} levelVar
    */
   constructor(levelVar, element, shaderName) {
-    super(levelVar, element, ValueControl, shaderName || 'verticalLevel');
+    super(element, new PassiveValueControl(element, levelVar), shaderName || 'verticalLevel');
   }
 
   static get preferredSize() {

@@ -48,7 +48,7 @@ export class MenuOpenCloseElement extends BaseValueComponent {
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ToggleButtonControl, 'menu-open-close');
+    super(element, new ToggleButtonControl(element, boolVar), 'menu-open-close');
   }
 
   static get preferredSize() {

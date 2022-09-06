@@ -1,20 +1,32 @@
 import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { RecordVar } from "../../../KMN-varstack.js/structures/record.js";
+import { ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
-import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
+import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { ComponentInfo, getElementHash, RenderControl } from "./render-control.js";
 
 export class PassiveControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   */
+  constructor(element) {
+    this._element = element;
+  }
+
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    RenderControl.setBoxDataFromElement(info, this._element);
+  }
+  dispose() {
+  }
 }
 
 /**
  * Maps a value for a control using min/max step and scale(to be made, linear/exponential)
  */
-export class ValueControl extends PassiveControl {
-  constructor(element, valueVar) {
-    super();
-
-    this._element = element;
+export class ValueControl  {
+  constructor(valueVar) {
     this._valueVar = valueVar;
   }
 
@@ -57,20 +69,34 @@ export class ValueControl extends PassiveControl {
       return this._valueVar.$v;
     }
   }
-  
-  /**@param {import("./render-control.js").RectInfo} info */
-  updateRenderInfo(info) {
-    RenderControl.setBoxDataFromElement(info, this._element);
-    info.value[0] = this.value;
+}
+export class PassiveValueControl extends PassiveControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {BaseVar} valueVar 
+   */
+  constructor(element, valueVar) {
+    super(element);
+    this._valueControl = new ValueControl(valueVar);
   }
-   
-  dispose() {
+  get value() {
+    return this._valueControl.value;
+  }
+  set value(x) {
+    this._valueControl.value = x;
   }
 }
-export class ValuePointerControl extends ValueControl {
-  constructor(element, valueVar) {
+export class ValuePointerControl extends PassiveValueControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {BaseVar} valueVar 
+   */
+   constructor(element, valueVar) {
     super(element, valueVar);
-    this._pointerTracker = new PointerTracker(this._element);
+     this._pointerTracker = new PointerTracker(this._element);
+     this.overScanOnMouseDown = false;
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
@@ -84,7 +110,7 @@ export class ValuePointerControl extends ValueControl {
       (pt.isInside > 0 ? 1 : 0)
       + (pt.isDown > 0 ? 2 : 0);
 
-    if (pt.isDown) {
+    if (pt.isDown && this.overScanOnMouseDown) {
       info.rect.width += 1000;
       info.rect.height += 1000;
       info.rect.x -= 500;
@@ -94,10 +120,36 @@ export class ValuePointerControl extends ValueControl {
       info.mouse.x += 500;
       info.mouse.y += 500;
     }
+
+    info.value[0] = this.value;
   }
 
   dispose() {
+    super.dispose();
     this._pointerTracker.dispose();
+  }
+}
+export class Value2PointerControl extends ValuePointerControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {BaseVar} valueVar 
+   * @param {BaseVar} valueVar2
+   */
+   constructor(element, valueVar, valueVar2) {
+    super(element, valueVar)
+    this._value2Control = new ValueControl(valueVar2);
+  }
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    super.updateRenderInfo(info);
+    info.value[0] = this.value;
+  }
+  get value2() {
+    return this._value2Control.value;
+  }
+  set value2(x) {
+    this._value2Control.value = x;
   }
 }
 
@@ -169,33 +221,48 @@ export class BaseDemoComponent {
 }
 
 
+// @param {new (HTMLElement,BaseVar) => T0} ControlClass - A generic parameter that flows through to the return type
 /**
- * @template {ValueControl} T0
+ * @template {PassiveControl} T0
  */
 export class BaseValueComponent extends BaseDemoComponent {
   /**
    * @param {HTMLElement} element
-   * @param {BaseVar} valueVar
-   * @param {new (HTMLElement,BaseVar) => T0} ControlClass - A generic parameter that flows through to the return type
+   * @param {PassiveControl} controlClass
+   * @param {string} shaderName
    */
-  constructor(valueVar, element, ControlClass, ShaderClass) {
+  constructor(element, controlClass, shaderName) {
     super();
 
     // TODO make Refactor ShaderClass from ComponentInfo in RenderControl for now its a string
     this._render = RenderControl.geInstance();
 
-    this._control = new ControlClass(element, valueVar);
+    this._control = controlClass;  // new ControlClass(element, valueVar);
 
     this._clipElement = element.$getClippingParent();
     this._componentInfo = this._render.getComponentInfo(
       getElementHash(this._clipElement),
-      ShaderClass,
+      shaderName,
       this.updateComponentInfo.bind(this));
     this._componentInfoHandle = this._componentInfo.getFreeIndex(this.updateRenderInfo.bind(this))
   }
 
   get demoData() {
-    return this._control._valueVar;
+    // @ts-ignore
+    if (this._control._valueVar) {
+      // @ts-ignore
+      return this._control._valueVar
+    }
+    if (this._control instanceof Value2PointerControl) {
+      return {
+        x: this._control._valueControl._valueVar,
+        y: this._control._value2Control._valueVar
+      }
+    }
+    if (this._control instanceof ValuePointerControl) {
+      return this._control._valueControl._valueVar;
+    }
+    return null;
   }
 
 
@@ -222,6 +289,11 @@ export class BaseValueComponent extends BaseDemoComponent {
 }
 
 export class ToggleButtonControl extends BooleanPointerControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {BoolVar} valueVar 
+   */
   constructor(element, valueVar) {
     super(element, valueVar);
     this.lastWithinValue = this.value;
@@ -248,7 +320,11 @@ export class ToggleButtonControl extends BooleanPointerControl {
 }
 
 export class ActionButtonControl extends BooleanPointerControl {
-  constructor(element, valueVar) {
+  /**
+   * @param {HTMLElement} element
+   * @param {ActionVar} valueVar
+   */
+   constructor(element, valueVar) {
     super(element, valueVar);
     this.mouseDownInside = false;
   }

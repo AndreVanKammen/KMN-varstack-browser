@@ -211,7 +211,7 @@ export class RenderControl {
     this.frameDivider = 1;
     this.errorCount = 0;
     this.dpr = 1;
-    /** @type {Record<string,{demoClass:{new(levelVar, element, shaderName) : BaseDemoComponent}, controlClass: {new()}}>} */
+    /** @type {Record<string,{demoClass:{new(levelVar, element, shaderName) : BaseDemoComponent}, controlClass: {new(el)}}>} */
     this.registeredShaders = {};
     this.shaderCache = {};
   }
@@ -330,7 +330,7 @@ export class RenderControl {
               const si = component._rectInfos[ix];
               if (si) { // && si.size.width && si.size.height) {
                 si.onUpdate(si);
-                if ((si.mouse.state > 0) === (foreground === 1)) {
+                if (((si.mouse.state & 0x02) !== 0) === (foreground === 1)) {
                   // if (component.shaderName === 'music-keyboard') {
                   //   if (this.drawCount % 30 === 29) {
                   //     console.log('>', startIx, length);
@@ -472,7 +472,7 @@ export class RenderControl {
    * 
    * @param {string} shaderName 
    * @param {{new(levelVar, element, shaderName)}} demoClass 
-   * @param {{new()}} controlClass
+   * @param {{new(...params)}} controlClass
    */
   registerShader(shaderName, demoClass, controlClass) {
     this.registeredShaders[shaderName] = {

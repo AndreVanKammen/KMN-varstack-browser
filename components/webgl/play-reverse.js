@@ -32,7 +32,7 @@ export class PlayReverseElement extends BaseValueComponent {
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
-    super(boolVar, element, ActionButtonControl, 'play-reverse');
+    super(element, new ActionButtonControl(element, boolVar), 'play-reverse');
   }
 
   static get preferredSize() {
