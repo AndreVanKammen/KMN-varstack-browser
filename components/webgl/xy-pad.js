@@ -8,16 +8,28 @@ registerComponentShader('xy-pad',/*glsl*/`
 // #include default-constants
 
 vec4 renderComponent(vec2 center, vec2 size) {
+  forgroundColor = vec3(0.4);
+  forgroundHoverColor = vec3(0.7);
+  actionColor = vec3(0.7,0.70,0.0);
+  actionHoverColor = vec3(1.0,1.0,0.0);
+
   outLineThickness = 1.0;
+
   vec4 posSize = vec4((localCoord.xy-center), size);
   posSize.y *= -1.0;
   vec2 a = abs(posSize.xy);
   float dist = min(a.x,a.y);
-  dist = min(dist, drw_Circle(posSize.xy - (value.xy - .5) * posSize.zw, 5.0));
+  dist = min(dist, drw_Circle(posSize.xy - (value.xy - .5) * posSize.zw, mouseInside ? 10.0 : 5.0));
   return defaultColor(dist);
 }`);
 
 class XYPadControl extends Value2PointerControl {
+  /**
+   * 
+   * @param {HTMLElement} element 
+   * @param {FloatVar} xVar 
+   * @param {FloatVar} yVar 
+   */
   constructor(element, xVar, yVar) {
     super(element, xVar, yVar);
   }
@@ -35,6 +47,15 @@ class XYPadControl extends Value2PointerControl {
     info.value[0] = this.value;
     info.value[1] = this.value2;
   }
+
+  /**
+   * @param {FloatVar} xVar 
+   * @param {FloatVar} yVar 
+   */
+  assignVars(xVar, yVar) {
+    this._valueControl = new ValueControl(xVar);
+    this._value2Control = new ValueControl(yVar);
+  }
 }
 export class XYPadElement extends BaseValueComponent {
   /**
@@ -43,7 +64,9 @@ export class XYPadElement extends BaseValueComponent {
    * @param {FloatVar} yVar
    */
   constructor(xVar, yVar, element) {
-    super(element, new XYPadControl(element, xVar, yVar), 'xy-pad');
+    let control = new XYPadControl(element, xVar, yVar)
+    super(element, control, 'xy-pad');
+    this._control = control; // This is already set but helps typscript
   }
 
   static get preferredSize() {
@@ -51,6 +74,13 @@ export class XYPadElement extends BaseValueComponent {
       width: 256,
       height: 256
     }
+  }
+  /**
+   * @param {FloatVar} xVar 
+   * @param {FloatVar} yVar 
+   */
+  assignVars(xVar, yVar) {
+    this._control.assignVars(xVar, yVar);
   }
 }
 
