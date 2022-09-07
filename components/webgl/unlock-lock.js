@@ -2,7 +2,7 @@ import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, BooleanPointerControl, ToggleButtonControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
-import { RenderControl} from "./render-control.js";
+import { IRectangle, RenderControl} from "./render-control.js";
 
 registerComponentShader('unlock-lock', /*glsl*/`
 // #include distance-drawing
@@ -39,7 +39,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 `);
 export class UnlockLockElement extends BaseValueComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
@@ -58,7 +58,7 @@ export class UnlockLockElement extends BaseValueComponent {
 
 class UnlockLockDemo extends UnlockLockElement {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
    constructor(element) {
      super(new BoolVar(), element);

@@ -2,7 +2,7 @@ import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
-import { RenderControl} from "./render-control.js";
+import { IRectangle, RenderControl} from "./render-control.js";
 
 registerComponentShader('turn-knob',/*glsl*/`
 // #include distance-drawing
@@ -58,7 +58,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class RotationKnobControl extends ValuePointerControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -71,9 +71,9 @@ export class RotationKnobControl extends ValuePointerControl {
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
 
-    if (pt.isDown > 0) {
+    if (pt.isDown) {
       let x = info.mouse.x - info.size.centerX;
       let y = info.mouse.y - info.size.centerY;
       let a = Math.atan2(x, -y);
@@ -85,7 +85,7 @@ export class RotationKnobControl extends ValuePointerControl {
 }
 export class KnobElement extends BaseValueComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
@@ -102,7 +102,7 @@ export class KnobElement extends BaseValueComponent {
 
 class KnobDemo extends KnobElement {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);

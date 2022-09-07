@@ -1,7 +1,7 @@
 import { ActionHandler, ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { ActionButtonControl, BaseValueComponent} from "./component-base.js";
 import { registerComponentShader } from "./component-shaders.js";
-import { RenderControl} from "./render-control.js";
+import { IRectangle, RenderControl} from "./render-control.js";
 
 registerComponentShader('play-forward', /*glsl*/`
 // #include distance-drawing
@@ -29,7 +29,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class PlayForwardElement extends BaseValueComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
@@ -46,7 +46,7 @@ export class PlayForwardElement extends BaseValueComponent {
 
 class PlayForwardDemo extends PlayForwardElement {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
    constructor(element) {
      super(new ActionHandler(), element);

@@ -2,7 +2,7 @@ import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, BooleanPointerControl, ToggleButtonControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
-import { RenderControl} from "./render-control.js";
+import { IRectangle, RenderControl} from "./render-control.js";
 import { HorizontalSliderControl } from "./sliders.js";
 
 registerComponentShader('star-rating', /*glsl*/`
@@ -46,7 +46,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class StarRatingElement extends BaseValueComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {FloatVar} floatVar
    */
   constructor(floatVar, element) {
@@ -64,13 +64,11 @@ export class StarRatingElement extends BaseValueComponent {
 
 class StarRatingDemo extends StarRatingElement {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);
   }
 }
-
-
 
 RenderControl.geInstance().registerShader('star-rating', StarRatingDemo, HorizontalSliderControl);

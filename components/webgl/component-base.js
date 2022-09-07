@@ -1,5 +1,3 @@
-// import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
-import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { RecordVar } from "../../../KMN-varstack.js/structures/record.js";
 import { ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
@@ -120,6 +118,8 @@ export class ValuePointerControl extends PassiveValueControl {
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
+    this._pointerTracker.update();
+
     let pt = this._pointerTracker;
     info.mouse.x = ~~pt.currentX;
     info.mouse.y = ~~pt.currentY;
@@ -200,21 +200,27 @@ export class BooleanControl {
   }
 }
 export class BooleanPointerControl extends BooleanControl {
+  /**
+   * 
+   * @param {IRectangle} element 
+   * @param {BaseVar} valueVar 
+   */
   constructor(element, valueVar) {
     super(element, valueVar);
-    this._pointerTracker = new PointerTracker(this._element);
+    this._pointerTracker = new PointerInfo(this._element);
   }
 
   /**@param {import("./render-control.js").RectInfo} info */
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
+    this._pointerTracker.update();
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
     info.mouse.x = ~~pt.currentX;
     info.mouse.y = ~~pt.currentY;
     info.mouse.state =
-      (pt.isInside > 0 ? 1 : 0)
-      + (pt.isDown > 0 ? 2 : 0);
+      (pt.isInside ? 1 : 0)
+      + (pt.isDown ? 2 : 0);
   }
 
   dispose() {
@@ -315,9 +321,9 @@ export class ToggleButtonControl extends BooleanPointerControl {
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
 
-    if (pt.isDown > 0) {
+    if (pt.isDown) {
       this.mouseDownInside = true;
     } else {
       // let x = info.mouse.x - info.size.centerX;
@@ -344,9 +350,9 @@ export class ActionButtonControl extends BooleanPointerControl {
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
 
-    if (pt.isDown > 0) {
+    if (pt.isDown) {
       this.mouseDownInside = true;
     } else {
       // let x = info.mouse.x - info.size.centerX;

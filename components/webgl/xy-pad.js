@@ -1,7 +1,7 @@
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, Value2PointerControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
-import { RenderControl} from "./render-control.js";
+import { IRectangle, RenderControl} from "./render-control.js";
 
 registerComponentShader('xy-pad',/*glsl*/`
 // #include distance-drawing
@@ -26,7 +26,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 class XYPadControl extends Value2PointerControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {FloatVar} xVar 
    * @param {FloatVar} yVar 
    */
@@ -38,9 +38,9 @@ class XYPadControl extends Value2PointerControl {
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
 
-    if (pt.isDown > 0) {
+    if (pt.isDown) {
       this.value = pt.currentX / info.size.width;
       this.value2 = (info.size.height - pt.currentY) / info.size.height;
     }
@@ -59,7 +59,7 @@ class XYPadControl extends Value2PointerControl {
 }
 export class XYPadElement extends BaseValueComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {FloatVar} xVar
    * @param {FloatVar} yVar
    */
@@ -86,7 +86,7 @@ export class XYPadElement extends BaseValueComponent {
 
 class XYPadDemo extends XYPadElement {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), new FloatVar(), element);

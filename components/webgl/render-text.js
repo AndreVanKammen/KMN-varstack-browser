@@ -4,7 +4,7 @@ import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { Types } from "../../../KMN-varstack.js/varstack.js";
 import { BaseDemoComponent, BaseValueComponent, BooleanPointerControl, PassiveControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders } from "./component-shaders.js";
-import { ComponentInfo, getElementHash, RenderControl} from "./render-control.js";
+import { ComponentInfo, getElementHash, IRectangle, RenderControl} from "./render-control.js";
 import { HorizontalSliderControl } from "./sliders.js";
 
 ComponentShaders['distance-font'] = /*glsl*/`uniform float fontWeight;
@@ -879,7 +879,7 @@ export class LetterComponent {
 export class GLTextComponent {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {string} textStr 
    * @param {number} fontSize
    */
@@ -1019,7 +1019,7 @@ Types.addRecord('LetterTestSettings', {
 
 export class LetterTest extends BaseDemoComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    */
   constructor(element) {
     super();
