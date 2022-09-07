@@ -4,7 +4,6 @@ import { BaseDemoComponent } from "./component-base.js";
 import { ComponentShaderIncludes } from "./component-shader-includes.js";
 import { ComponentShaders } from "./component-shaders.js";
 
-
 const baseVertexShader = /*glsl*/`
 uniform sampler2D dataTexture;
 uniform vec2 canvasResolution;
@@ -65,13 +64,36 @@ void main(void) {
 }`;
 
 
+export class Rectangle {
+  height = 0;
+  width = 0;
+  x = 0;
+  y = 0;
+}
+
+export class IRectangle {
+  dataWebGLComponentHash = -1;
+  /**
+   * @returns {Rectangle}
+   */
+  getBoundingClientRect() {
+    return new Rectangle();
+  }
+  /**
+   * @returns {IRectangle}
+   */
+  $getClippingParent() {
+    return this;
+  }
+}
+
 /** @typedef {(info:RectInfo) => {}} UpdateFunc */
 /** @typedef {(info:ComponentInfo)=>void} ComponentUpdateFunc */
 /** @typedef {(gl: RenderingContextWithUtils, shaderProgram: import("../../../KMN-utils.js/webglutils.js").WebGLProgramExt)=>void} ShaderInitFunc */
 
 export class RectInfo {
   /** @type {UpdateFunc} */ onUpdate;
-  rect  = {x:0, y:0, width:0, height:0};
+  rect = new Rectangle();
   size  = {centerX:0, centerY:0, width:0, height:0};
   mouse = {x:0, y:0, state:0, enterTime:0};
   value = [0,0,0,0];
@@ -178,7 +200,7 @@ class CanvasUpdateRoutine {
   /**
    * @param {CanvasUpdateGroup} owner 
    * @param {()=>void} routine 
-   * @param {HTMLElement} clipElement
+   * @param {IRectangle} clipElement
    */
   constructor(owner, routine, clipElement) {
     this.owner = owner;
@@ -219,19 +241,19 @@ export class RenderControl {
   /**
    * 
    * @param {ComponentInfo} info 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    */
    static setClipBoxFromElement(info, element) {
     let box = element.getBoundingClientRect();
-    info.clipRect.width  = element.clientWidth;
-    info.clipRect.height = element.clientHeight;
+    info.clipRect.width  = box.width; // element.clientWidth;
+    info.clipRect.height = box.height; // element.clientHeight;
     info.clipRect.x = box.x;
     info.clipRect.y = box.y;
   }
   /**
    * 
    * @param {RectInfo} info 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    */
   static setBoxDataFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -248,12 +270,11 @@ export class RenderControl {
     info.size.height  = box.height;
   }
 
-  // TODO: convert HTMLElement to getcliprectInterface
   /**
    * Register another routine that draws on the canvas, they are grouped by name
    * @param {string} name
    * @param {() => {}} updateCanvasRoutine
-   * @param {HTMLElement} clipElement 
+   * @param {IRectangle} clipElement 
    * @returns {CanvasUpdateRoutine} Id for the registered routine, unique for its name
    */
   registerCanvasUpdate(name, updateCanvasRoutine, clipElement) {
@@ -557,7 +578,7 @@ export class RenderControl {
 
 let webGLElementHashCount = 1;
 /**
- * @param {Element} element
+ * @param {IRectangle} element
  */
 export function getElementHash(element)  {
   if (!element.dataWebGLComponentHash) {

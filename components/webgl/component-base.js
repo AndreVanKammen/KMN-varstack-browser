@@ -1,14 +1,16 @@
+// import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
 import { RecordVar } from "../../../KMN-varstack.js/structures/record.js";
 import { ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
-import { ComponentInfo, getElementHash, RenderControl } from "./render-control.js";
+import { PointerInfo } from "./pointer-info.js";
+import { ComponentInfo, getElementHash, IRectangle, RectInfo, RenderControl } from "./render-control.js";
 
 export class PassiveControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    */
   constructor(element) {
     this._element = element;
@@ -73,7 +75,7 @@ export class ValueControl  {
 export class PassiveValueControl extends PassiveControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -87,28 +89,43 @@ export class PassiveValueControl extends PassiveControl {
     this._valueControl.value = x;
   }
 }
+
+// class PointerTracker {
+//   /**
+//    * 
+//    * @param {IRectangle} element 
+//    */
+//   constructor(element) {
+//   }
+//   getLastPrimary() {
+//     return {};
+//   }
+//   dispose() {
+//   }
+// }
+
 export class ValuePointerControl extends PassiveValueControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {BaseVar} valueVar 
    */
    constructor(element, valueVar) {
     super(element, valueVar);
-     this._pointerTracker = new PointerTracker(this._element);
+     this._pointerTracker = new PointerInfo(this._element);
      this.overScanOnMouseDown = false;
   }
 
-  /**@param {import("./render-control.js").RectInfo} info */
+  /**@param {RectInfo} info */
   updateRenderInfo(info) {
     super.updateRenderInfo(info);
 
-    let pt = this._pointerTracker.getLastPrimary();
+    let pt = this._pointerTracker;
     info.mouse.x = ~~pt.currentX;
     info.mouse.y = ~~pt.currentY;
     info.mouse.state =
-      (pt.isInside > 0 ? 1 : 0)
-      + (pt.isDown > 0 ? 2 : 0);
+      (pt.isInside ? 1 : 0)
+      + (pt.isDown ? 2 : 0);
 
     if (pt.isDown && this.overScanOnMouseDown) {
       info.rect.width += 1000;
@@ -132,7 +149,7 @@ export class ValuePointerControl extends PassiveValueControl {
 export class Value2PointerControl extends ValuePointerControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {BaseVar} valueVar 
    * @param {BaseVar} valueVar2
    */
@@ -219,15 +236,9 @@ export class BaseDemoComponent {
   dispose() {
   }
 }
-
-
-// @param {new (HTMLElement,BaseVar) => T0} ControlClass - A generic parameter that flows through to the return type
-/**
- * @template {PassiveControl} T0
- */
 export class BaseValueComponent extends BaseDemoComponent {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {PassiveControl} controlClass
    * @param {string} shaderName
    */
@@ -291,7 +302,7 @@ export class BaseValueComponent extends BaseDemoComponent {
 export class ToggleButtonControl extends BooleanPointerControl {
   /**
    * 
-   * @param {HTMLElement} element 
+   * @param {IRectangle} element 
    * @param {BoolVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -321,7 +332,7 @@ export class ToggleButtonControl extends BooleanPointerControl {
 
 export class ActionButtonControl extends BooleanPointerControl {
   /**
-   * @param {HTMLElement} element
+   * @param {IRectangle} element
    * @param {ActionVar} valueVar
    */
    constructor(element, valueVar) {
