@@ -29,12 +29,13 @@ export class PointerInfo {
     this.currentX = this.info.currentX - this.box.x;
     this.currentY = this.info.currentY - this.box.y;
     let btn0 = this.info?.buttons?.[0];
+    let down = btn0?.down;
     // pointer tracker stores down position so we can check if we are in capture mode of this button
-    let downInside = btn0?.down && this.checkInside(btn0.x - this.box.x, btn0.y - this.box.y);
+    let downInside = down && this.checkInside(btn0.x - this.box.x, btn0.y - this.box.y);
     // check if inside or captured but not captured by another
-    this.isInside = (this.checkInside(this.currentX, this.currentY) || downInside) && !(btn0?.down && !downInside);
+    this.isInside = (this.checkInside(this.currentX, this.currentY) || downInside) && !(down && !downInside);
     // by using isindie we are sure that the down is for us
-    this.isDown = this.isInside && btn0.down;
+    this.isDown = this.isInside && down;
   }
 
   dispose() {
