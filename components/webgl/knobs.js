@@ -5,6 +5,7 @@ import { ComponentShaders, registerComponentShader } from "./component-shaders.j
 import { IRectangle, RenderControl} from "./render-control.js";
 
 registerComponentShader('turn-knob',/*glsl*/`
+
 // #include distance-drawing
 // #include default-constants
 
@@ -19,15 +20,15 @@ vec4 renderComponent(vec2 center, vec2 size) {
   mat2 rotate = mat2(
       cos(angle),-sin(angle),
       sin(angle), cos(angle));
-  
+  float knob_radius = 0.625 - (mouseDown?0.075:0.0);
   float dist = 100.0;
-  float knobDist = drw_Circle(posSize.xy, maxS * 0.6);
+  float knobDist = drw_Circle(posSize.xy, maxS * knob_radius);
      
   dst_Combine(dist,
                drw_Rectangle(
       posSize.xy * rotate,
-      maxS * vec2(0.0,  0.3),
-      maxS * vec2(0.01, 0.3 )) - 0.05 * maxS-1.0);
+      maxS * vec2(0.0,  0.325),
+      maxS * vec2(0.01, 0.325 )) - 0.05 * maxS-1.0);
     
   vec4 posSize2 = tf_CircleSegments( posSize,
                                      minSize(posSize) * 0.8,
@@ -36,11 +37,14 @@ vec4 renderComponent(vec2 center, vec2 size) {
                                      11,1);
   maxS = minSize(posSize2);
   dst_Combine(dist,
-               drw_Rectangle(posSize2.xy,vec2(0.0),maxS*vec2(0.15,0.15))-0.2*maxS);
+               drw_Rectangle(
+      posSize2.xy,
+      vec2(0.0),
+      maxS * vec2(0.15,0.15)) - 0.2 * maxS);
   posSize.xy *= rotate;
    
   vec4 posSize3 = tf_CircleSegments( posSize,
-                                     minSize(posSize) * 0.6,
+                                     minSize(posSize) * knob_radius,
                                      -pi,
                                      pi,
                                      10,1);
