@@ -1,7 +1,7 @@
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
 import { BaseValueComponent, PassiveValueControl, ValueControl } from "./component-base.js";
 import { registerComponentShader } from "./component-shaders.js";
-import { IRectangle, RenderControl } from "./render-control.js";
+import { RenderControl } from "./render-control.js";
 
 registerComponentShader("verticalLevel",/*glsl*/`
 vec4 renderComponent(vec2 center, vec2 size) {
@@ -13,7 +13,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class VerticalLevelElement extends BaseValueComponent {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} levelVar
    */
   constructor(levelVar, element, shaderName) {
