@@ -8,7 +8,7 @@ import { BaseBinding, BaseVar } from "../../KMN-varstack.js/vars/base.js";
 export class InnerTextBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
-   * @param {import("../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../TS/varstack-browser.js").IRectangle} element
   */
    constructor (baseVar, element) {
     super(baseVar);

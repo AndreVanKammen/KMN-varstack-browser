@@ -139,7 +139,7 @@ class InputBinding extends BaseBinding {
 class EnumDropDownBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
-   * @param {import('../../../TS/varstack-browser.js').IRectangle} element
+   * @param {import('../TS/varstack-browser.js').IRectangle} element
   */
    constructor (baseVar, element) {
     super(baseVar);
@@ -179,7 +179,7 @@ class EnumDropDownBinding extends BaseBinding {
 export class CreateInputBinding extends BaseBinding {
   /** 
    * @param {BaseVar} baseVar
-   * @param {import('../../../TS/varstack-browser.js').IRectangle} element
+   * @param {import('../TS/varstack-browser.js').IRectangle} element
   */
   constructor (baseVar, element) {
     super(baseVar)

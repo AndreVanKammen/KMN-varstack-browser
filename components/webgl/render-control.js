@@ -182,7 +182,7 @@ class CanvasUpdateRoutine {
   /**
    * @param {CanvasUpdateGroup} owner 
    * @param {()=>void} routine 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} clipElement
+   * @param {import("../../TS/varstack-browser.js").IRectangle} clipElement
    */
   constructor(owner, routine, clipElement) {
     this.owner = owner;
@@ -223,7 +223,7 @@ export class RenderControl {
   /**
    * 
    * @param {ComponentInfo} info 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    */
    static setClipBoxFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -235,7 +235,7 @@ export class RenderControl {
   /**
    * 
    * @param {RectInfo} info 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    */
   static setBoxDataFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -256,7 +256,7 @@ export class RenderControl {
    * Register another routine that draws on the canvas, they are grouped by name
    * @param {string} name
    * @param {() => {}} updateCanvasRoutine
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} clipElement 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} clipElement 
    * @returns {CanvasUpdateRoutine} Id for the registered routine, unique for its name
    */
   registerCanvasUpdate(name, updateCanvasRoutine, clipElement) {
@@ -560,7 +560,7 @@ export class RenderControl {
 
 let webGLElementHashCount = 1;
 /**
- * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+ * @param {import("../../TS/varstack-browser.js").IRectangle} element
  */
 export function getElementHash(element)  {
   if (!element.dataWebGLComponentHash) {

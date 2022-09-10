@@ -876,7 +876,7 @@ export class LetterComponent {
 export class GLTextComponent {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    * @param {string} textStr 
    * @param {number} fontSize
    */
@@ -985,7 +985,7 @@ export class GLTextBinding extends BaseBinding {
   /**
    * 
    * @param {BaseVar} baseVar 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    */
   constructor (baseVar, element) {
     super(baseVar);
@@ -1005,7 +1005,7 @@ export class GLTextBinding extends BaseBinding {
 
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    */
   setElement (element) {
     this.element = element;
@@ -1027,7 +1027,7 @@ Types.addRecord('LetterTestSettings', {
 
 export class LetterTest extends BaseDemoComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
   constructor(element) {
     super();

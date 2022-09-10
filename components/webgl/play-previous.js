@@ -29,7 +29,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class PlayPreviousElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
@@ -45,7 +45,7 @@ export class PlayPreviousElement extends BaseValueComponent {
 }
 class PlayPreviousDemo extends PlayPreviousElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new ActionHandler(), element);

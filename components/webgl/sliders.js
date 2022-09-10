@@ -71,7 +71,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class HorizontalSliderControl extends ValuePointerControl {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    * @param {FloatVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -111,7 +111,7 @@ export class HorizontalSliderControl extends ValuePointerControl {
 export class VerticalSliderControl extends ValuePointerControl {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    * @param {FloatVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -134,7 +134,7 @@ export class VerticalSliderControl extends ValuePointerControl {
 
 export class HorizontalSliderElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
@@ -151,7 +151,7 @@ export class HorizontalSliderElement extends BaseValueComponent {
 
 export class VerticalSliderElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
@@ -167,7 +167,7 @@ export class VerticalSliderElement extends BaseValueComponent {
 }
 class VerticalSliderDemo extends VerticalSliderElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);
@@ -176,7 +176,7 @@ class VerticalSliderDemo extends VerticalSliderElement {
 
 class HorizontalSliderDemo extends HorizontalSliderElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);

@@ -50,7 +50,7 @@ class TableRectangle {
   }
   
   /**
-   * @returns {import("../../../TS/varstack-browser").IRect}
+   * @returns {import("../TS/varstack-browser").IRect}
    */
   getBoundingClientRect() {
     this.parentRect = this._owner.parentElement.getBoundingClientRect();
@@ -59,7 +59,7 @@ class TableRectangle {
     return this.ourRectangle;
   }
   /**
-   * @returns {import("../../../TS/varstack-browser").IRectangle}
+   * @returns {import("../TS/varstack-browser").IRectangle}
    */
   $getClippingParent() {
     return this._owner.parentElement;
@@ -153,7 +153,7 @@ class ColumnInfo {
    * @param {Number} x
    * @param {String} fieldName 
    * @param {String} headerName 
-   * @param {new(baseVar: BaseVar, rectangle: import("../../../TS/varstack-browser").IRectangle) => any} defaultBinding 
+   * @param {new(baseVar: BaseVar, rectangle: import("../TS/varstack-browser").IRectangle) => any} defaultBinding 
    */
   constructor(owner, x, fieldName, headerName, defaultBinding) {
     this._owner = owner;
@@ -178,14 +178,14 @@ class ColumnInfo {
 /**
  * @template {RecordVar} R 
  * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
- * @type {import('../../../TS/varstack-browser').TableBuilderG<T,R>}
+ * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilder {
   /**
    * 
    * @param {HTMLElement} element 
    * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table 
-   * @param {import('../../../TS/varstack-browser').TableBuilderOptions<import('../../../TS/varstack-browser').ArrayTableType<T>>} options 
+   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options 
    */
   constructor(element, table, options) {
     addCSS('table-builder-vs', cssStr);

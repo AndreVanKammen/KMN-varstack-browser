@@ -62,7 +62,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class RotationKnobControl extends ValuePointerControl {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -89,7 +89,7 @@ export class RotationKnobControl extends ValuePointerControl {
 }
 export class KnobElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
@@ -106,7 +106,7 @@ export class KnobElement extends BaseValueComponent {
 
 class KnobDemo extends KnobElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);

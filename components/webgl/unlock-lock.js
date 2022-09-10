@@ -38,7 +38,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 `);
 export class UnlockLockElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {BoolVar} boolVar
    */
   constructor(boolVar, element) {
@@ -57,7 +57,7 @@ export class UnlockLockElement extends BaseValueComponent {
 
 class UnlockLockDemo extends UnlockLockElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new BoolVar(), element);

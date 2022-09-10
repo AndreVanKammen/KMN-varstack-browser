@@ -196,14 +196,14 @@ tr.${kmnClassName}.add-row {
 /**
  * @template {RecordVar} R 
  * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
- * @type {import('../../../TS/varstack-browser').TableBuilderG<T,R>}
+ * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilder {
   /**
    * 
    * @param {HTMLElement} element 
    * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table 
-   * @param {import('../../../TS/varstack-browser').TableBuilderOptions<import('../../../TS/varstack-browser').ArrayTableType<T>>} options 
+   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options 
    */
   constructor(element, table, options) {
     this.table = table;
@@ -275,7 +275,7 @@ class TableBuilder {
    * @param {RecordVar} rec 
    * @param {String} name 
    * @param {String} pathData 
-   * @param {(rec: import("../../../TS/varstack-browser").ArrayTableType<T>) => void} func 
+   * @param {(rec: import("../TS/varstack-browser").ArrayTableType<T>) => void} func 
    */
   addFunc(row, tagName, rec, name, pathData, func) {
     let el = row.$el({ tag: tagName, cls: name });

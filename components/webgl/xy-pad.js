@@ -26,7 +26,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 class XYPadControl extends Value2PointerControl {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
    * @param {FloatVar} xVar 
    * @param {FloatVar} yVar 
    */
@@ -59,7 +59,7 @@ class XYPadControl extends Value2PointerControl {
 }
 export class XYPadElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} xVar
    * @param {FloatVar} yVar
    */
@@ -86,7 +86,7 @@ export class XYPadElement extends BaseValueComponent {
 
 class XYPadDemo extends XYPadElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), new FloatVar(), element);

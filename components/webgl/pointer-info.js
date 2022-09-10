@@ -6,7 +6,7 @@ let globalTracker = null;
 export class PointerInfo {
   /**
    * 
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} rectangle 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} rectangle 
    */
   constructor(rectangle) {
     if (!globalTracker) {

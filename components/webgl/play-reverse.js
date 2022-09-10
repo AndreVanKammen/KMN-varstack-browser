@@ -28,7 +28,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class PlayReverseElement extends BaseValueComponent {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {ActionVar} boolVar
    */
   constructor(boolVar, element) {
@@ -44,7 +44,7 @@ export class PlayReverseElement extends BaseValueComponent {
 }
 class PlayReverseDemo extends PlayReverseElement {
   /**
-   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new ActionHandler(), element);
