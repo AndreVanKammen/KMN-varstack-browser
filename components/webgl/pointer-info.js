@@ -1,5 +1,4 @@
 import { PointerTracker } from "../../../KMN-utils-browser/pointer-tracker.js";
-import { IRectangle } from "./render-control.js";
 
 /** @type {PointerTracker} */
 let globalTracker = null;
@@ -7,7 +6,7 @@ let globalTracker = null;
 export class PointerInfo {
   /**
    * 
-   * @param {IRectangle} rectangle 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} rectangle 
    */
   constructor(rectangle) {
     if (!globalTracker) {

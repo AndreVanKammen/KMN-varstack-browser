@@ -3,12 +3,12 @@ import { ActionVar } from "../../../KMN-varstack.js/vars/action.js";
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
 import { PointerInfo } from "./pointer-info.js";
-import { ComponentInfo, getElementHash, IRectangle, RectInfo, RenderControl } from "./render-control.js";
+import { ComponentInfo, getElementHash, RectInfo, RenderControl } from "./render-control.js";
 
 export class PassiveControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    */
   constructor(element) {
     this._element = element;
@@ -73,7 +73,7 @@ export class ValueControl  {
 export class PassiveValueControl extends PassiveControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -105,7 +105,7 @@ export class PassiveValueControl extends PassiveControl {
 export class ValuePointerControl extends PassiveValueControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    */
    constructor(element, valueVar) {
@@ -149,7 +149,7 @@ export class ValuePointerControl extends PassiveValueControl {
 export class Value2PointerControl extends ValuePointerControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    * @param {BaseVar} valueVar2
    */
@@ -202,7 +202,7 @@ export class BooleanControl {
 export class BooleanPointerControl extends BooleanControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -244,7 +244,7 @@ export class BaseDemoComponent {
 }
 export class BaseValueComponent extends BaseDemoComponent {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    * @param {PassiveControl} controlClass
    * @param {string} shaderName
    */
@@ -308,7 +308,7 @@ export class BaseValueComponent extends BaseDemoComponent {
 export class ToggleButtonControl extends BooleanPointerControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BoolVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -338,7 +338,7 @@ export class ToggleButtonControl extends BooleanPointerControl {
 
 export class ActionButtonControl extends BooleanPointerControl {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    * @param {ActionVar} valueVar
    */
    constructor(element, valueVar) {

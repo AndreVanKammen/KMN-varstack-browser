@@ -2,12 +2,15 @@
 // Licensed under CC BY-NC-SA 
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-import { BaseBinding } from "../../KMN-varstack.js/vars/base.js";
-import { GLTextBinding } from "../components/webgl/render-text.js";
+import { BaseBinding, BaseVar } from "../../KMN-varstack.js/vars/base.js";
 
 
 export class InnerTextBinding extends BaseBinding {
-  constructor (baseVar, element) {
+  /** 
+   * @param {BaseVar} baseVar
+   * @param {import("../../../TS/varstack-browser.js").IRectangle} element
+  */
+   constructor (baseVar, element) {
     super(baseVar);
     if (element) {
       this.setElement(element);

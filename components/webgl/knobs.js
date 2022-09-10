@@ -1,8 +1,8 @@
 import { BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
-import { BaseValueComponent, ValueControl, ValuePointerControl } from "./component-base.js";
-import { ComponentShaders, registerComponentShader } from "./component-shaders.js";
-import { IRectangle, RenderControl} from "./render-control.js";
+import { BaseValueComponent, ValuePointerControl } from "./component-base.js";
+import { registerComponentShader } from "./component-shaders.js";
+import { RenderControl} from "./render-control.js";
 
 registerComponentShader('turn-knob',/*glsl*/`
 
@@ -62,7 +62,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
 export class RotationKnobControl extends ValuePointerControl {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {BaseVar} valueVar 
    */
   constructor(element, valueVar) {
@@ -89,7 +89,7 @@ export class RotationKnobControl extends ValuePointerControl {
 }
 export class KnobElement extends BaseValueComponent {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
@@ -106,7 +106,7 @@ export class KnobElement extends BaseValueComponent {
 
 class KnobDemo extends KnobElement {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    */
    constructor(element) {
      super(new FloatVar(), element);

@@ -6,7 +6,7 @@ import svgIcon from "../../KMN-utils-browser/svg-icons.js";
 import log from "../../KMN-varstack.js/core/log.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
-import { BaseBinding, BaseVar } from "../../KMN-varstack.js/vars/base.js";
+import { BaseBinding, BaseDefinition, BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import { addCSS } from "../utils/html-utils.js";
 import { defaultTextBinding } from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
@@ -17,6 +17,61 @@ const cssStr = /*css*/`
   overflow: hidden;
 }
 `;
+
+class TableRectangle {
+  constructor(owner) {
+    this.dataWebGLComponentHash = -1;
+    this._owner = owner;
+    this.ourRectangle = { x: 0, y: 0, width: 32, height: 32 };
+    // TODO
+    this.onclick = () => { };
+  }
+
+  createAndUpdateElement() {
+    if (!this._element) {
+      this._element = this._owner.parentElement.$el({ tag: 'div', cls: 't-div' });
+    }
+  
+    this._element.style.left = this.x + 'px';
+    this._element.style.top = this.y + 'px';
+    this._element.style.width = this.ourRectangle.width + 'px';
+    this._element.style.height = this.ourRectangle.height + 'px';
+    this._element.onclick = this.onclick;
+  }
+
+  setRectangle(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.ourRectangle.width = width;
+    this.ourRectangle.height = height;
+    if (this._element) {
+      this.createAndUpdateElement();
+    }
+  }
+  
+  /**
+   * @returns {import("../../../TS/varstack-browser").IRect}
+   */
+  getBoundingClientRect() {
+    this.parentRect = this._owner.parentElement.getBoundingClientRect();
+    this.ourRectangle.x = this.x + this.parentRect.x - this._owner.parentElement.scrollLeft;
+    this.ourRectangle.y = this.y + this.parentRect.y - this._owner.parentElement.scrollTop;
+    return this.ourRectangle;
+  }
+  /**
+   * @returns {import("../../../TS/varstack-browser").IRectangle}
+   */
+  $getClippingParent() {
+    return this._owner.parentElement;
+  }
+
+  $el(...params) {
+    this.createAndUpdateElement();
+    return this._element.$el(...params);
+  }
+}
+
+
 /**
  * Abstaction for HTML elements, want to be able to replace it with other (shader) stuff
  */
@@ -33,19 +88,19 @@ class RectElement {
     this._column = column;
     this._row = row;
     this._var = v;
+    /** @type {TableRectangle} */
     this._element = null; // this._owner.parentElement.$el({ tag: 'div' });
     this._binding = null;
   }
 
   update() {
     if (!this._element) {
-      this._element = this._owner.parentElement.$el({ tag: 'div', cls: 't-div' });
+      this._element = new TableRectangle(this._owner);
       this._element.onclick = this._owner.handleRowClick.bind(this._owner, this._row._rec, -1);
     }
     if (!this._binding) {
-      // @ts-ignore Youre annoying sometimes!
       this._binding = new this._column._defaultBinding(this._var, this._element);
-      // TODO Implement variable bindings
+      // TODO Implement variable bindings, or make a binding for variable bindings that handles this
       // let changeDef = rec['_' + fieldName + '_def'];
       // if (changeDef) {
       //   changeDef.$addEvent(() => {
@@ -54,10 +109,11 @@ class RectElement {
       //   });
       // }
     }
-    this._element.style.left = this._column._x + 'px';
-    this._element.style.width = this._column._width  + 'px';
-    this._element.style.top = this._row._y + 'px';
-    this._element.style.height = this._row._height + 'px';
+    this._element.setRectangle(
+      this._column._x,
+      this._row._y,
+      this._column._width,
+      this._row._height);
   }
 }
 
@@ -90,13 +146,14 @@ class RowInfo {
   }
 }
 
+
 class ColumnInfo {
   /**
    * @param {TableBuilder} owner
    * @param {Number} x
    * @param {String} fieldName 
    * @param {String} headerName 
-   * @param {typeof BaseBinding} defaultBinding 
+   * @param {new(baseVar: BaseVar, rectangle: import("../../../TS/varstack-browser").IRectangle) => any} defaultBinding 
    */
   constructor(owner, x, fieldName, headerName, defaultBinding) {
     this._owner = owner;
@@ -104,21 +161,31 @@ class ColumnInfo {
     this._headerName = headerName;
     this._defaultBinding = defaultBinding;
     this._x = x;
+    /** @type {BaseDefinition} */
+    this._fiedDef = null;
     this._width = 300;
+    for (let def of this._owner.table.fieldDefs) {
+      if (fieldName === def.name) {
+        this._fiedDef = def;
+        if (def.screenWidth > 0) {
+          this._width = def.screenWidth;
+        }
+      }
+    }
   }
 }
 
 /**
  * @template {RecordVar} R 
  * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
- * @type {import('../../../TS/table-builder').TableBuilderG<T,R>}
+ * @type {import('../../../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilder {
   /**
    * 
    * @param {HTMLElement} element 
    * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table 
-   * @param {import('../../../TS/table-builder').TableBuilderOptions<import('../../../TS/table-builder').ArrayTableType<T>>} options 
+   * @param {import('../../../TS/varstack-browser').TableBuilderOptions<import('../../../TS/varstack-browser').ArrayTableType<T>>} options 
    */
   constructor(element, table, options) {
     addCSS('table-builder-vs', cssStr);
@@ -135,8 +202,8 @@ class TableBuilder {
     // TODO: global key and pointer handler
     // this.tableEl.onkeydown = this.handleKeyPress.bind(this);
 
+    const allNames = this.table.fieldNames;
     if (this.fieldNames) {
-      const allNames = this.table.elementType.prototype._fieldNames;
       for (let name of this.fieldNames) {
         if (allNames.indexOf(name) === -1) {
           // TODO check names with .
@@ -146,7 +213,7 @@ class TableBuilder {
         }
       }
     } else {
-      this.fieldNames = this.table.elementType.prototype._fieldNames;
+      this.fieldNames = allNames;
     }
 
     this.selectedRec = null;

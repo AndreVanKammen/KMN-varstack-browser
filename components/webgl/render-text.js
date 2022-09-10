@@ -1,11 +1,8 @@
-import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
-import { BoolVar } from "../../../KMN-varstack.js/vars/bool.js";
-import { FloatVar } from "../../../KMN-varstack.js/vars/float.js";
+import { BaseBinding, BaseVar } from "../../../KMN-varstack.js/vars/base.js";
 import { Types } from "../../../KMN-varstack.js/varstack.js";
 import { BaseDemoComponent, BaseValueComponent, BooleanPointerControl, PassiveControl, ValueControl, ValuePointerControl } from "./component-base.js";
 import { ComponentShaders } from "./component-shaders.js";
-import { ComponentInfo, getElementHash, IRectangle, RenderControl} from "./render-control.js";
-import { HorizontalSliderControl } from "./sliders.js";
+import { ComponentInfo, RenderControl} from "./render-control.js";
 
 ComponentShaders['distance-font'] = /*glsl*/`uniform float fontWeight;
 uniform float fontSharpness;
@@ -879,7 +876,7 @@ export class LetterComponent {
 export class GLTextComponent {
   /**
    * 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    * @param {string} textStr 
    * @param {number} fontSize
    */
@@ -985,6 +982,11 @@ export class GLTextComponent {
 }
 
 export class GLTextBinding extends BaseBinding {
+  /**
+   * 
+   * @param {BaseVar} baseVar 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   */
   constructor (baseVar, element) {
     super(baseVar);
     this.glText = null;
@@ -1001,9 +1003,15 @@ export class GLTextBinding extends BaseBinding {
     // this.element.innerText = this.baseVar.$niceStr;
   }
 
+  /**
+   * 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
+   */
   setElement (element) {
     this.element = element;
-    this.element.style.height = '16px';
+    // if (this.element.style) {
+    //   this.element.style.height = '16px';
+    // }
     this.changeEvent = this.baseVar.$addDeferedEvent(this.handleVarChanged.bind(this), true);
   }
 }
@@ -1019,7 +1027,7 @@ Types.addRecord('LetterTestSettings', {
 
 export class LetterTest extends BaseDemoComponent {
   /**
-   * @param {IRectangle} element
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
    */
   constructor(element) {
     super();

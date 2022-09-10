@@ -1,5 +1,6 @@
 import { animationFrame } from "../../../KMN-utils-browser/animation-frame.js";
 import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
+import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
 import { BaseDemoComponent } from "./component-base.js";
 import { ComponentShaderIncludes } from "./component-shader-includes.js";
 import { ComponentShaders } from "./component-shaders.js";
@@ -64,27 +65,8 @@ void main(void) {
 }`;
 
 
-export class Rectangle {
-  height = 0;
-  width = 0;
-  x = 0;
-  y = 0;
-}
+export class BaseRectangleBinding extends BaseBinding {
 
-export class IRectangle {
-  dataWebGLComponentHash = -1;
-  /**
-   * @returns {Rectangle}
-   */
-  getBoundingClientRect() {
-    return new Rectangle();
-  }
-  /**
-   * @returns {IRectangle}
-   */
-  $getClippingParent() {
-    return this;
-  }
 }
 
 /** @typedef {(info:RectInfo) => {}} UpdateFunc */
@@ -93,7 +75,7 @@ export class IRectangle {
 
 export class RectInfo {
   /** @type {UpdateFunc} */ onUpdate;
-  rect = new Rectangle();
+  rect = { x: 0, y: 0, width: 32, height: 32 };
   size  = {centerX:0, centerY:0, width:0, height:0};
   mouse = {x:0, y:0, state:0, enterTime:0};
   value = [0,0,0,0];
@@ -200,7 +182,7 @@ class CanvasUpdateRoutine {
   /**
    * @param {CanvasUpdateGroup} owner 
    * @param {()=>void} routine 
-   * @param {IRectangle} clipElement
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} clipElement
    */
   constructor(owner, routine, clipElement) {
     this.owner = owner;
@@ -241,7 +223,7 @@ export class RenderControl {
   /**
    * 
    * @param {ComponentInfo} info 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    */
    static setClipBoxFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -253,7 +235,7 @@ export class RenderControl {
   /**
    * 
    * @param {RectInfo} info 
-   * @param {IRectangle} element 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} element 
    */
   static setBoxDataFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -274,7 +256,7 @@ export class RenderControl {
    * Register another routine that draws on the canvas, they are grouped by name
    * @param {string} name
    * @param {() => {}} updateCanvasRoutine
-   * @param {IRectangle} clipElement 
+   * @param {import("../../../../TS/varstack-browser.js").IRectangle} clipElement 
    * @returns {CanvasUpdateRoutine} Id for the registered routine, unique for its name
    */
   registerCanvasUpdate(name, updateCanvasRoutine, clipElement) {
@@ -578,7 +560,7 @@ export class RenderControl {
 
 let webGLElementHashCount = 1;
 /**
- * @param {IRectangle} element
+ * @param {import("../../../../TS/varstack-browser.js").IRectangle} element
  */
 export function getElementHash(element)  {
   if (!element.dataWebGLComponentHash) {
