@@ -108,7 +108,9 @@ class InputBuilder {
     if (!this.options.hideInput) {
       input = new CreateInputBinding(v, row.$el({ tag: 'td', cls: 'isInput' }));
       this.bindings.push(input);
-      input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
+      if (input.parentElement instanceof HTMLElement) {
+        input.parentElement.onclick = (event) => this.options.onInputClick(event, labelName, v);
+      }
       // @ts-ignore
       if (input.binding.element) {
         // @ts-ignore

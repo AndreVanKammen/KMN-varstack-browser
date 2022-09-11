@@ -873,6 +873,45 @@ export class LetterComponent {
   }
 }
 
+class TextBox {
+  constructor(element, clipElement) {
+    this.element = element;
+    this.clipElement = clipElement,
+      // viewport
+      this.x = 0;
+    this.y = 0;
+    this.w = 0;
+    this.h = 0;
+    // cropbox
+    this.cx = 0;
+    this.cy = 0;
+    this.cw = 0;
+    this.ch = 0;
+    this.lastUpd = RenderControl.geInstance().drawCount;
+  }
+
+  update() {
+    // @ts-ignore this is the current object we are called upon TS seems to mis that here
+    if (this.lastUpd !== RenderControl.geInstance().drawCount) {
+      // @ts-ignore
+      let clipBox = this.clipElement.getBoundingClientRect();
+      // @ts-ignore
+      let box = this.element.getBoundingClientRect();
+      this.x = box.x;
+      this.y = box.y;
+      this.w = box.width;
+      this.h = box.height;
+      this.cx = Math.max(clipBox.x - box.x, 0);
+      this.cy = Math.max(clipBox.y - box.y, 0);
+      this.cw = Math.min(box.width, (clipBox.x + clipBox.width) - box.x);
+      this.ch = Math.min(box.height, (clipBox.y + clipBox.height) - box.y);
+
+      this.lastUpd = RenderControl.geInstance().drawCount;
+    }
+  }
+}
+
+
 export class GLTextComponent {
   /**
    * 
@@ -886,40 +925,7 @@ export class GLTextComponent {
     this.element = element;
     this.textStr = textStr;
     this._fontSize = fontSize;
-    this.box = {
-      element,
-      clipElement: this.clipElement,
-      // viewport
-      x: 0,
-      y: 0,
-      w: 0,
-      h: 0,
-      // cropbox
-      cx: 0,
-      cy: 0,
-      cw: 0,
-      ch: 0,
-      lastUpd: RenderControl.geInstance().drawCount,
-      update: function () {
-        // @ts-ignore this is the current object we are called upon TS seems to mis that here
-        if (this.lastUpd !== RenderControl.geInstance().drawCount) {
-          // @ts-ignore
-          let clipBox = this.clipElement.getBoundingClientRect();
-          // @ts-ignore
-          let box = this.element.getBoundingClientRect();
-          this.x = box.x;
-          this.y = box.y;
-          this.w = box.width;
-          this.h = box.height;
-          this.cx = Math.max(clipBox.x - box.x, 0);
-          this.cy = Math.max(clipBox.y - box.y, 0);
-          this.cw = Math.min(box.width, (clipBox.x + clipBox.width) - box.x);
-          this.ch = Math.min(box.height, (clipBox.y + clipBox.height) - box.y);
-
-          this.lastUpd = RenderControl.geInstance().drawCount;
-        }
-      }
-    };
+    this.box = new TextBox(element, this.clipElement);
     this.build();
   }
 

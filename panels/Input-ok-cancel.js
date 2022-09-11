@@ -5,9 +5,7 @@
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
-import { Types } from '../../KMN-varstack.js/varstack.js';
 import InputBuilder from '../components/input-builder.js';
-import TableBuilder from '../components/table-builder.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
 const cssStr = /*css*/`

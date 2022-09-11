@@ -375,6 +375,7 @@ export class RenderControl {
           }
         }
       }
+      // console.log(pos / 16);
     }
     gl.viewport(0, 0, w, h);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);

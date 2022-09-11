@@ -45,7 +45,7 @@ export interface IRectangle {
     cls?: string;
   }): HTMLElementTagNameMap[K];
 
-  onclick: (ev:IClickEvent) => any;
+  // onclick: (ev:IClickEvent) => any;
 }
 
 type ArrayTableType<T> = T extends ArrayTableVarG<infer U> ? U: never;

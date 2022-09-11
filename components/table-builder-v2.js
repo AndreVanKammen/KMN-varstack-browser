@@ -2,14 +2,18 @@
 // Licensed under CC BY-NC-SA 
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+import { beforeAnimationFrame } from "../../KMN-utils-browser/animation-frame.js";
 import svgIcon from "../../KMN-utils-browser/svg-icons.js";
 import log from "../../KMN-varstack.js/core/log.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
+import { ActionHandler, ActionVar } from "../../KMN-varstack.js/vars/action.js";
 import { BaseBinding, BaseDefinition, BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import { addCSS } from "../utils/html-utils.js";
 import { defaultTextBinding } from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
+import { SolidBackgroundElement } from "./webgl/background.js";
+import { PlayForwardElement } from "./webgl/play-forward.js";
 
 const cssStr = /*css*/`
 .t-div {
@@ -18,13 +22,51 @@ const cssStr = /*css*/`
 }
 `;
 
-class TableRectangle {
+class TableContainerRectangle {
   constructor(owner) {
+    this.dataWebGLComponentHash = 0;
+    this._owner = owner;
+    // TODO
+    this.onclick = () => { };
+    this.handleRectUpdateBound = this.handleRectUpdate.bind(this);
+    beforeAnimationFrame(this.handleRectUpdateBound);
+    this.handleRectUpdate();
+  }
+
+  handleRectUpdate() { 
+    this.ourRectangle = this._owner.parentElement.getBoundingClientRect();
+    this.scrollTop = this._owner.parentElement.scrollTop;
+    this.scrollLeft = this._owner.parentElement.scrollLeft;
+    beforeAnimationFrame(this.handleRectUpdateBound);
+  }
+
+  /**
+   * @returns {import("../TS/varstack-browser").IRect}
+   */
+  getBoundingClientRect() {
+    return this.ourRectangle;
+  }
+  /**
+   * @returns {import("../TS/varstack-browser").IRectangle}
+   */
+  $getClippingParent() {
+    return this._owner.parentElement;
+  }
+
+  $el(...params) {
+    return null;
+  }
+}
+
+class TableRectangle {
+  
+  constructor(owner, clickAction) {
     this.dataWebGLComponentHash = -1;
     this._owner = owner;
     this.ourRectangle = { x: 0, y: 0, width: 32, height: 32 };
     // TODO
-    this.onclick = () => { };
+    // this.onclick = () => { };
+    this.clickAction = clickAction;
   }
 
   createAndUpdateElement() {
@@ -36,7 +78,7 @@ class TableRectangle {
     this._element.style.top = this.y + 'px';
     this._element.style.width = this.ourRectangle.width + 'px';
     this._element.style.height = this.ourRectangle.height + 'px';
-    this._element.onclick = this.onclick;
+    this._element.onclick = () => this.clickAction.$v = true;
   }
 
   setRectangle(x, y, width, height) {
@@ -53,16 +95,16 @@ class TableRectangle {
    * @returns {import("../TS/varstack-browser").IRect}
    */
   getBoundingClientRect() {
-    this.parentRect = this._owner.parentElement.getBoundingClientRect();
-    this.ourRectangle.x = this.x + this.parentRect.x - this._owner.parentElement.scrollLeft;
-    this.ourRectangle.y = this.y + this.parentRect.y - this._owner.parentElement.scrollTop;
+    this.parentRect = this._owner.parentRectangle.getBoundingClientRect();
+    this.ourRectangle.x = this.x + this.parentRect.x - this._owner.parentRectangle.scrollLeft;
+    this.ourRectangle.y = this.y + this.parentRect.y - this._owner.parentRectangle.scrollTop;
     return this.ourRectangle;
   }
   /**
    * @returns {import("../TS/varstack-browser").IRectangle}
    */
   $getClippingParent() {
-    return this._owner.parentElement;
+    return this._owner.parentRectangle;
   }
 
   $el(...params) {
@@ -95,10 +137,12 @@ class RectElement {
 
   update() {
     if (!this._element) {
-      this._element = new TableRectangle(this._owner);
-      this._element.onclick = this._owner.handleRowClick.bind(this._owner, this._row._rec, -1);
+      this._element = new TableRectangle(this._owner, this._row.clickAction);
     }
     if (!this._binding) {
+      if (this._row.clickAction) {
+        this.backgroundEl = new SolidBackgroundElement(this._row.clickAction, this._element);
+      }
       this._binding = new this._column._defaultBinding(this._var, this._element);
       // TODO Implement variable bindings, or make a binding for variable bindings that handles this
       // let changeDef = rec['_' + fieldName + '_def'];
@@ -118,7 +162,8 @@ class RectElement {
 }
 
 class RowInfo {
-  constructor(rec, y, height) {
+  constructor(owner, rec, y, height) {
+    this._owner = owner;
     this._rec = rec;
     this._y = y;
     this._height = height;
@@ -127,6 +172,10 @@ class RowInfo {
 
     /** @type {RectElement[]} */
     this.cells = [];
+    this.clickAction = new ActionHandler(this.handleClickAction.bind(this));
+  }
+  handleClickAction(v) {
+    this._owner.handleRowClick(this._rec, -1)
   }
 
   get visible() {
@@ -143,6 +192,9 @@ class RowInfo {
 
   set selected(x) {
     this._selected = x;
+  }
+
+  dispose() {
   }
 }
 
@@ -198,6 +250,7 @@ class TableBuilder {
 
     this.parentElement = element;
     this.parentElement.style.overflow = 'auto';
+    this.parentRectangle = new TableContainerRectangle(this);
 
     // TODO: global key and pointer handler
     // this.tableEl.onkeydown = this.handleKeyPress.bind(this);
@@ -229,7 +282,7 @@ class TableBuilder {
     this.rowCache = {}
     
     if (!this.options.skipHeader) {
-      this.headerRow = new RowInfo(0, this._rowHeight);
+      this.headerRow = new RowInfo(this, 0, this._rowHeight);
     }
  
     /** @type {ColumnInfo[]} */
@@ -413,7 +466,7 @@ class TableBuilder {
       if (row) {
         row._y = currentY;
       } else {
-        row = new RowInfo(rec, currentY, this._rowHeight);
+        row = new RowInfo(this, rec, currentY, this._rowHeight);
         this._fillRow(row, rec);
         this.rowCache[rec.$hash] = row;
       }
