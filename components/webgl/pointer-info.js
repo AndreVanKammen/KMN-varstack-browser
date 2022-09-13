@@ -5,15 +5,22 @@ let globalTracker = null;
 
 export class PointerInfo {
   /**
-   * 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} rectangle 
+   *
+   * @param {import("../../TS/varstack-browser.js").IRectangle} rectangle
    */
   constructor(rectangle) {
-    if (!globalTracker) {
-      globalTracker = new PointerTracker(window, { cancelEvents: false });
+    if (rectangle instanceof EventTarget) {
+      this.hasLocalTracker = true;
+      this.tracker = new PointerTracker(rectangle, { cancelEvents: false });
+    } else {
+      this.hasLocalTracker = false;
+      if (!globalTracker) {
+        globalTracker = new PointerTracker(window, { cancelEvents: false });
+      }
+      this.tracker = globalTracker;
     }
     this.rectangle = rectangle;
-    this.info = globalTracker.getLastPrimary();
+    this.info = this.tracker.getLastPrimary();
     this.update();
   }
 
@@ -23,10 +30,15 @@ export class PointerInfo {
 }
 
   update() {
+    if (!this.tracker) {
+      return;
+    }
     this.box = this.rectangle.getBoundingClientRect();
-    this.info = globalTracker.getLastPrimary();
-    this.currentX = this.info.currentX - this.box.x;
-    this.currentY = this.info.currentY - this.box.y;
+    this.info = this.tracker.getLastPrimary();
+    if (this.hasLocalTracker) {
+      this.currentX = this.info.currentX - this.box.x;
+      this.currentY = this.info.currentY - this.box.y;
+    }
     let btn0 = this.info?.buttons?.[0];
     let down = btn0?.down;
     // pointer tracker stores down position so we can check if we are in capture mode of this button
@@ -38,5 +50,9 @@ export class PointerInfo {
   }
 
   dispose() {
+    if (this.hasLocalTracker) {
+      this.tracker.dispose();
+      this.tracker = null;
+    }
   }
 }
