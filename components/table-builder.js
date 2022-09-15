@@ -1,13 +1,11 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import svgIcon from "../../KMN-utils-browser/svg-icons.js";
 import log from "../../KMN-varstack.js/core/log.js";
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
 import { TableView } from "../../KMN-varstack.js/structures/table-view.js";
-import { ArrayTableVar, TableVar } from "../../KMN-varstack.js/structures/table.js";
-import { BaseVar } from "../../KMN-varstack.js/vars/base.js";
 import { addCSS, kmnClassName } from "../utils/html-utils.js";
 import { defaultTextBinding } from "../utils/inner-text-binding.js";
 import { CreateInputBinding } from "../utils/input-binding.js";
@@ -93,7 +91,7 @@ table.${kmnClassName} th {
   color: var(--tableHeaderColor);
   text-align: left;
   overflow: hidden;
-} 
+}
 table.${kmnClassName} th.selected {
   background: var(--activeColor);
 }
@@ -113,7 +111,7 @@ table.${kmnClassName} td {
   overflow: hidden;
   position: relative;
   padding: 1px 6px;
-  border-radius: 3px;  
+  border-radius: 3px;
   /* min-width: 34px; */
   /* background: var(--codeBackground); */
 }
@@ -178,7 +176,7 @@ tr.${kmnClassName}.selected td.${kmnClassName}.add-row,
 tr.${kmnClassName}:hover td.${kmnClassName}.add-row {
   stroke: var(--activeHoverColor);
 }
- 
+
 /* Don't no why i need to do this to get the position ok */
 th.${kmnClassName}.add svg {
   position: relative;
@@ -194,16 +192,16 @@ tr.${kmnClassName}.add-row {
 }
 `;
 /**
- * @template {RecordVar} R 
- * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
+ * @template {RecordVar} R
+ * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T
  * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilder {
   /**
-   * 
-   * @param {HTMLElement} element 
-   * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table 
-   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options 
+   *
+   * @param {HTMLElement} element
+   * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table
+   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options
    */
   constructor(element, table, options) {
     this.table = table;
@@ -257,6 +255,9 @@ class TableBuilder {
     }
     this.tableView = new TableView(this.table);
     this.table.addArrayChangeEvent(this.handleTableArrayChange.bind(this));
+    this.tableView.sortChanged.$addDeferedEvent(() => {
+      this.updateTable();
+    });
 
     if (this.headRow) {
       this.updateHeader();
@@ -269,13 +270,13 @@ class TableBuilder {
   }
 
   /**
-   * 
-   * @param {HTMLTableRowElement} row 
+   *
+   * @param {HTMLTableRowElement} row
    * @param {keyof HTMLElementTagNameMap} tagName
-   * @param {RecordVar} rec 
-   * @param {String} name 
-   * @param {String} pathData 
-   * @param {(rec: import("../TS/varstack-browser").ArrayTableType<T>) => void} func 
+   * @param {RecordVar} rec
+   * @param {String} name
+   * @param {String} pathData
+   * @param {(rec: import("../TS/varstack-browser").ArrayTableType<T>) => void} func
    */
   addFunc(row, tagName, rec, name, pathData, func) {
     let el = row.$el({ tag: tagName, cls: name });
@@ -286,7 +287,7 @@ class TableBuilder {
       func.call(this, rec);
     };
   }
-  
+
   moveDown() {
     let sortIx = this.sortArray.indexOf(this.selectedIx);
     if (sortIx >= 0 && sortIx < this.sortArray.length - 1) {
@@ -295,7 +296,7 @@ class TableBuilder {
       return true;
     }
   }
-  
+
   moveUp() {
     let sortIx = this.sortArray.indexOf(this.selectedIx);
     if (sortIx > 0) {
@@ -304,7 +305,7 @@ class TableBuilder {
       return true;
     }
   }
-  
+
   handleKeyPress(evt) {
     // TODO scroll into view
     if (evt.key === 'ArrowDown') {
@@ -372,7 +373,7 @@ class TableBuilder {
         }
         baseVar.$varDefinition.directInput = true;
         let inputElement = new CreateInputBinding(baseVar, inpDiv);
-          
+
         baseVar.$addDeferedEvent(() => {
           // Only if we are sorted on it to prevent filtering on setting min max
           if (this.tableView.sortField === fieldName) {
@@ -403,7 +404,7 @@ class TableBuilder {
           }
           let inputElement2 = new CreateInputBinding(baseVar2, inpDiv);
         }
-        
+
         if (this.options.sortOnHeaderClick) {
           headerElement.onclick = (evt) => {
             console.log(evt);
@@ -418,7 +419,7 @@ class TableBuilder {
           }
         }
         // @ts-ignore
-        // inputElement.binding.element?.onfocus = () => { 
+        // inputElement.binding.element?.onfocus = () => {
         //   headerElement.oncli
         // };
       } else {
