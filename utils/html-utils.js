@@ -1,5 +1,5 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 export let kmnClassName = 'kmn';
@@ -38,7 +38,7 @@ div.${kmnClassName} {
   --tableBackground: rgb(20, 20, 20);
   --tableHeaderBackground: rgb(32, 32, 32);
   --tableHeaderColor: rgb(164, 164, 164);
-  
+
   --tableHeaderHeight: 26px;
 
   --headerBackground: rgb(0,0,0);
@@ -51,7 +51,7 @@ div.${kmnClassName} {
   /*--activeHoverColor: rgb(62,62,192);*/
   --activeHoverColor: rgb(255,255,3);
   --activeforeHoverColor: rgb(18,18,18);
-  
+
   --activeforeGroundColor: rgb(255,255,255);
 
   --scrollBarThumb: rgb(64,64,64);
@@ -128,7 +128,7 @@ select.${kmnClassName} {
 option.${kmnClassName} {
   background: var(--codeBackground);
   /* ITS BEEN DECADES, BUT STILL THIS UNSTYLE-ABLE SELECT,
-     SO NO HTML 5 DOES NOT ROCK UNTIL IT FINALLY HAS DECENT 
+     SO NO HTML 5 DOES NOT ROCK UNTIL IT FINALLY HAS DECENT
      BASIC CONTROLS (AND HTML 5 IS STILL NOT FULLY IMPLEMENTED AFTER YEARS)
   height: 100px;
   padding: 100px;
@@ -195,7 +195,7 @@ textarea.${kmnClassName} {
   image-rendering: optimizeSpeed;
 }
 
-.${kmnClassName}.hidden {
+.${kmnClassName}.hidden, .hidden {
   display: none !important;
 }
 
