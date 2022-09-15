@@ -25,7 +25,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float dist = SS(posSize.xy / maxS + vec2(0.0,0.1))* maxS - maxS * 0.1;
   dist = min(dist,abs(length(posSize.xy) - maxS) - maxS * 0.15);
 
-  actionColor = mix(vec3(0.2), actionColor,value.x);
+  actionColor = mix(vec3(0.4), actionColor,value.x);
   actionColor *= mouseInside ? 1.0 : 0.8;
 
   return addColor(dist, actionColor);
