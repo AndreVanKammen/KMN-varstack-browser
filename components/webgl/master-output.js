@@ -7,6 +7,14 @@ const shaderName = 'master-output';
 registerComponentShader(shaderName, /*glsl*/`
 // #include distance-drawing
 // #include default-constants
+float line(vec2 p, vec2 a, vec2 b)
+{
+  vec2 pa = p - a;
+  vec2 ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+
 
 float MM(vec2 uv) {
   uv.y-=.1;
@@ -23,7 +31,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float dist = MM(posSize.xy / maxS + vec2(0.0,0.1))* maxS - maxS * 0.1;
   dist = min(dist,abs(length(posSize.xy) - maxS) - maxS * 0.15);
 
-  actionColor = mix(vec3(0.2), actionColor,value.x);
+  actionColor = mix(vec3(0.4), actionColor,value.x);
   actionColor *= mouseInside ? 1.0 : 0.8;
 
   return addColor(dist, actionColor);
