@@ -23,13 +23,13 @@ vec4 renderComponent(vec2 center, vec2 size) {
   float knob_radius = 0.625 - (mouseDown?0.075:0.0);
   float dist = 100.0;
   float knobDist = drw_Circle(posSize.xy, maxS * knob_radius);
-     
+
   dst_Combine(dist,
                drw_Rectangle(
       posSize.xy * rotate,
       maxS * vec2(0.0,  0.325),
       maxS * vec2(0.01, 0.325 )) - 0.05 * maxS-1.0);
-    
+
   vec4 posSize2 = tf_CircleSegments( posSize,
                                      minSize(posSize) * 0.8,
                                      -pi * 0.7,
@@ -42,7 +42,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
       vec2(0.0),
       maxS * vec2(0.15,0.15)) - 0.2 * maxS);
   posSize.xy *= rotate;
-   
+
   vec4 posSize3 = tf_CircleSegments( posSize,
                                      minSize(posSize) * knob_radius,
                                      -pi,
@@ -61,9 +61,9 @@ vec4 renderComponent(vec2 center, vec2 size) {
 `);
 export class RotationKnobControl extends ValuePointerControl {
   /**
-   * 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
-   * @param {BaseVar} valueVar 
+   *
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
+   * @param {BaseVar} valueVar
    */
   constructor(element, valueVar) {
     super(element, valueVar);
@@ -87,13 +87,45 @@ export class RotationKnobControl extends ValuePointerControl {
     info.value[0] = this.valueSmooth;
   }
 }
+export class DeltaUpDownControl extends ValuePointerControl {
+  /**
+   *
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
+   * @param {BaseVar} valueVar
+   */
+  constructor(element, valueVar) {
+    super(element, valueVar);
+    this.lastDeltaY = -1;
+    this.lastVal = this.value;
+  }
+
+  /**@param {import("./render-control.js").RectInfo} info */
+  updateRenderInfo(info) {
+    super.updateRenderInfo(info);
+
+    let pt = this._pointerTracker;
+
+    if (pt.isDown) {
+      if (this.lastDeltaY === -1) {
+        this.lastDeltaY = info.mouse.y;
+        this.lastVal = this.value;
+      }
+      let dy = this.lastDeltaY - info.mouse.y;
+      this.value = this.lastVal + dy / 400.0;
+    } else {
+      this.lastDeltaY = -1;
+      this.lastVal = this.value;
+    }
+    info.value[0] = this.value;
+  }
+}
 export class KnobElement extends BaseValueComponent {
   /**
    * @param {import("../../TS/varstack-browser.js").IRectangle} element
    * @param {FloatVar} sliderVar
    */
   constructor(sliderVar, element) {
-    super(element, new RotationKnobControl(element, sliderVar), 'turn-knob');
+    super(element, new DeltaUpDownControl(element, sliderVar), 'turn-knob');
   }
 
   static get preferredSize() {
@@ -114,4 +146,4 @@ class KnobDemo extends KnobElement {
 }
 
 
-RenderControl.geInstance().registerShader('turn-knob', KnobDemo, RotationKnobControl);
+RenderControl.geInstance().registerShader('turn-knob', KnobDemo, DeltaUpDownControl);

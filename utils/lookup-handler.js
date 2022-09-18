@@ -1,8 +1,8 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
-import TableBuilder from '../components/table-builder.js';
+import { TableBuilder } from '../components/table-builder.js';
 import { Types } from '../../KMN-varstack.js/varstack.js';
 import { ArrayTableVar, TableVar } from '../../KMN-varstack.js/structures/table.js';
 import { BaseVar } from '../../KMN-varstack.js/vars/base.js';
@@ -11,14 +11,14 @@ import defer from '../../KMN-utils.js/defer.js';
 /** @type {Record<string,TableBuilder>} */
 const tableViewCache = {};
 
-/** 
+/**
  * @param {BaseVar} baseVar
- * @return {TableBuilder} 
+ * @return {TableBuilder}
  */
 function getTableView(dropDown, baseVar, lookupTableName, showFieldName) {
   /** @type {import('../../../TS/data-model.js').ArrayTableVarG} */
   let tableVar;
-  // 
+  //
   if (lookupTableName.indexOf('.') !== -1) {
     tableVar = baseVar.$parent.$findVar(lookupTableName);
   } else {

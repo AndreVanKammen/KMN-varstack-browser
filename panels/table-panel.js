@@ -1,9 +1,9 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
-import TableBuilder from '../components/table-builder-v2.js';
+import { TableBuilder } from '../components/table-builder.js';
 // import TableBuilder from '../components/table-builder.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
@@ -29,11 +29,11 @@ class TablePanel extends PanelBase {
   initializeDOM(parentElement) {
     super.initializeDOM(parentElement);
     addCSS('table-panel',cssStr);
- 
+
     this.tableDiv = this.parentElement.$el({ cls: "tableDiv" });
 
     this.tableBuilder = new TableBuilder(
-      this.tableDiv, 
+      this.tableDiv,
       this.searchTable,
       {
         ...{

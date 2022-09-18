@@ -52,9 +52,10 @@ type ArrayTableType<T> = T extends ArrayTableVarG<infer U> ? U: never;
 
 // import { TableVar } from './table.js';
 export class TableBuilderG<T extends ArrayTableVarG<R>, R extends RecordVar> {
-  constructor(element : HTMLElement, table: T, options: TableBuilderOptions<R>)
-  htmlRows: HTMLTableRowElement[]
-  // constructor(element, table, options) 
+  constructor(element: HTMLElement, table: T, options: TableBuilderOptions<R>);
+  updateTable();
+  // htmlRows: HTMLTableRowElement[]
+  // constructor(element, table, options)
 
   // @ts-ignore
   // preEffects: ArrayTableVar;

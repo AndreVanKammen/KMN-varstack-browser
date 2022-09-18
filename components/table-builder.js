@@ -196,7 +196,7 @@ tr.${kmnClassName}.add-row {
  * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T
  * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
-class TableBuilder {
+class TableBuilderHTML {
   /**
    *
    * @param {HTMLElement} element
@@ -774,4 +774,12 @@ class TableBuilder {
   }
 }
 
-export default TableBuilder;
+/// /** @type {new<T extends import("../../../TS/data-model").ArrayTableVarG<R>, R extends RecordVar>(element: HTMLElement, table: T, options: import("../TS/varstack-browser").TableBuilderOptions<R>) => typeof TableBuilderG<T,R>} */
+export let TableBuilder = TableBuilderHTML;
+/**
+ *
+ * // @param {new<T,R>(element: HTMLElement, table: T, options: import("../TS/varstack-browser").TableBuilderOptions<R>) => typeof TableBuilderG}  newTableBuilderClass
+ */
+export function setTableBuikderClass(newTableBuilderClass) {
+  TableBuilder = newTableBuilderClass
+}
