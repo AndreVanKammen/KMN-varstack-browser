@@ -1,10 +1,10 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import PanelBase from '../../KMN-utils-browser/components/panel-base.js';
 import { getOpenTasksTable } from '../../KMN-varstack.js/utils/parallel-tasks.js';
-import TableBuilder from '../components/table-builder.js';
+import { TableBuilder } from '../components/table-builder.js';
 import { addCSS, kmnClassName } from '../utils/html-utils.js';
 
 const cssStr = /*css*/`
@@ -27,13 +27,13 @@ class ParralelTaskView extends PanelBase {
   initializeDOM(parentElement) {
     super.initializeDOM(parentElement);
     addCSS('task-view',cssStr);
- 
+
     this.synthSearchTableDiv = this.parentElement.$el({ cls: "taskViewTableDiv" });
 
 
     this.searchTableEl = new TableBuilder(
-      this.synthSearchTableDiv, 
-      getOpenTasksTable(), 
+      this.synthSearchTableDiv,
+      getOpenTasksTable(),
       {
         fieldNames: this.options.fieldNames,
         alternativeBindings: this.options.alternativeBindings,

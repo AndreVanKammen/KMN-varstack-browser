@@ -1,4 +1,4 @@
-import TableBuilder from "../components/table-builder.js";
+import { TableBuilder } from "../components/table-builder.js";
 import { addCSS, kmnClassName } from "./html-utils.js";
 
 /** @type {Record<string,TableBuilder>} */
@@ -62,7 +62,7 @@ export class LookUpDropdown {
     }
     this.dropDownElement.style.left = x.toFixed(2)+'px';
     this.dropDownElement.style.top = y.toFixed(2)+'px';
-      
+
     // tableView.tableEl.onfocus = null;
     this.tableBuilder.tableEl.focus();
     // tableView.tableEl.onfocus = element.onfocus;
