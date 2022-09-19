@@ -363,6 +363,9 @@ class TableBuilderHTML {
           this.tableView = new TableView(this.table);
         }
         let inpDiv = headerElement.$el({ cls: 'filter-input' });
+        inpDiv.onclick = event => {
+          event.stopPropagation()
+        };
         let baseVar = this.filterRec.$findVar(fieldName);
         let baseVar2 = this.filterRec2.$findVar(fieldName);
         // Give the var it's own definition
