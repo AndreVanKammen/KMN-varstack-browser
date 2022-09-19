@@ -46,6 +46,8 @@ div.${kmnClassName}.filter-input {
   position: relative;
   display: inline-block;
   height: 26px;
+  margin-top: -4px;
+  width: unset;
 }
 
 div.${kmnClassName}.selected-div {
@@ -253,9 +255,10 @@ class TableBuilderHTML {
       this.bindings[ix] =
         this.options.alternativeBindings[ix] || (this.options.inlineEdit ? CreateInputBinding : defaultTextBinding)
     }
+    /** @type {TableView} */
     this.tableView = new TableView(this.table);
     this.table.addArrayChangeEvent(this.handleTableArrayChange.bind(this));
-    this.tableView.sortChanged.$addDeferedEvent(() => {
+    this.tableView.viewChanged.$addDeferedEvent(() => {
       this.updateTable();
     });
 
@@ -329,6 +332,15 @@ class TableBuilderHTML {
     // console.log(evt);
   }
 
+  clearOtherFilters(skipFieldName) {
+    if (this.filterRec) {
+      for (let fieldName of this.fieldNames) {
+        if (fieldName !== skipFieldName && this.filterRec[fieldName].$varDefinition.type === 'String') {
+          this.filterRec[fieldName].$v = '';
+        }
+      }
+    }
+  }
   updateHeader() {
     if (!this.fieldNames) {
       log.error("No fields");
@@ -379,11 +391,11 @@ class TableBuilderHTML {
 
         baseVar.$addDeferedEvent(() => {
           // Only if we are sorted on it to prevent filtering on setting min max
-          if (this.tableView.sortField === fieldName) {
-            headerElement.$setSelected();
-            this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
-            this.updateTable();
+          if (baseVar.$sortValue) {
+            this.clearOtherFilters(fieldName);
           }
+          this.tableView.setFilter(fieldName, baseVar.$sortValue, baseVar2.$sortValue);
+          this.updateTable();
         });
 
         if (fieldDefIx >= 0 && this.table.elementType.prototype._fieldDefs[fieldDefIx].sortIsNumber) {
