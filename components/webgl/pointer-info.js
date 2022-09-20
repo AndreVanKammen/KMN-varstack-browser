@@ -36,8 +36,13 @@ export class PointerInfo {
     this.box = this.rectangle.getBoundingClientRect();
     this.info = this.tracker.getLastPrimary();
     if (this.hasLocalTracker) {
-      this.currentX = this.info.currentX - this.box.x;
-      this.currentY = this.info.currentY - this.box.y;
+      if (this.info.isInside) {
+        this.currentX = this.info.currentX - this.box.x;
+        this.currentY = this.info.currentY - this.box.y;
+      } else {
+        this.currentX = -1;
+        this.currentY = -1;
+      }
     }
     let btn0 = this.info?.buttons?.[0];
     let down = btn0?.down;
