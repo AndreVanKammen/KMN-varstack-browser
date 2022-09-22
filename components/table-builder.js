@@ -46,6 +46,7 @@ div.${kmnClassName}.filter-input {
   position: relative;
   display: inline-block;
   height: 26px;
+  max-width: 60%;
   margin-top: -4px;
   width: unset;
 }
@@ -88,6 +89,7 @@ table.${kmnClassName} .nr {
 }
 table.${kmnClassName} th {
   padding: 3px 6px;
+  vertical-align: middle;
   background: var(--tableHeaderBackground);
   font-weight: normal;
   color: var(--tableHeaderColor);

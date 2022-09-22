@@ -163,7 +163,7 @@ textarea.${kmnClassName},
 input.${kmnClassName} {
   border: none;
   color-scheme: dark;
-  background: rgb(0,0,0,0.25);
+  background: rgb(0,0,0,0.1);
   color: var(--headerColor);
   font: inherit;
   padding: 1px 4px 1px 4px;

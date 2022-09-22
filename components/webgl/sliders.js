@@ -21,7 +21,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
       posSize.xy + vec2((value.x-0.5)*maxS*2.0,0.0),
       radius);
 
-  dst_substract(distLine,distCircle-2.0);          
+  dst_substract(distLine,distCircle-2.0);
   vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
   //if (mouseFineTune) {
   //  dst_Combine(distLine,drw_Line(
@@ -54,7 +54,7 @@ vec4 renderComponent(vec2 center, vec2 size) {
       posSize.xy, vec2(0.0, (value.x-0.5)*maxS*2.0),
       vec2(posSize.z-2.0,radius)-borderRadius)-borderRadius;
 
-  dst_substract(distLine,distCircle-2.0);          
+  dst_substract(distLine,distCircle-2.0);
   dst_substract(distCircle,abs(((value.x-0.5)*maxS*2.0)-posSize.y)+0.5);
   vec3 fc = mouseInside?forgroundHoverColor:forgroundColor;
   //if (mouseFineTune) {
@@ -70,9 +70,9 @@ vec4 renderComponent(vec2 center, vec2 size) {
 
 export class HorizontalSliderControl extends ValuePointerControl {
   /**
-   * 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
-   * @param {FloatVar} valueVar 
+   *
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
+   * @param {FloatVar} valueVar
    */
   constructor(element, valueVar) {
     super(element, valueVar);
@@ -110,9 +110,9 @@ export class HorizontalSliderControl extends ValuePointerControl {
 }
 export class VerticalSliderControl extends ValuePointerControl {
   /**
-   * 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
-   * @param {FloatVar} valueVar 
+   *
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
+   * @param {FloatVar} valueVar
    */
   constructor(element, valueVar) {
     super(element, valueVar);

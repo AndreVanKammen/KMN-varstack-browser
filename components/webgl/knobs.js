@@ -10,7 +10,7 @@ registerComponentShader('turn-knob',/*glsl*/`
 // #include default-constants
 
 vec4 renderComponent(vec2 center, vec2 size) {
-  actionColor = vec3(0.5);
+  actionColor = vec3(0.9);
   vec4 posSize = vec4((localCoord.xy-center) * -1.0,size * 0.5);
 
   // posSize.y += 0.15 * minSize(posSize);
