@@ -197,14 +197,14 @@ tr.${kmnClassName}.add-row {
 `;
 /**
  * @template {RecordVar} R
- * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T
+ * @template {import("../../KMN-varstack.js/TS/varstack.js").ArrayTableVarG<R>} T
  * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilderHTML {
   /**
    *
    * @param {HTMLElement} element
-   * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table
+   * @param {import("../../KMN-varstack.js/TS/varstack.js").ArrayTableVarG<R>} table
    * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options
    */
   constructor(element, table, options) {

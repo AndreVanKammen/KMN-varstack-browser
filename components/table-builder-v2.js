@@ -1,5 +1,5 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import { beforeAnimationFrame } from "../../KMN-utils-browser/animation-frame.js";
@@ -33,7 +33,7 @@ class TableContainerRectangle {
     this.handleRectUpdate();
   }
 
-  handleRectUpdate() { 
+  handleRectUpdate() {
     this.ourRectangle = this._owner.parentElement.getBoundingClientRect();
     this.scrollTop = this._owner.parentElement.scrollTop;
     this.scrollLeft = this._owner.parentElement.scrollLeft;
@@ -59,7 +59,7 @@ class TableContainerRectangle {
 }
 
 class TableRectangle {
-  
+
   constructor(owner, clickAction) {
     this.dataWebGLComponentHash = -1;
     this._owner = owner;
@@ -73,7 +73,7 @@ class TableRectangle {
     if (!this._element) {
       this._element = this._owner.parentElement.$el({ tag: 'div', cls: 't-div' });
     }
-  
+
     this._element.style.left = this.x + 'px';
     this._element.style.top = this.y + 'px';
     this._element.style.width = this.ourRectangle.width + 'px';
@@ -90,7 +90,7 @@ class TableRectangle {
       this.createAndUpdateElement();
     }
   }
-  
+
   /**
    * @returns {import("../TS/varstack-browser").IRect}
    */
@@ -119,10 +119,10 @@ class TableRectangle {
  */
 class RectElement {
   /**
-   * 
+   *
    * @param {TableBuilder} owner
-   * @param {ColumnInfo} column 
-   * @param {RowInfo} row 
+   * @param {ColumnInfo} column
+   * @param {RowInfo} row
    * @param {BaseVar} v
    */
   constructor(owner, column, row, v, bindingType) {
@@ -203,9 +203,9 @@ class ColumnInfo {
   /**
    * @param {TableBuilder} owner
    * @param {Number} x
-   * @param {String} fieldName 
-   * @param {String} headerName 
-   * @param {new(baseVar: BaseVar, rectangle: import("../TS/varstack-browser").IRectangle) => any} defaultBinding 
+   * @param {String} fieldName
+   * @param {String} headerName
+   * @param {new(baseVar: BaseVar, rectangle: import("../TS/varstack-browser").IRectangle) => any} defaultBinding
    */
   constructor(owner, x, fieldName, headerName, defaultBinding) {
     this._owner = owner;
@@ -228,16 +228,16 @@ class ColumnInfo {
 }
 
 /**
- * @template {RecordVar} R 
- * @template {import('../../../TS/data-model').ArrayTableVarG<R>} T 
+ * @template {RecordVar} R
+ * @template {import("../../KMN-varstack.js/TS/varstack.js").ArrayTableVarG<R>} T
  * @type {import('../TS/varstack-browser').TableBuilderG<T,R>}
  */
 class TableBuilder {
   /**
-   * 
-   * @param {HTMLElement} element 
-   * @param {import('../../../TS/data-model').ArrayTableVarG<R>} table 
-   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options 
+   *
+   * @param {HTMLElement} element
+   * @param {import("../../KMN-varstack.js/TS/varstack.js").ArrayTableVarG<R>} table
+   * @param {import('../TS/varstack-browser').TableBuilderOptions<import('../TS/varstack-browser').ArrayTableType<T>>} options
    */
   constructor(element, table, options) {
     addCSS('table-builder-vs', cssStr);
@@ -245,7 +245,7 @@ class TableBuilder {
     this.options = options || {};
     this.options.alternativeBindings = this.options.alternativeBindings || {};
     this.fieldNames = this.options.fieldNames;
-    
+
     this._rowHeight = 25;
 
     this.parentElement = element;
@@ -280,11 +280,11 @@ class TableBuilder {
 
     /** @type {Record<Number,RowInfo>} */
     this.rowCache = {}
-    
+
     if (!this.options.skipHeader) {
       this.headerRow = new RowInfo(this, 0, this._rowHeight);
     }
- 
+
     /** @type {ColumnInfo[]} */
     this.columns = [];
     let currentX = 0;
@@ -392,7 +392,7 @@ class TableBuilder {
   selectRow(rec, ix = -1) {
     if (ix === -1) {
       ix = this.table.findIxForElement(rec);
-    } 
+    }
     if (0 > ix || ix >= this.rows.length) {
       log.error("Index out of bound in selectRow");
     }
@@ -453,7 +453,7 @@ class TableBuilder {
     //       func.call(this, rec);
     //     };
     //   };
-    // } 
+    // }
   }
 
 
