@@ -111,7 +111,7 @@ export class DeltaUpDownControl extends ValuePointerControl {
         this.lastVal = this.value;
       }
       let dy = this.lastDeltaY - info.mouse.y;
-      this.value = this.lastVal + dy / 400.0;
+      this.value = this.lastVal + dy / 200.0;
     } else {
       this.lastDeltaY = -1;
       this.lastVal = this.value;
