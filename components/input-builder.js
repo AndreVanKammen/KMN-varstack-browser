@@ -99,7 +99,7 @@ class InputBuilder {
       // TODO button with popup table view
       if (this.options.showTableValues) {
         for (let ix = 0; ix < v.length; ix++) {
-          this.addRecord(v.element(ix), labelName + '[' + ix + ']');
+          this.addRecord(v.element(ix), labelName + '[' + ix + '].');
         }
       }
       // this.addRecord(v, labelName + '.');
