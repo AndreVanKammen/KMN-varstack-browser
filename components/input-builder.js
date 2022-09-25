@@ -1,5 +1,5 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import { BaseBinding, BaseVar } from '../../KMN-varstack.js/vars/base.js';
@@ -33,7 +33,7 @@ const cssStr = /*css*/`
 .${kmnClassName} td.isLabel {
   width: 160px;
 }
-.${kmnClassName} td.isValue { 
+.${kmnClassName} td.isValue {
   text-align: right;
   font-size: smaller;
   width: 20%;
@@ -59,6 +59,8 @@ const defaultOptions = {
   horizontal: false,
   hideInput: false,
   showValues: false,
+  showSubRecords: false,
+  showTableValues: false,
   onInputClick: (event, labelName, v) => { },
   onLabelClick: (event, labelName, v) => { }
 }
@@ -86,13 +88,20 @@ class InputBuilder {
    */
   addVar(v, labelName) {
     if (v instanceof RecordVar) {
-      // this.addRecord(v, labelName + '.');
+      if (this.options.showSubRecords) {
+        this.addRecord(v, labelName + '.');
+      }
       // Can't edit JSON in record, subFields are added anyway
       return;
     }
 
     if (v instanceof TableVar) {
       // TODO button with popup table view
+      if (this.options.showTableValues) {
+        for (let ix = 0; ix < v.length; ix++) {
+          this.addRecord(v.element(ix), labelName + '[' + ix + ']');
+        }
+      }
       // this.addRecord(v, labelName + '.');
       // Can't edit JSON in record, subFields are added anyway
       return;
@@ -117,7 +126,7 @@ class InputBuilder {
         input.binding.element.setAttribute('id', labelId);
       }
     }
-    
+
     // input.classList.add(v.$varType);
     if (this.options.showValues) {
       if (this.options.vertical) row = this.body.$el({ tag: 'tr' });
@@ -136,18 +145,18 @@ class InputBuilder {
       label,
       input
     }
-  }  
+  }
 
   /**
    * @param {RecordVar} rec
    */
-  addRecord(rec, prefix = '') { 
+  addRecord(rec, prefix = '') {
     for (var name of rec.$fieldNames) {
       let v = rec[name];
       if (v && v instanceof BaseVar) {
         this.addVar(v, prefix + name)
       }
-    }  
+    }
   }
 
   dispose() {
