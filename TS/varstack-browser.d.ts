@@ -1,7 +1,6 @@
 
 import { RecordVar } from "../../KMN-varstack.js/structures/record.js";
-import { BaseVar } from "../../KMN-varstack.js/vars/base.js";
-import { ArrayTableVarG } from "../../../TS/data-model.js";
+import { ArrayTableVarG } from "../../KMN-varstack.js/TS/varstack";
 
 export interface TableBuilderOptions<R> {
   alternativeBindings?: any;
