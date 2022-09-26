@@ -10,14 +10,14 @@ registerComponentShader(shaderName, /*glsl*/`
 
 vec4 renderComponent(vec2 center, vec2 size) {
   vec4 posSize = vec4((localCoord.xy-center) * vec2(1.0,-1.0),size * 0.5);
-  actionColor = vec3(0.7,0.0,0.0);
-  actionHoverColor = vec3(1.0,0.0,0.0);
+  actionColor = vec3(0.5+0.3*value.x+0.1*value.x*sin(float(drawCount)*0.05),0.0,0.0);
+  actionHoverColor = vec3(0.8+0.2*value.x,0.0,0.0);
 
   float playWidth = 0.8;
-  float maxS = minSize(posSize) * 0.65;
-  float distPlay = drw_Circle( posSize.xy, 0.8);
-  float distPause = drw_Rectangle(posSize.xy,vec2(0.0),vec2(maxS));
-  float dist = mix(distPlay,distPause,value.x)-maxS * 0.15;
+  float maxS = minSize(posSize) * 0.8;
+  float distRecord = drw_Circle( posSize.xy, maxS * 0.8);
+  float distStop = drw_Rectangle(posSize.xy,vec2(0.0),vec2(maxS));
+  float dist = mix(distRecord,distStop,value.x)-maxS * 0.15;
 
   return defaultColor(dist);
 }`);
