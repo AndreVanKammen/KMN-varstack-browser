@@ -1,5 +1,5 @@
 import { animationFrame } from "../../../KMN-utils-browser/animation-frame.js";
-import getWebGLContext, { RenderingContextWithUtils } from "../../../KMN-utils.js/webglutils.js";
+import getWebGLContext, { RenderingContextWithUtils, WebGLProgramExt } from "../../../KMN-utils.js/webglutils.js";
 import { BaseBinding } from "../../../KMN-varstack.js/vars/base.js";
 import { BaseDemoComponent } from "./component-base.js";
 import { ComponentShaderIncludes } from "./component-shader-includes.js";
@@ -219,7 +219,144 @@ export class RenderControl {
     this.registeredShaders = {};
     this.shaderCache = {};
     this.drawComponentsEnabled = true;
+    this.ignoreClipRect = false;
+    this.currentShader = null;
+    this.currentClipElement = null;
+    this.retinaDisabled = false;
+    this.vertexIDWorkaroundBuffer = null;
+    /** @type {Record<string,WebGLProgramExt>} */
+    this.webGLPrograms = {};
+
+    this.shaderOptions = {
+      vertexIDDisabled: false
+    }
   }
+
+  /**
+   * Makes an int array GL buffer with 1,2,3, etc because Vertex_ID is unstable on Mac (Retina 5K, Late 2015) AMD Radeon R9 M395X 4 GB
+   * I use this as a vertex buffer to circumvent that problem
+   * @returns {WebGLBuffer}
+   */
+   getVertex_IDWorkaroundBuffer() {
+    const gl = this.gl;
+    if (!this.vertexIDWorkaroundBuffer) {
+      const maxVertexID = 1024 * 1024 * 4;
+      let data = new Float32Array(maxVertexID); // Can't get Int to work on my mac :( Vertex shader input type does not match the type of the bound vertex attribute. int
+
+      for (let ix = 0; ix < maxVertexID; ix++) {
+        data[ix] = ix;
+      }
+      this.vertexIDWorkaroundBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexIDWorkaroundBuffer)
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_READ);
+    }
+    return this.vertexIDWorkaroundBuffer;
+  }
+
+  disableVertexID(val) {
+    this.shaderOptions.vertexIDDisabled = val;
+  }
+
+  getVertexIDDiabled(val) {
+    return this.shaderOptions.vertexIDDisabled;
+  }
+
+  disableRetina(val) {
+    this.retinaDisabled = val;
+  }
+
+  updateCanvasSize() {
+    if (!this.canvasSize) {
+      const canvas = this.canvas;
+      let dpr = devicePixelRatio;
+      if (this.retinaDisabled) {
+        dpr = Math.min(dpr, 1);
+      }
+      let w = canvas.offsetWidth * dpr;
+      let h = canvas.offsetHeight * dpr;
+      if (w !== canvas.width ||
+        h !== canvas.height) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      this.canvasSize = { w, h, dpr };
+    }
+
+    return this.canvasSize;
+  }
+
+  /**
+   *
+   * @param {string} shaderId
+   * @param {(options)=>String} vertFunc
+   * @param {(options)=>String} fragFunc
+   * @returns {WebGLProgramExt}
+   */
+  checkUpdateShader2(shaderId, vertFunc, fragFunc) {
+    const gl = this.gl;
+    let shader = this.webGLPrograms[shaderId];
+    let vertStr = vertFunc(this.shaderOptions);
+    let fragStr = fragFunc(this.shaderOptions);
+    if (!shader ||
+        (vertStr !== shader.lastVertStr) ||
+        (fragStr !== shader.lastFragStr)) {
+      shader = gl.getShaderProgram(
+        vertStr,
+        fragStr,
+        2);
+      console.log('Shader loaded: ', shaderId);
+      shader.lastVertStr = vertStr;
+      shader.lastFragStr = fragStr;
+      this.webGLPrograms[shaderId] = shader;
+    }
+    return shader;
+  }
+
+  updateShaderAndSize(obj, shader, parentElement, clipElement = null) {
+    // TODO: This needs to be cleared after every frame!
+    const gl = this.gl
+    if (this.currentShader !== shader || (clipElement !== this.currentClipElement && !this.ignoreClipRect)) {
+      this.currentShader = shader;
+      this.currentClipElement = clipElement;
+
+      let { w, h, dpr } = this.updateCanvasSize();
+      let ch = h;
+      let rect = parentElement.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        gl.viewport(rect.x * dpr, h - (rect.y + rect.height) * dpr, rect.width * dpr, rect.height * dpr);
+        obj.width = w = rect.width * dpr;
+        obj.height = h = rect.height * dpr;
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.useProgram(shader);
+
+        shader.u.windowSize?.set(w, h);
+        shader.u.dpr?.set(dpr);
+      }
+
+      if (!this.ignoreClipRect) {
+        if (clipElement) {
+          let clipRect = clipElement.getBoundingClientRect();
+          gl.scissor(clipRect.x * dpr,
+            ch - (clipRect.y + clipElement.clientHeight) * dpr,
+            clipElement.clientWidth * dpr,
+            clipElement.clientHeight * dpr);
+          gl.enable(gl.SCISSOR_TEST);
+        } else {
+          gl.disable(gl.SCISSOR_TEST);
+        }
+      }
+
+      this.currentShaderSize = { w, h };
+      return w > 0 && h > 0;
+    } else {
+      let size = this.currentShaderSize;
+      obj.width = size.w;
+      obj.height = size.h;
+      return size.w > 0 && size.h > 0;
+    }
+  }
+
 
   /**
    *
@@ -304,7 +441,7 @@ export class RenderControl {
 
   drawComponents() {
     let gl = this.gl;
-    let { w, h, dpr } = gl.updateCanvasSize(this.canvas);
+    let { w, h, dpr } = this.updateCanvasSize();
     this.dpr = dpr;
 
     let componentLength = 0;
@@ -432,6 +569,9 @@ export class RenderControl {
 
   handleFrame = () => {
     if (!this.drawingDisabled) {
+      this.currentShader = null;
+      this.currentClipElement = null;
+      this.canvasSize = null;
       this.drawCount++;
       if (this.drawCount % this.frameDivider === 0) {
         try {
@@ -461,6 +601,7 @@ export class RenderControl {
         }
       }
     }
+    this.gl.disable(this.gl.SCISSOR_TEST);
     animationFrame(this.handleFrame);
   }
 
