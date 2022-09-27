@@ -87,8 +87,8 @@ function getComponentKey(clipHash, shaderName) {
 
 export class ComponentInfo {
   /**
-   * 
-   * @param {RenderControl} owner 
+   *
+   * @param {RenderControl} owner
    */
   constructor(owner) {
     this.owner = owner;
@@ -119,8 +119,8 @@ export class ComponentInfo {
     return getComponentKey(this.clipHash, this.shaderName);
   }
   /**
-   * @param {UpdateFunc} onUpdate 
-   * @returns {RectInfo} 
+   * @param {UpdateFunc} onUpdate
+   * @returns {RectInfo}
    */
   getFreeIndex(onUpdate) {
     const rectInfo = new RectInfo();
@@ -138,7 +138,7 @@ export class ComponentInfo {
   }
 
   /**
-   * @param {RenderingContextWithUtils} gl 
+   * @param {RenderingContextWithUtils} gl
    */
   getShaderProgram(gl) {
     if (this._shaderProgram === undefined) {
@@ -180,8 +180,8 @@ class CanvasUpdateGroup {
 
 class CanvasUpdateRoutine {
   /**
-   * @param {CanvasUpdateGroup} owner 
-   * @param {()=>void} routine 
+   * @param {CanvasUpdateGroup} owner
+   * @param {()=>void} routine
    * @param {import("../../TS/varstack-browser.js").IRectangle} clipElement
    */
   constructor(owner, routine, clipElement) {
@@ -198,7 +198,7 @@ class CanvasUpdateRoutine {
 }
 
 
-/** @type {RenderControl} */ 
+/** @type {RenderControl} */
 let renderControl = null;
 const floatSizePerComponent = 16;
 export class RenderControl {
@@ -218,12 +218,13 @@ export class RenderControl {
     /** @type {Record<string,{demoClass:{new(levelVar, element, shaderName) : BaseDemoComponent}, controlClass: {new(el)}}>} */
     this.registeredShaders = {};
     this.shaderCache = {};
+    this.drawComponentsEnabled = true;
   }
 
   /**
-   * 
-   * @param {ComponentInfo} info 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
+   *
+   * @param {ComponentInfo} info
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
    static setClipBoxFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -233,9 +234,9 @@ export class RenderControl {
     info.clipRect.y = box.y;
   }
   /**
-   * 
-   * @param {RectInfo} info 
-   * @param {import("../../TS/varstack-browser.js").IRectangle} element 
+   *
+   * @param {RectInfo} info
+   * @param {import("../../TS/varstack-browser.js").IRectangle} element
    */
   static setBoxDataFromElement(info, element) {
     let box = element.getBoundingClientRect();
@@ -256,7 +257,7 @@ export class RenderControl {
    * Register another routine that draws on the canvas, they are grouped by name
    * @param {string} name
    * @param {() => {}} updateCanvasRoutine
-   * @param {import("../../TS/varstack-browser.js").IRectangle} clipElement 
+   * @param {import("../../TS/varstack-browser.js").IRectangle} clipElement
    * @returns {CanvasUpdateRoutine} Id for the registered routine, unique for its name
    */
   registerCanvasUpdate(name, updateCanvasRoutine, clipElement) {
@@ -270,9 +271,9 @@ export class RenderControl {
   }
 
   /**
-   * @param {number} clipHash 
-   * @param {string} shaderName 
-   * @param {ComponentUpdateFunc} onUpdate 
+   * @param {number} clipHash
+   * @param {string} shaderName
+   * @param {ComponentUpdateFunc} onUpdate
    */
   getComponentInfo(clipHash, shaderName, onUpdate) {
     const key = getComponentKey(clipHash, shaderName)
@@ -289,7 +290,7 @@ export class RenderControl {
 
   /**
    * Give a full screen overlayCanvas in which all the controls are rendered
-   * @param {HTMLCanvasElement} canvas 
+   * @param {HTMLCanvasElement} canvas
    */
   setCanvas(canvas) {
     this.canvas = canvas;
@@ -344,18 +345,18 @@ export class RenderControl {
                   wa[pos++] = si.rect.y;
                   wa[pos++] = si.rect.width;
                   wa[pos++] = si.rect.height;
-  
+
                   // Control size center, width,height
                   wa[pos++] = si.size.centerX;
                   wa[pos++] = si.size.centerY;
                   wa[pos++] = si.size.width;
                   wa[pos++] = si.size.height;
-              
+
                   wa[pos++] = si.mouse.x;
                   wa[pos++] = si.mouse.y;
                   wa[pos++] = si.mouse.state;
                   wa[pos++] = si.mouse.enterTime;
-  
+
                   wa[pos++] = si.value[0];
                   wa[pos++] = si.value[1];
                   wa[pos++] = si.value[2];
@@ -434,7 +435,9 @@ export class RenderControl {
       this.drawCount++;
       if (this.drawCount % this.frameDivider === 0) {
         try {
-          this.drawComponents();
+          if (this.drawComponentsEnabled) {
+            this.drawComponents();
+          }
           this.errorCount = 0;
         } catch (e) {
           if (this.errorCount++ < 2) {
@@ -473,9 +476,9 @@ export class RenderControl {
   }
 
   /**
-   * 
-   * @param {string} shaderName 
-   * @param {{new(levelVar, element, shaderName)}} demoClass 
+   *
+   * @param {string} shaderName
+   * @param {{new(levelVar, element, shaderName)}} demoClass
    * @param {{new(...params)}} controlClass
    */
   registerShader(shaderName, demoClass, controlClass) {
@@ -490,8 +493,8 @@ export class RenderControl {
 
   // TODO move these functions to str utils or so
   /**
-   * 
-   * @param {string} str 
+   *
+   * @param {string} str
    * @returns {string[]}
    */
   strToLines(str) {
@@ -531,7 +534,7 @@ export class RenderControl {
       return sc.compileInfo;
     }
     let compileInfo = this.gl.getCompileInfo(
-      baseComponentShaderHeader + 
+      baseComponentShaderHeader +
       this.handleIncludes(source) +
       baseComponentShaderFooter,
       this.gl.FRAGMENT_SHADER,
@@ -566,7 +569,7 @@ let webGLElementHashCount = 1;
 export function getElementHash(element)  {
   if (!element.dataWebGLComponentHash) {
     element.dataWebGLComponentHash = webGLElementHashCount++;
-  } 
+  }
   return element.dataWebGLComponentHash;
 }
 
@@ -579,7 +582,7 @@ export function getElementHash(element)  {
     ShaderProgram => placeholder for vertex+fragment shader and
     Controller => placeholder for mouse/touch/kbd control behaviour, calls ShaderInfo to set a set of parameters
     Component => Placeholder for a component class => shaderProgram + controller
-    
+
     ClipInfo => Placeholder for the clipping rectangle
     RectInfo => Placeholder for the drawing rectangle
 
@@ -588,7 +591,7 @@ export function getElementHash(element)  {
       ClipInfo
       RectInfo
 
-    RenderInfoGroup 
+    RenderInfoGroup
       ComponentInfo
       ClipInfo
       instances
@@ -605,7 +608,7 @@ export function getElementHash(element)  {
     Can we use uniform blocks to speed up things
 
   Steps to render
-    group by ShaderProgram & ClipInfo 
+    group by ShaderProgram & ClipInfo
       -now done in draw per frame, better to prepare and assign place in vertex pull array for all components
       -loop with scissor function after loading shader doing the draw calls per clip region
       -drawCalls can be called per block (like now)
