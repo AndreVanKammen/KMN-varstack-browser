@@ -211,6 +211,7 @@ export class RenderControl {
     this._textureInfo = { texture: undefined, size: 0, bufferWidth: 1024 }
     /** @type {Record<string,CanvasUpdateGroup>} */
     this._otherCanvasRoutines = {};
+    this._otherCanvasKeys = [];
     this.drawingDisabled = false;
     this.frameDivider = 1;
     this.errorCount = 0;
@@ -226,6 +227,7 @@ export class RenderControl {
     this.vertexIDWorkaroundBuffer = null;
     /** @type {Record<string,WebGLProgramExt>} */
     this.webGLPrograms = {};
+    this.calcTimeAvg = 1;
 
     this.shaderOptions = {
       vertexIDDisabled: false
@@ -315,6 +317,7 @@ export class RenderControl {
   updateShaderAndSize(obj, shader, parentElement, clipElement = null) {
     // TODO: This needs to be cleared after every frame!
     const gl = this.gl
+    this.shaderRuns++;
     if (this.currentShader !== shader || (clipElement !== this.currentClipElement && !this.ignoreClipRect)) {
       this.currentShader = shader;
       this.currentClipElement = clipElement;
@@ -323,11 +326,12 @@ export class RenderControl {
       let ch = h;
       let rect = parentElement.getBoundingClientRect();
       if (rect.width && rect.height) {
+        this.viewBoxSet++;
         gl.viewport(rect.x * dpr, h - (rect.y + rect.height) * dpr, rect.width * dpr, rect.height * dpr);
         obj.width = w = rect.width * dpr;
         obj.height = h = rect.height * dpr;
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this.shadersLoaded++;
         gl.useProgram(shader);
 
         shader.u.windowSize?.set(w, h);
@@ -337,6 +341,7 @@ export class RenderControl {
       if (!this.ignoreClipRect) {
         if (clipElement) {
           let clipRect = clipElement.getBoundingClientRect();
+          this.clipBoxSet++;
           gl.scissor(clipRect.x * dpr,
             ch - (clipRect.y + clipElement.clientHeight) * dpr,
             clipElement.clientWidth * dpr,
@@ -404,6 +409,7 @@ export class RenderControl {
     }
     let canvasRoutine = new CanvasUpdateRoutine(canvasUpdateGroup, updateCanvasRoutine, clipElement)
     canvasUpdateGroup.routines.push(canvasRoutine);
+    this._otherCanvasKeys = Object.keys(this._otherCanvasRoutines);
     return canvasRoutine;
   }
 
@@ -515,11 +521,6 @@ export class RenderControl {
       }
       // console.log(pos / 16);
     }
-    gl.viewport(0, 0, w, h);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    // gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(this.gl.BLEND);
-    gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
     gl.enable(gl.SCISSOR_TEST);
 
@@ -528,6 +529,8 @@ export class RenderControl {
       const length = rd.componentLength;
       const clipRect = rd.component.clipRect;
       const shaderProgram = rd.component.getShaderProgram(gl);
+      this.shaderRuns++;
+      this.shadersLoaded++;
       gl.useProgram(shaderProgram);
       // if (rd.component.shaderName === 'music-keyboard') {
       //   if (this.drawCount % 30 === 0) {
@@ -550,6 +553,7 @@ export class RenderControl {
       if (rd.foreground) {
         gl.disable(gl.SCISSOR_TEST);
       } else {
+        this.clipBoxSet++;
         gl.scissor(clipRect.x * dpr,
           h - (clipRect.y + clipRect.height) * dpr,
           clipRect.width * dpr,
@@ -560,7 +564,6 @@ export class RenderControl {
       gl.drawArrays(gl.TRIANGLES, 0, length * 6);
     }
     gl.disable(gl.SCISSOR_TEST);
-
   }
 
   disableDrawing(state) {
@@ -569,11 +572,27 @@ export class RenderControl {
 
   handleFrame = () => {
     if (!this.drawingDisabled) {
-      this.currentShader = null;
-      this.currentClipElement = null;
-      this.canvasSize = null;
       this.drawCount++;
       if (this.drawCount % this.frameDivider === 0) {
+        let start = globalThis.performance.now();
+        this.currentShader = null;
+        this.currentClipElement = null;
+        this.canvasSize = null;
+        this.shaderRuns = 0;
+        this.shadersLoaded = 0;
+        this.viewBoxSet = 0;
+        this.clipBoxSet = 0;
+        this.canvasRoutines = 0;
+
+        let { w, h, dpr } = this.updateCanvasSize();
+        const gl = this.gl;
+        gl.viewport(0, 0, w, h);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.enable(this.gl.BLEND);
+        gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+
         try {
           if (this.drawComponentsEnabled) {
             this.drawComponents();
@@ -585,11 +604,13 @@ export class RenderControl {
           }
         }
 
+
         // Draw other canvas functions
-        for (let key of Object.keys(this._otherCanvasRoutines)) {
+        for (let key of this._otherCanvasKeys) {
           let routines = this._otherCanvasRoutines[key];
           try {
             for (let routine of routines.routines) {
+              this.canvasRoutines++;
               routine.routine();
             }
             routines.errorCount = 0;
@@ -599,6 +620,13 @@ export class RenderControl {
             }
           }
         }
+
+        if (this.drawCount % 60 === 0) {
+          // console.log('SD:',this._otherCanvasKeys.length, this.canvasRoutines, this.shaderRuns, this.shadersLoaded, this.viewBoxSet, this.clipBoxSet);
+        }
+
+        let stop = globalThis.performance.now();
+        this.calcTimeAvg = this.calcTimeAvg * 0.99 + 0.01 * (stop - start);
       }
     }
     this.gl.disable(this.gl.SCISSOR_TEST);
