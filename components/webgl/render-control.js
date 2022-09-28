@@ -5,16 +5,16 @@ import { BaseDemoComponent } from "./component-base.js";
 import { ComponentShaderIncludes } from "./component-shader-includes.js";
 import { ComponentShaders } from "./component-shaders.js";
 
-const baseVertexShader = /*glsl*/`
+const getBaseVertexShader = (options) => /*glsl*/`
 uniform sampler2D dataTexture;
 uniform vec2 canvasResolution;
 uniform float dpr;
 uniform int startIX;
 out vec2 localCoord;
 
-flat out vec4 posAndSize;
-flat out vec4 mouse;
-flat out vec4 value;
+${options.flat}out vec4 posAndSize;
+${options.flat}out vec4 mouse;
+${options.flat}out vec4 value;
 
 void main(void) {
   int dataIx = (startIX + (gl_VertexID / 6)) * 4;
@@ -41,15 +41,20 @@ void main(void) {
   gl_Position = vec4((boxPoint.yw * dpr / canvasResolution) * vec2(2.0,-2.0) + vec2(-1.0,1.0), 1.0, 1.0);
 }`;
 
-export const baseComponentShaderHeader = /*glsl*/`
+/**
+ *
+ * @param {{flat:string}} options
+ * @returns
+ */
+export const getBaseComponentShaderHeader = (options) => /*glsl*/`
 precision highp float;
 
 uniform int drawCount;
 
 in vec2 localCoord;
-flat in vec4 posAndSize;
-flat in vec4 mouse;
-flat in vec4 value;
+${options.flat}in vec4 posAndSize;
+${options.flat}in vec4 mouse;
+${options.flat}in vec4 value;
 
 #define mouseInsideOrDown (mouse.z>0.0)
 #define mouseInside ((int(mouse.z) & 0x01) != 0)
@@ -109,7 +114,7 @@ export class ComponentInfo {
   }
 
   handleGetShader() {
-    return baseComponentShaderHeader + ComponentShaders[this.shaderName] + baseComponentShaderFooter;
+    return getBaseComponentShaderHeader(this.owner.shaderOptions) + ComponentShaders[this.shaderName] + baseComponentShaderFooter;
   }
 
   get isVisible() {
@@ -148,7 +153,7 @@ export class ComponentInfo {
         this._shaderProgram = sc.shaderProgram;
       } else {
         this._shaderProgram = gl.getShaderProgram(
-          baseVertexShader,
+          getBaseVertexShader(this.owner.shaderOptions),
           this.owner.handleIncludes(this.getShader()),
           // this.shaderHeader +
           //   ComponentShaders[this.shaderName] +
@@ -230,7 +235,8 @@ export class RenderControl {
     this.calcTimeAvg = 1;
 
     this.shaderOptions = {
-      vertexIDDisabled: false
+      vertexIDDisabled: false,
+      flat: 'flat '
     }
   }
 
@@ -703,7 +709,7 @@ export class RenderControl {
       return sc.compileInfo;
     }
     let compileInfo = this.gl.getCompileInfo(
-      baseComponentShaderHeader +
+      getBaseComponentShaderHeader(this.shaderOptions) +
       this.handleIncludes(source) +
       baseComponentShaderFooter,
       this.gl.FRAGMENT_SHADER,
