@@ -1,5 +1,5 @@
 // Copyright by André van Kammen
-// Licensed under CC BY-NC-SA 
+// Licensed under CC BY-NC-SA
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 import { IDB, idb } from "../../KMN-utils-browser/indexed-db.js";
@@ -20,7 +20,7 @@ const tableExtention = '-table';
 
 class IndexedDBBlobBinding {
   /**
-   * 
+   *
    * @param {BlobBaseVar} blobVar
    * @param {IDB} idb
    * @param {string} baseStorageName
@@ -62,11 +62,11 @@ class IndexedDBBlobBinding {
 
 class IndexedDBRecordBindingBase {
   /**
-   * 
-   * @param {RecordVar} varToStore 
-   * @param {IDB} idb 
-   * @param {string} baseStorageName 
-   * @param {string} keyValue 
+   *
+   * @param {RecordVar} varToStore
+   * @param {IDB} idb
+   * @param {string} baseStorageName
+   * @param {string} keyValue
    * @param {boolean} doGet
    */
   constructor(varToStore, idb, baseStorageName, keyValue, doGet = true) {
@@ -132,10 +132,10 @@ class IndexedDBRecordBindingBase {
 
 export class IndexedDBRecordBinding extends IndexedDBRecordBindingBase {
   /**
-   * 
-   * @param {RecordVar} varToStore 
-   * @param {IDB} idb 
-   * @param {string} baseStorageName 
+   *
+   * @param {RecordVar} varToStore
+   * @param {IDB} idb
+   * @param {string} baseStorageName
    */
   constructor(varToStore, idb, baseStorageName) {
     const keyFieldName = varToStore.$keyFieldName;
@@ -147,10 +147,10 @@ export class IndexedDBRecordBinding extends IndexedDBRecordBindingBase {
 export class IndexedDBTableBinding {
   /**
    * Creates a link between a varstack table and a indexed-db store
-   * @param {ArrayTableVar} tableToStore 
-   * @param {IDB} idb 
-   * @param {string} baseStorageName 
-   * @param {any} defaultData 
+   * @param {ArrayTableVar} tableToStore
+   * @param {IDB} idb
+   * @param {string} baseStorageName
+   * @param {any} defaultData
    * @param {string} prependKey
    * @param {boolean} preLoadData
    */
@@ -213,7 +213,7 @@ export class IndexedDBTableBinding {
     if (result) {
       let el = this.tableToStore.add(result);
       this.checkBinding(el, false);
-      return el; 
+      return el;
     } else {
       return null;
     }
@@ -235,7 +235,7 @@ export class IndexedDBTableBinding {
     // this.checkBinding(el, false);
     // return el;
   }
-  
+
   async loadKeysStartingWith(keyValue) {
     await this.idb.getAllStartingWith(this.tableStorageName, keyValue).then((result) => {
       if (result) {
