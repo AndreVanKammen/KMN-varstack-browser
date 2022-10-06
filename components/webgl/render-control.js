@@ -288,8 +288,8 @@ export class RenderControl {
         h !== canvas.height) {
         canvas.width = w;
         canvas.height = h;
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
       }
       this.canvasSize = { w, h, dpr };
     }
