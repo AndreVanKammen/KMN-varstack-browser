@@ -280,12 +280,16 @@ export class RenderControl {
       if (this.retinaDisabled) {
         dpr = Math.min(dpr, 1);
       }
-      let w = canvas.offsetWidth * dpr;
-      let h = canvas.offsetHeight * dpr;
+      // let w = canvas.offsetWidth * dpr;
+      // let h = canvas.offsetHeight * dpr;
+      let w = window.innerWidth * dpr;
+      let h = window.innerHeight * dpr;
       if (w !== canvas.width ||
         h !== canvas.height) {
         canvas.width = w;
         canvas.height = h;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
       }
       this.canvasSize = { w, h, dpr };
     }
