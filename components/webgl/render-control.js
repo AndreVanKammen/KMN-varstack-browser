@@ -346,6 +346,9 @@ export class RenderControl {
 
         shader.u.windowSize?.set(w, h);
         shader.u.dpr?.set(dpr);
+      } else {
+        obj.width = w = 0;
+        obj.height = h = 0;
       }
 
       if (!this.ignoreClipRect) {
@@ -632,7 +635,7 @@ export class RenderControl {
         }
 
         if (this.drawCount % 60 === 0) {
-          // console.log('SD:',this._otherCanvasKeys.length, this.canvasRoutines, this.shaderRuns, this.shadersLoaded, this.viewBoxSet, this.clipBoxSet);
+          console.log('SD:',this._otherCanvasKeys.length, this.canvasRoutines, this.shaderRuns, this.shadersLoaded, this.viewBoxSet, this.clipBoxSet);
         }
 
         let stop = globalThis.performance.now();
