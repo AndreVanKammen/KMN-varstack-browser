@@ -635,7 +635,7 @@ export class RenderControl {
         }
 
         if (this.drawCount % 60 === 0) {
-          console.log('SD:',this._otherCanvasKeys.length, this.canvasRoutines, this.shaderRuns, this.shadersLoaded, this.viewBoxSet, this.clipBoxSet);
+          // console.log('SD:',this._otherCanvasKeys.length, this.canvasRoutines, this.shaderRuns, this.shadersLoaded, this.viewBoxSet, this.clipBoxSet);
         }
 
         let stop = globalThis.performance.now();
