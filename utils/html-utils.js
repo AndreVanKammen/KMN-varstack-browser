@@ -221,10 +221,14 @@ button.${kmnClassName} {
 button.${kmnClassName}:hover {
   background: var(--activeHoverColor);
   color: var(--activeforeHoverColor);
+  stroke: var(--activeforeHoverColor);
+  fill: var(--activeforeHoverColor);
 }
 button.${kmnClassName}.selected {
   background: var(--activeColor);
   color: var(--activeforeGroundColor);
+  stroke: var(--activeforeGroundColor);
+  fill: var(--activeforeGroundColor);
   border: 2px solid yellow;
 }
 
@@ -254,9 +258,13 @@ HTMLElement.prototype.$el = function element(opt) {
   return el;
 };
 
-HTMLElement.prototype.$button = function addButton(str, onClick, cls) {
+HTMLElement.prototype.$button = function addButton(textOrSvg, onClick, cls) {
   let button = this.$el({ tag: 'button', cls });
-  button.$setTextNode(str);
+  if (textOrSvg && textOrSvg[0] === '<') {
+    button.innerHTML = textOrSvg;
+  } else {
+    button.$setTextNode(textOrSvg);
+  }
   button.onclick = onClick;
   return button;
 }
