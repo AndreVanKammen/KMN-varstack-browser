@@ -211,7 +211,12 @@ export class IndexedDBTableBinding {
   async findKeyAsync(keyValue) {
     let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
     if (result) {
-      let el = this.tableToStore.add(result);
+      let el = this.tableToStore.find(this.keyFieldName, keyValue);
+      if (el) {
+        el.$v = result;
+      } else {
+        el = this.tableToStore.add(result);
+      }
       this.checkBinding(el, false);
       return el;
     } else {
