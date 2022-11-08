@@ -265,7 +265,7 @@ export class IndexedDBTableBinding {
     for (let ix = 0; ix < this.tableToStore.length; ix++) {
       let el = this.tableToStore.element(ix);
       if (el) {
-        this.checkBinding(el, true);
+        this.checkBinding(el, false);
       }
     }
   }
