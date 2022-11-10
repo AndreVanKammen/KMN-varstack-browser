@@ -31,7 +31,7 @@ class InputPanel extends PanelBase {
    */
   initializeDOM(parentElement) {
     super.initializeDOM(parentElement);
-    addCSS('table-panel',cssStr);
+    addCSS('input-panel',cssStr);
 
     this.inputDiv = this.parentElement.$el({ cls: "inputDiv" });
 
