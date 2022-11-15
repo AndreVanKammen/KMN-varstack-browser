@@ -215,7 +215,13 @@ export class IndexedDBTableBinding {
       if (el) {
         el.$v = result;
       } else {
-        el = this.tableToStore.add(result);
+        if (result[this.keyFieldName] === keyValue) {
+          el = this.tableToStore.add(result);
+        }
+      }
+      if (el[this.keyFieldName].$v !== keyValue) {
+        el[this.keyFieldName].$v = keyValue;
+        console.error('Incorrect dabase key restored ',el.toObject())
       }
       this.checkBinding(el, false);
       return el;
