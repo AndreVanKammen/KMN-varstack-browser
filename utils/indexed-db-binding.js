@@ -219,11 +219,13 @@ export class IndexedDBTableBinding {
           el = this.tableToStore.add(result);
         }
       }
-      if (el[this.keyFieldName].$v !== keyValue) {
-        el[this.keyFieldName].$v = keyValue;
-        console.error('Incorrect dabase key restored ',el.toObject())
+      if (el) {
+        if (el[this.keyFieldName].$v !== keyValue) {
+          el[this.keyFieldName].$v = keyValue;
+          console.error('Incorrect dabase key restored ', el.toObject())
+        }
+        this.checkBinding(el, false);
       }
-      this.checkBinding(el, false);
       return el;
     } else {
       return null;
