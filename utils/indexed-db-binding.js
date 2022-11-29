@@ -196,10 +196,14 @@ export class IndexedDBTableBinding {
       getQuery.then((result) => {
         if (result) {
           this.justCreated = false;
-          // TODO: Sparse loading?
-          for (let entry of result) {
-            let el = this.tableToStore.add(entry);
-            this.checkBinding(el, false);
+          try {
+            this.tableToStore.$beginLoading();
+            for (let entry of result) {
+              let el = this.tableToStore.add(entry);
+              this.checkBinding(el, false);
+            }
+          } finally {
+            this.tableToStore.$endLoading();
           }
         }
       }).finally(loadingFinished);
@@ -212,19 +216,24 @@ export class IndexedDBTableBinding {
     let result = await this.idb.getStoreValue(this.tableStorageName, keyValue);
     if (result) {
       let el = this.tableToStore.find(this.keyFieldName, keyValue);
-      if (el) {
-        el.$v = result;
-      } else {
-        if (result[this.keyFieldName] === keyValue) {
-          el = this.tableToStore.add(result);
+      this.tableToStore.$beginLoading();
+      try {
+        if (el) {
+          el.$v = result;
+        } else {
+          if (result[this.keyFieldName] === keyValue) {
+            el = this.tableToStore.add(result);
+          }
         }
-      }
-      if (el) {
-        if (el[this.keyFieldName].$v !== keyValue) {
-          el[this.keyFieldName].$v = keyValue;
-          console.error('Incorrect dabase key restored ', el.toObject())
+        if (el) {
+          if (el[this.keyFieldName].$v !== keyValue) {
+            el[this.keyFieldName].$v = keyValue;
+            console.error('Incorrect dabase key restored ', el.toObject())
+          }
+          this.checkBinding(el, false);
         }
-        this.checkBinding(el, false);
+      } finally {
+        this.tableToStore.$endLoading();
       }
       return el;
     } else {
@@ -252,9 +261,14 @@ export class IndexedDBTableBinding {
   async loadKeysStartingWith(keyValue) {
     await this.idb.getAllStartingWith(this.tableStorageName, keyValue).then((result) => {
       if (result) {
-        for (let entry of result) {
-          let el = this.tableToStore.add(entry);
-          this.checkBinding(el, false);
+        try {
+          this.tableToStore.$beginLoading();
+          for (let entry of result) {
+            let el = this.tableToStore.add(entry);
+            this.checkBinding(el, false);
+          }
+        } finally {
+          this.tableToStore.$endLoading();
         }
       }
     });
