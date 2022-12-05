@@ -160,7 +160,7 @@ export class ComponentInfo {
           // this.shaderFooter,
           2
         );
-        console.info('Shader compiled: ', this.shaderName);
+        // console.info('Shader compiled: ', this.shaderName);
         this.owner.shaderCache[this.shaderName] = {
           ...this.owner.shaderCache[this.shaderName],
           ...{
@@ -316,7 +316,7 @@ export class RenderControl {
         vertStr,
         fragStr,
         2);
-      console.info('Shader loaded: ', shaderId);
+      // console.info('Shader loaded: ', shaderId);
       shader.lastVertStr = vertStr;
       shader.lastFragStr = fragStr;
       this.webGLPrograms[shaderId] = shader;
